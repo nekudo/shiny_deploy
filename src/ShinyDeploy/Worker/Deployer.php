@@ -1,6 +1,7 @@
 <?php namespace ShinyDeploy\Worker;
 
 use ShinyDeploy\Core\Worker;
+use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\WorkerException;
 
 class Deployer extends Worker
@@ -28,8 +29,14 @@ class Deployer extends Worker
         try {
             $this->countJob();
             $params = json_decode($Job->workload(), true);
+            if (empty($params['clientId'])) {
+                throw new WebsocketException('Can not handle job. No uuid provided.');
+            }
+            $clientId = $params['clientId'];
 
-            // @todo do something...
+            sleep(3);
+
+            $this->wsLog($clientId, 'Job done.');
 
         } catch (WorkerException $e) {
             $this->logger->alert(
