@@ -2,6 +2,7 @@
 
 use Apix\Log\Logger;
 use Noodlehaus\Config;
+use ShinyDeploy\Exceptions\WorkerException;
 
 abstract class Worker
 {
@@ -23,6 +24,9 @@ abstract class Worker
     /** @var  Logger $logger */
     protected $logger;
 
+    /** @var  \ZMQContext $zmqContext */
+    protected $zmqContext;
+
     abstract protected function startup();
 
     public function __construct($workerName, Config $config, Logger $logger)
@@ -37,6 +41,8 @@ abstract class Worker
             $this->config->get('gearman.host'),
             $this->config->get('gearman.port')
         );
+
+        $this->zmqContext = new \ZMQContext;
 
         // Register methods every worker has:
         $this->GearmanWorker->addFunction('ping_' . $this->workerName, array($this, 'ping'));
@@ -88,5 +94,43 @@ abstract class Worker
             'uptime_seconds' => $uptimeSeconds,
         ];
         $Job->sendData(json_encode($response));
+    }
+
+    /**
+     * Sends a log message to websocket server.
+     *
+     * @param string $clientId Unique identifier for client.
+     * @param string $msg
+     * @param string $type
+     * @throws WorkerException
+     */
+    protected function wsLog($clientId, $msg, $type = 'default')
+    {
+        if (empty($clientId)) {
+            throw new WorkerException('Required parameter missing.');
+        }
+        $pushData = [
+            'clientId' => $clientId,
+            'wsEventName' => 'log',
+            'wsEventParams' => [
+                'source' => $this->workerName,
+                'type' => $type,
+                'text' => $msg,
+            ],
+        ];
+        $this->zmqSend($pushData);
+    }
+
+    /**
+     * Sends a message to using zqm.
+     *
+     * @param array $data
+     */
+    protected function zmqSend(array $data)
+    {
+        $zmqSocket = $this->zmqContext->getSocket(\ZMQ::SOCKET_PUSH);
+        $zmqSocket->connect('tcp://localhost:5556');
+        $zmqSocket->send(json_encode($data));
+        $zmqSocket->disconnect('tcp://localhost:5556');
     }
 }

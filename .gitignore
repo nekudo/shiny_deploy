@@ -14,3 +14,4 @@ vendor
 composer.lock
 src/ShinyDeploy/config.php
 logs/*.log
+node_modules
