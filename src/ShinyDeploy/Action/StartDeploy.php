@@ -1,7 +1,9 @@
 <?php
 namespace ShinyDeploy\Action;
 
-class StartDeploy
+use ShinyDeploy\Core\Action;
+
+class StartDeploy extends Action
 {
     /**
      * This action is called by the websocket server to pass a deployment
@@ -13,7 +15,7 @@ class StartDeploy
     public function __invoke($params)
     {
         $client = new \GearmanClient;
-        $client->addServer('127.0.0.1', 4730);
+        $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $payload = json_encode($params);
         $client->doBackground('deploy', $payload);
         return true;

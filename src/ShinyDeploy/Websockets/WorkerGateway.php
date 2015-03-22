@@ -28,7 +28,7 @@ class WorkerGateway implements WampServerInterface
      * Adds new client to list of subscribers.
      *
      * @param ConnectionInterface $conn
-     * @param \Ratchet\Wamp\Topic|string $Topic
+     * @param \Ratchet\Wamp\Topic $Topic
      */
     public function onSubscribe(ConnectionInterface $conn, $Topic)
     {
@@ -46,14 +46,25 @@ class WorkerGateway implements WampServerInterface
      */
     public function onApiEvent($dataEncoded)
     {
-        $data = json_decode($dataEncoded, true);
-        // @todo check if data is valid
-        if (!isset($this->subscriptions[$data['clientId']])) {
-            // @todo log error
-            return false;
+        try {
+            $this->logger->debug('onApiEvent: ' . $dataEncoded);
+            $data = json_decode($dataEncoded, true);
+            if (empty($data['clientId']) || empty($data['wsEventName'])) {
+                throw new WebsocketException('Required parameter missing.');
+            }
+            if (!isset($this->subscriptions[$data['clientId']])) {
+                throw new WebsocketException('Invalid client-id.');
+            }
+            /** @var \Ratchet\Wamp\Topic $Topic */
+            $Topic = $this->subscriptions[$data['clientId']];
+            $Topic->broadcast($data);
+            return true;
+        } catch (WebsocketException $e) {
+            $this->logger->alert(
+                'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
         }
-        $Topic = $this->subscriptions[$data['clientId']];
-        $Topic->broadcast($data);
+        return false;
     }
 
     /**
@@ -67,14 +78,14 @@ class WorkerGateway implements WampServerInterface
     public function onCall(ConnectionInterface $conn, $id, $topic, array $params)
     {
         try {
+            $this->logger->debug('onCall: ' . json_encode($params));
             $actionName = $topic->getId();
             $clientId = $params['clientId'];
             $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
-            $this->logger->debug('WorkerGateway action called: ' . $actionName);
             if (!class_exists($actionClassName)) {
                 throw new WebsocketException('Invalid action passed to worker gateway.');
             }
-            $action = new $actionClassName;
+            $action = new $actionClassName($this->config, $this->logger);
             $actionCalled = $action->__invoke($params);
             if ($actionCalled === true) {
                 $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
@@ -83,7 +94,7 @@ class WorkerGateway implements WampServerInterface
             }
         } catch (WebsocketException $e) {
             $this->logger->alert(
-                'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+                'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
         }
     }
@@ -140,6 +151,7 @@ class WorkerGateway implements WampServerInterface
                 'source' => 'WsGateway'
             ],
         ];
+        /** @var \Ratchet\Wamp\Topic $Topic */
         $Topic = $this->subscriptions[$clientId];
         $Topic->broadcast($eventData);
     }

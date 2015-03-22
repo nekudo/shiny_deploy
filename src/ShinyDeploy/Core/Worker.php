@@ -128,9 +128,10 @@ abstract class Worker
      */
     protected function zmqSend(array $data)
     {
+        $zmqDsn = $this->config->get('zmq.dsn');
         $zmqSocket = $this->zmqContext->getSocket(\ZMQ::SOCKET_PUSH);
-        $zmqSocket->connect('tcp://localhost:5556');
+        $zmqSocket->connect($zmqDsn);
         $zmqSocket->send(json_encode($data));
-        $zmqSocket->disconnect('tcp://localhost:5556');
+        $zmqSocket->disconnect($zmqDsn);
     }
 }
