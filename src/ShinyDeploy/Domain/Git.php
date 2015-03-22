@@ -14,9 +14,46 @@ class Git extends Domain
     public function getVersion()
     {
         $response = $this->exec('--version');
+        $response = trim($response);
         if (strpos($response, 'git version') === false) {
             return false;
         }
+        return $response;
+    }
+
+    public function gitClone($idSource, $targetPath)
+    {
+        if (empty($idSource) || empty($targetPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (chdir($targetPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $repoUrl = $this->config->get('sources.'.$idSource.'.url', null);
+        if (empty($repoUrl)) {
+            throw new \RuntimeException('Could not get repository URL.');
+        }
+        $response = $this->exec('clone --progress ' . $repoUrl . ' .');
+        chdir($oldDir);
+        return $response;
+    }
+
+    public function gitPull($idSource, $targetPath)
+    {
+        if (empty($idSource) || empty($targetPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (chdir($targetPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $repoUrl = $this->config->get('sources.'.$idSource.'.url', null);
+        if (empty($repoUrl)) {
+            throw new \RuntimeException('Could not get repository URL.');
+        }
+        $response = $this->exec('pull --progress ' . $repoUrl);
+        chdir($oldDir);
         return $response;
     }
 
@@ -29,7 +66,7 @@ class Git extends Domain
     protected function exec($command)
     {
         $command = 'git ' . $command;
-        $command = escapeshellcmd($command);
+        $command = escapeshellcmd($command) . ' 2>&1';
         $response = shell_exec($command);
         return $response;
     }

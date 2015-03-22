@@ -48,6 +48,7 @@ class WsGatewayResponder extends Responder
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');
         }
+        $msg = nl2br($msg);
         $pushData = [
             'clientId' => $this->clientId,
             'wsEventName' => 'log',
