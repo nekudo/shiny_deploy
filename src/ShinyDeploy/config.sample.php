@@ -1,7 +1,7 @@
 <?php
 return [
     'logging' => [
-        'file' => 'general.log',
+        'file' => __DIR__ . '/../../logs/general.log',
         'level' => 'debug',
     ],
     'gearman' => [
@@ -14,5 +14,28 @@ return [
     'wss' => [
         'host' => '0.0.0.0',
         'port' => 8090,
+    ],
+    'repositories' => [
+        'path' => __DIR__ . '/../../repositories',
+    ],
+
+    'sources' => [
+        'source1' => [
+            'title' => 'Source 1',
+            'type' => 'git',
+            'url' => 'https://github.com/foo/bar.git',
+        ],
+    ],
+    'targets' => [
+        'target1' => [
+            'title' => 'Target 1',
+            'type' => 'sftp',
+            'credentials' => [
+                'host' => 'host',
+                'port' => 22,
+                'user' => 'user',
+                'pass' => 'pass'
+            ],
+        ],
     ],
 ];

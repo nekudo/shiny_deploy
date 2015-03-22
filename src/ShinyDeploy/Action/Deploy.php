@@ -3,6 +3,7 @@ namespace ShinyDeploy\Action;
 
 use ShinyDeploy\Core\Action;
 use ShinyDeploy\Domain\Git;
+use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Responder\WsGatewayResponder;
 
 class Deploy extends Action
@@ -13,24 +14,38 @@ class Deploy extends Action
     /** @var  Git $gitDomain */
     protected $gitDomain;
 
+    /** @var  Repository $repositoryDomain */
+    protected $repositoryDomain;
+
     public function __invoke($clientId, $idSource, $idTarget)
     {
         try {
             $gitDomain = new Git($this->config, $this->logger);
-            $gitDomain->setClientId($clientId);
             $this->gitDomain = $gitDomain;
+
+            $repositoryDomain = new Repository($this->config, $this->logger);
+            $this->repositoryDomain = $repositoryDomain;
 
             $responder = new WsGatewayResponder($this->config, $this->logger);
             $responder->setClientId($clientId);
             $this->responder = $responder;
 
+            // check if git executable is available:
             if ($this->checkGitExecutable() === false) {
                 return false;
             }
+
+            // prepare local repository:
+            if ($this->prepareRepository($idSource) === false) {
+                return false;
+            }
+
         } catch (\RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
+            $this->responder->log('Exception: ' . $e->getMessage() . ' Aborting.', 'error', 'DeployAction');
+            return false;
         }
     }
 
@@ -47,5 +62,24 @@ class Deploy extends Action
         }
         $this->responder->log($versionString . ' detected.', 'default', 'DeployAction');
         return true;
+    }
+
+    /**
+     * If local repository does not exist it will be pulled from git. It it exists it will be updated.
+     *
+     * @param string $idSource
+     */
+    protected function prepareRepository($idSource)
+    {
+        $repoPath = $this->repositoryDomain->createLocalPath($idSource);
+        if ($this->repositoryDomain->exists($idSource) === false) {
+            $this->responder->log('Local repository not found. Starting git clone.', 'default', 'DeployAction');
+            $response = $this->gitDomain->gitClone($idSource, $repoPath);
+            $this->responder->log($response, 'default', 'Git');
+        } else {
+            $this->responder->log('Local repository found. Starting update.', 'default', 'DeployAction');
+            $response = $this->gitDomain->gitPull($idSource, $repoPath);
+            $this->responder->log($response, 'default', 'Git');
+        }
     }
 }
