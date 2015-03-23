@@ -67,7 +67,7 @@
     content: "]";
 }
 #log .log-source {
-    color: #f8f8f2;
+    /*color: #f8f8f2;*/
 }
 #log .log-source:before {
     content: "";
@@ -76,7 +76,7 @@
     content: " >";
 }
 #log .log-default {
-    color: #e6db74;
+    color: #f8f8f2;
 }
 #log .log-success {
     color: #a6e22e;
@@ -85,11 +85,10 @@
     color: #66d9ef;
 }
 #log .log-danger {
-    color: #ae81ff;
+    color: #e6db74;
 }
 #log .log-error {
     color: #f92672;
-    font-weight: bold;
 }
 #console .nano-pane {
     background-color: #272727;
