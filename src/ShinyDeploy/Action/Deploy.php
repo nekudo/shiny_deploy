@@ -68,6 +68,7 @@ class Deploy extends Action
      * If local repository does not exist it will be pulled from git. It it exists it will be updated.
      *
      * @param string $idSource
+     * @return bool
      */
     protected function prepareRepository($idSource)
     {
@@ -76,10 +77,21 @@ class Deploy extends Action
             $this->responder->log('Local repository not found. Starting git clone.', 'default', 'DeployAction');
             $response = $this->gitDomain->gitClone($idSource, $repoPath);
             $this->responder->log($response, 'default', 'Git');
+            if (strpos($response, 'done.') !== false) {
+                $this->responder->log('Repository successfully cloned.', 'success', 'DeployAction');
+                return true;
+            }
         } else {
             $this->responder->log('Local repository found. Starting update.', 'default', 'DeployAction');
             $response = $this->gitDomain->gitPull($idSource, $repoPath);
             $this->responder->log($response, 'default', 'Git');
+            if (strpos($response, 'up-to-date') !== false ||
+                (stripos($response, 'updating') !== false && strpos($response, 'done.') !== false)) {
+                $this->responder->log('Local repository successfully updated.', 'success', 'DeployAction');
+                return true;
+            }
         }
+        $this->responder->log('Error updating repository. Aborting.', 'error', 'DeployAction');
+        return false;
     }
 }
