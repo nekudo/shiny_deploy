@@ -111,31 +111,31 @@ class Sftp
     {
         switch($errorCode) {
             case 1:
-                $this->$errorMsg = 'Server data not complete.';
+                $this->errorMsg = 'Server data not complete.';
                 return true;
                 break;
             case 2:
-                $this->$errorMsg = 'Connection to Server could not be established.';
+                $this->errorMsg = 'Connection to Server could not be established.';
                 return true;
                 break;
             case 3:
-                $this->$errorMsg = 'Could not authenticate at server.';
+                $this->errorMsg = 'Could not authenticate at server.';
                 return true;
                 break;
             case 4:
-                $this->$errorMsg = 'No active connection to close.';
+                $this->errorMsg = 'No active connection to close.';
                 return true;
                 break;
             case 5:
-                $this->$errorMsg = 'Could not create dir.';
+                $this->errorMsg = 'Could not create dir.';
                 return true;
                 break;
             case 6:
-                $this->$errorMsg = 'Could not initialize sftp subsystem.';
+                $this->errorMsg = 'Could not initialize sftp subsystem.';
                 return true;
                 break;
             case 7:
-                $this->$errorMsg = 'Could not upload file to target server.';
+                $this->errorMsg = 'Could not upload file to target server.';
                 return true;
                 break;
             default:
@@ -151,6 +151,6 @@ class Sftp
      */
     public function getErrorMsg()
     {
-        return $this->$errorMsg;
+        return $this->errorMsg;
     }
 }
