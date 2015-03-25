@@ -63,7 +63,7 @@ class Sftp
             $this->setError(4);
             return false;
         }
-        unset($this->ssh_connection);
+        unset($this->sshConnection);
         return true;
     }
 
@@ -87,18 +87,113 @@ class Sftp
     /**
      * Uploads a file to destination server using scp.
      *
-     * @param string $local_file Path to local file.
-     * @param string $remote_file Path to destination file.
+     * @param string $localFile Path to local file.
+     * @param string $remoteFile Path to destination file.
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function put($local_file, $remote_file, $mode = 0644)
+    public function put($localFile, $remoteFile, $mode = 0644)
     {
-        if (ssh2_scp_send($this->sshConnection, $local_file, $remote_file, $mode) === false) {
+        $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
+        $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'w');
+        if ($sftpStream === false) {
             $this->setError(7);
             return false;
         }
+        $dataToSend = file_get_contents($localFile);
+        if ($dataToSend === false) {
+            $this->setError(7);
+            return false;
+        }
+        if (fwrite($sftpStream, $dataToSend) === false) {
+            $this->setError(7);
+            return false;
+        }
+        fclose($sftpStream);
         return true;
+    }
+
+    /**
+     * Fetches remote file.
+     * If local file is provided content will be store to file.
+     *
+     * @param string $remoteFile
+     * @return bool|string
+     */
+    public function get($remoteFile)
+    {
+        $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
+        $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'r');
+        if ($sftpStream === false) {
+            $this->setError(7);
+            return false;
+        }
+        $content = '';
+        while (!feof($sftpStream)) {
+            $content .= fread($sftpStream, 8192);
+        }
+        fclose($sftpStream);
+        return $content;
+    }
+
+    public function download($remoteFile, $localFile)
+    {
+        // @todo implement...
+    }
+
+    /**
+     * Deletes a file on remote server.
+     *
+     * @param string $file
+     * @return bool
+     */
+    public function unlink($file)
+    {
+        if (!ssh2_sftp_unlink($this->sftpConnection, $file) === false) {
+            $this->setError(8);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Renames a file on remote server.
+     *
+     * @param $filenameFrom
+     * @param $filenameTo
+     * @return bool
+     */
+    public function rename($filenameFrom, $filenameTo)
+    {
+        if (ssh2_sftp_rename($this->sftpConnection, $filenameFrom, $filenameTo) === false) {
+            $this->setError(10);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * List directory content.
+     *
+     * @param string $path Path to directory which should be listed.
+     * @return array $filelist List of directory content.
+     */
+    public function listdir($path = '/')
+    {
+        $dir = 'ssh2.sftp://' . $this->sftpConnection . $path;
+        $filelist = [];
+        if (($handle = opendir($dir)) !== false) {
+            while (false !== ($file = readdir($handle))) {
+                if (substr($file, 0, 1) != ".") {
+                    $filelist[] = $file;
+                }
+            }
+            closedir($handle);
+            return $filelist;
+        } else {
+            $this->setError(9);
+            return false;
+        }
     }
 
     /**
@@ -137,6 +232,15 @@ class Sftp
             case 7:
                 $this->errorMsg = 'Could not upload file to target server.';
                 return true;
+                break;
+            case 8:
+                $this->errorMsg = 'Could not delete remote file.';
+                break;
+            case 9:
+                $this->errorMsg = 'Could not open remote directory.';
+                break;
+            case 10:
+                $this->errorMsg = 'Could not rename file.';
                 break;
             default:
                 return false;

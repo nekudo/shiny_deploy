@@ -46,4 +46,20 @@ class Deploy extends Domain
         );
         return $connectionResult;
     }
+
+    /**
+     * Fetches remote revision from REVISION file in project root.
+     *
+     * @param Server $server
+     * @param string $targetPath
+     * @return string|bool
+     */
+    public function getRemoteRevision(Server $server, $targetPath)
+    {
+        if (empty($targetPath)) {
+            throw new \RuntimeException('No target path for remote server provided');
+        }
+        $revision = $server->getFileContent($targetPath);
+        return $revision;
+    }
 }
