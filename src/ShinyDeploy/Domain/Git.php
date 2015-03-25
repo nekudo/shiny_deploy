@@ -21,6 +21,13 @@ class Git extends Domain
         return $response;
     }
 
+    /**
+     * Clones git repository to local folder.
+     *
+     * @param string $idSource
+     * @param string $targetPath
+     * @return string
+     */
     public function gitClone($idSource, $targetPath)
     {
         if (empty($idSource) || empty($targetPath)) {
@@ -39,6 +46,13 @@ class Git extends Domain
         return $response;
     }
 
+    /**
+     * Updates local git repository.
+     *
+     * @param string $idSource
+     * @param string $targetPath
+     * @return string
+     */
     public function gitPull($idSource, $targetPath)
     {
         if (empty($idSource) || empty($targetPath)) {

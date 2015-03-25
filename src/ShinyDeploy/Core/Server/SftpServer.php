@@ -26,4 +26,22 @@ class SftpServer extends Server
     {
         return $this->connection->connect($host, $user, $pass, $port);
     }
+
+    /**
+     * Fetches content of remote file.
+     *
+     * @param string $path
+     * @return bool|string
+     */
+    public function getFileContent($path)
+    {
+        if (empty($path)) {
+            throw new \RuntimeException('Path can not be empty.');
+        }
+        $fileContent = $this->connection->get($path);
+        if ($fileContent === false) {
+            return false;
+        }
+        return $fileContent;
+    }
 }

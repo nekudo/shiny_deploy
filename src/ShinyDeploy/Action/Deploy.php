@@ -50,6 +50,11 @@ class Deploy extends Action
                 return false;
             }
 
+            // deploy changes:
+            if ($this->deploy($idSource, $idTarget) === false) {
+                return false;
+            }
+
         } catch (\RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -84,7 +89,7 @@ class Deploy extends Action
     {
         $repoPath = $this->repositoryDomain->createLocalPath($idSource);
         if ($this->repositoryDomain->exists($idSource) === false) {
-            $this->responder->log('Local repository not found. Starting git clone.', 'default', 'DeployAction');
+            $this->responder->log('Local repository not found. Starting git clone...', 'default', 'DeployAction');
             $response = $this->gitDomain->gitClone($idSource, $repoPath);
             $this->responder->log($response, 'default', 'Git');
             if (strpos($response, 'done.') !== false) {
@@ -92,7 +97,7 @@ class Deploy extends Action
                 return true;
             }
         } else {
-            $this->responder->log('Local repository found. Starting update.', 'default', 'DeployAction');
+            $this->responder->log('Local repository found. Starting update...', 'default', 'DeployAction');
             $response = $this->gitDomain->gitPull($idSource, $repoPath);
             $this->responder->log($response, 'default', 'Git');
             if (strpos($response, 'up-to-date') !== false ||
@@ -123,5 +128,28 @@ class Deploy extends Action
         }
         $this->responder->log('Connection to remote server failed. Aborting.', 'error', 'DeployAction');
         return false;
+    }
+
+    /**
+     * Deploys changes from local repository to remote server.
+     *
+     * @param string $idSource
+     * @param string $idTarget
+     * @return bool
+     */
+    protected function deploy($idSource, $idTarget)
+    {
+        if (empty($this->server)) {
+            throw new \RuntimeException('No instance of target server.');
+        }
+        $targetConfig = $this->config->get('targets.'.$idTarget);
+
+        // get revision on target server:
+        $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $targetConfig['path'].'/REVISION');
+        if (empty($remoteRevision)) {
+            $this->responder->log('Could not estimate revision on target server.', 'error', 'DeployAction');
+            return false;
+        }
+        $this->responder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
     }
 }
