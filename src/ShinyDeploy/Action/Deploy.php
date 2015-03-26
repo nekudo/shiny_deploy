@@ -99,7 +99,6 @@ class Deploy extends Action
         } else {
             $this->responder->log('Local repository found. Starting update...', 'default', 'DeployAction');
             $response = $this->gitDomain->gitPull($idSource, $repoPath);
-            $this->responder->log($response, 'default', 'Git');
             if (strpos($response, 'up-to-date') !== false ||
                 (stripos($response, 'updating') !== false && strpos($response, 'done.') !== false)) {
                 $this->responder->log('Local repository successfully updated.', 'success', 'DeployAction');
@@ -166,5 +165,31 @@ class Deploy extends Action
             $this->responder->log('Remote server is up to date.', 'info', 'DeployAction');
             return true;
         }
+
+        // collect file changes:
+        $this->responder->log('Collecting file changes...', 'default', 'DeployAction');
+        $changedFiles = $this->deployDomain->getChangedFiles(
+            $repoPath,
+            $localRevision,
+            $remoteRevision,
+            $this->gitDomain
+        );
+        if (empty($changedFiles)) {
+            $this->responder->log('Could not estimate changed files.', 'error', 'DeployAction');
+            return false;
+        }
+        $uploadCount = count($changedFiles['upload']);
+        $deleteCount = count($changedFiles['upload']);
+        if ($uploadCount === 0 && $deleteCount === 0) {
+            $this->responder->log('Noting to upload or delete.', 'info', 'DeployAction');
+            return true;
+        }
+        $this->responder->log(
+            'Diff complete: Files to upload: '.$uploadCount.' Files to delete: ' . $deleteCount,
+            'default',
+            'DeployAction'
+        );
+
+        // Start upload/delete process:
     }
 }

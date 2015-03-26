@@ -78,4 +78,45 @@ class Deploy extends Domain
         $revision = $gitDomain->getLocalRepositoryRevision($repoPath);
         return $revision;
     }
+
+    /**
+     * Generates list with changed,added,deleted files.
+     *
+     * @param string $repoPath
+     * @param string $localRevision
+     * @param string $remoteRevision
+     * @param Git $gitDomain
+     * @return bool|array
+     */
+    public function getChangedFiles($repoPath, $localRevision, $remoteRevision, Git $gitDomain)
+    {
+        $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
+        if (empty($changedFiles)) {
+            return false;
+        }
+
+        // parse diff response:
+        $fileList = [
+            'upload' => [],
+            'delete' => [],
+        ];
+        $diffLines = explode("\n", $changedFiles);
+        if (empty($diffLines)) {
+            return false;
+        }
+        foreach ($diffLines as $line) {
+            $line = trim($line);
+            if (empty($line)) {
+                continue;
+            }
+            $status = $line[0];
+            $file = trim(substr($line, 1));
+            if (in_array($status, ['A', 'C', 'M', 'R'])) {
+                $fileList['upload'][] = $file;
+            } elseif ($status === 'D') {
+                $fileList['delete'][] = $file;
+            }
+        }
+        return $fileList;
+    }
 }
