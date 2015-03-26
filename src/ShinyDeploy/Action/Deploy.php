@@ -151,5 +151,20 @@ class Deploy extends Action
             return false;
         }
         $this->responder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
+
+        // get revision of local repository:
+        $repoPath = $this->repositoryDomain->createLocalPath($idSource);
+        $localRevision = $this->deployDomain->getLocalRevision($repoPath, $this->gitDomain);
+        if (empty($localRevision)) {
+            $this->responder->log('Could not estimate revision of local repository.', 'error', 'DeployAction');
+            return false;
+        }
+        $this->responder->log('Local repository is at revision: ' . $localRevision, 'default', 'DeployAction');
+
+        // stop processing if remote server is up to date:
+        if ($localRevision === $remoteRevision) {
+            $this->responder->log('Remote server is up to date.', 'info', 'DeployAction');
+            return true;
+        }
     }
 }

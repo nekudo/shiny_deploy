@@ -72,6 +72,33 @@ class Git extends Domain
     }
 
     /**
+     * Gets revision (latest commit hash) of local repository.
+     *
+     * @param string $repoPath
+     * @return bool|string
+     */
+    public function getLocalRepositoryRevision($repoPath)
+    {
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        if (!file_exists($repoPath)) {
+            throw new \RuntimeException('Repository path not found.');
+        }
+        $oldDir = getcwd();
+        if (chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $revision = $this->exec('rev-parse HEAD');
+        $revision = trim($revision);
+        chdir($oldDir);
+        if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
+            return false;
+        }
+        return $revision;
+    }
+
+    /**
      * Executes a git command and returns response.
      *
      * @param $command
