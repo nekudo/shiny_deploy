@@ -179,7 +179,7 @@ class Deploy extends Action
             return false;
         }
         $uploadCount = count($changedFiles['upload']);
-        $deleteCount = count($changedFiles['upload']);
+        $deleteCount = count($changedFiles['delete']);
         if ($uploadCount === 0 && $deleteCount === 0) {
             $this->responder->log('Noting to upload or delete.', 'info', 'DeployAction');
             return true;
