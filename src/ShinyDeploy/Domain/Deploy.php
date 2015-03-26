@@ -65,4 +65,17 @@ class Deploy extends Domain
         }
         return $revision;
     }
+
+    /**
+     * Fetches revision of local repository.
+     *
+     * @param string $repoPath
+     * @param Git $gitDomain
+     * @return bool|string
+     */
+    public function getLocalRevision($repoPath, Git $gitDomain)
+    {
+        $revision = $gitDomain->getLocalRepositoryRevision($repoPath);
+        return $revision;
+    }
 }
