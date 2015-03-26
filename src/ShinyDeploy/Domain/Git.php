@@ -99,6 +99,28 @@ class Git extends Domain
     }
 
     /**
+     * Estimates diff between two revisions.
+     *
+     * @param string $repoPath
+     * @param string $targetRevision
+     * @param string $currentRevision
+     * @return string
+     */
+    public function diff($repoPath, $targetRevision, $currentRevision)
+    {
+        if (empty($repoPath) || empty($targetRevision) || empty($currentRevision)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $changes = $this->exec('diff --name-status ' . $currentRevision . ' ' .  $targetRevision);
+        chdir($oldDir);
+        return $changes;
+    }
+
+    /**
      * Executes a git command and returns response.
      *
      * @param $command
