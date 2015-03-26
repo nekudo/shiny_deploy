@@ -147,7 +147,7 @@ class Deploy extends Action
         // get revision on target server:
         $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $targetConfig['path'].'/REVISION');
         if (empty($remoteRevision)) {
-            $this->responder->log('Could not estimate revision on target server.', 'error', 'DeployAction');
+            $this->responder->log('Could not estimate revision on remote server.', 'error', 'DeployAction');
             return false;
         }
         $this->responder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');

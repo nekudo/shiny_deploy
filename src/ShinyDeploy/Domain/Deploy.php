@@ -60,6 +60,9 @@ class Deploy extends Domain
             throw new \RuntimeException('No target path for remote server provided');
         }
         $revision = $server->getFileContent($targetPath);
+        if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
+            return false;
+        }
         return $revision;
     }
 }
