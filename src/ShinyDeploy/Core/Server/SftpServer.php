@@ -44,4 +44,37 @@ class SftpServer extends Server
         }
         return $fileContent;
     }
+
+    /**
+     * Uploads a file to remote server.
+     *
+     * @param string $localFile
+     * @param string $remoteFile
+     * @param int $mode
+     * @return bool
+     */
+    public function upload($localFile, $remoteFile, $mode = 0644)
+    {
+        if (empty($localFile) || empty($remoteFile)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        if (!file_exists($localFile)) {
+            return false;
+        }
+        return $this->connection->put($localFile, $remoteFile, $mode);
+    }
+
+    /**
+     * Removes a file on remote server.
+     *
+     * @param string $remoteFile
+     * @return bool
+     */
+    public function delete($remoteFile)
+    {
+        if (empty($remoteFile)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        return $this->connection->unlink($remoteFile);
+    }
 }

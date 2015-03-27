@@ -119,4 +119,19 @@ class Deploy extends Domain
         }
         return $fileList;
     }
+
+    public function deployFiles(Server $server, $repoPath, $remotePath, array $filesList)
+    {
+        if (empty($server) || empty($repoPath) || empty($remotePath) || empty($filesList)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $repoPath = rtrim($repoPath, '/') . '/';
+        $remotePath = rtrim($remotePath, '/') . '/';
+        // upload files:
+        if (!empty($filesList['upload'])) {
+            foreach ($filesList['upload'] as $file) {
+                $server->upload($repoPath.$file, $remotePath.$file);
+            }
+        }
+    }
 }
