@@ -120,6 +120,20 @@ class Git extends Domain
         return $changes;
     }
 
+    public function listFiles($repoPath)
+    {
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $changes = $this->exec('ls-files');
+        chdir($oldDir);
+        return $changes;
+    }
+
     /**
      * Executes a git command and returns response.
      *

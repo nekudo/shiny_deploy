@@ -65,6 +65,22 @@ class SftpServer extends Server
     }
 
     /**
+     * Put content into remote file.
+     *
+     * @param string $content
+     * @param string $remoteFile
+     * @param int $mode
+     * @return bool
+     */
+    public function putContent($content, $remoteFile, $mode = 0644)
+    {
+        if (empty($remoteFile)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        return $this->connection->putContent($content, $remoteFile, $mode);
+    }
+
+    /**
      * Removes a file on remote server.
      *
      * @param string $remoteFile
@@ -76,5 +92,19 @@ class SftpServer extends Server
             throw new \RuntimeException('Required parameter missing.');
         }
         return $this->connection->unlink($remoteFile);
+    }
+
+    /**
+     * Lists contents of remote directory.
+     *
+     * @param string $remotePath
+     * @return array
+     */
+    public function listDir($remotePath)
+    {
+        if (empty($remotePath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        return $this->connection->listdir($remotePath);
     }
 }

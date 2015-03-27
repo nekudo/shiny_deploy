@@ -60,10 +60,18 @@ class Deploy extends Domain
             throw new \RuntimeException('No target path for remote server provided');
         }
         $revision = $server->getFileContent($targetPath);
-        if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
+        if (!empty($revision) && preg_match('#[0-9a-f]{40}#', $revision) === 1) {
+            return $revision;
+        }
+        $targetDir = dirname($targetPath);
+        $targetDirContent = $server->listDir($targetDir);
+        if ($targetDirContent === false) {
             return false;
         }
-        return $revision;
+        if (is_array($targetDirContent) && empty($targetDirContent)) {
+            return '-1';
+        }
+        return false;
     }
 
     /**
@@ -90,7 +98,11 @@ class Deploy extends Domain
      */
     public function getChangedFiles($repoPath, $localRevision, $remoteRevision, Git $gitDomain)
     {
-        $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
+        if ($remoteRevision === '-1') {
+            $changedFiles = $gitDomain->listFiles($repoPath);
+        } else {
+            $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
+        }
         if (empty($changedFiles)) {
             return false;
         }
@@ -109,12 +121,16 @@ class Deploy extends Domain
             if (empty($line)) {
                 continue;
             }
-            $status = $line[0];
-            $file = trim(substr($line, 1));
-            if (in_array($status, ['A', 'C', 'M', 'R'])) {
-                $fileList['upload'][] = $file;
-            } elseif ($status === 'D') {
-                $fileList['delete'][] = $file;
+            if ($remoteRevision === '-1') {
+                $fileList['upload'][] = $line;
+            } else {
+                $status = $line[0];
+                $file = trim(substr($line, 1));
+                if (in_array($status, ['A', 'C', 'M', 'R'])) {
+                    $fileList['upload'][] = $file;
+                } elseif ($status === 'D') {
+                    $fileList['delete'][] = $file;
+                }
             }
         }
         return $fileList;

@@ -9,5 +9,9 @@ abstract class Server
 
     abstract public function upload($localFile, $remoteFile, $mode = 0644);
 
+    abstract public function putContent($content, $remoteFile, $mode = 0644);
+
     abstract public function delete($remoteFile);
+
+    abstract public function listDir($remotePath);
 }
