@@ -55,6 +55,8 @@ class Deploy extends Action
                 return false;
             }
 
+            // @todo update remote revision file
+
             $this->responder->log("\nShiny, everything done. Your project is up to date.", 'success', 'DeployAction');
 
         } catch (\RuntimeException $e) {
@@ -146,11 +148,15 @@ class Deploy extends Action
 
         // get revision on target server:
         $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $targetConfig['path'].'/REVISION');
-        if (empty($remoteRevision)) {
+        if ($remoteRevision === false) {
             $this->responder->log('Could not estimate revision on remote server.', 'error', 'DeployAction');
             return false;
         }
-        $this->responder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
+        if ($remoteRevision === '-1') {
+            $this->responder->log('Remote revision not found - deploying all files.', 'info', 'DeployAction');
+        } else {
+            $this->responder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
+        }
 
         // get revision of local repository:
         $repoPath = $this->repositoryDomain->createLocalPath($idSource);
@@ -212,7 +218,6 @@ class Deploy extends Action
                 }
             }
         }
-
         if ($deleteCount > 0) {
             $this->responder->log('Removing files...', 'default', 'DeployAction');
             foreach ($changedFiles['delete'] as $file) {
@@ -223,6 +228,14 @@ class Deploy extends Action
                     $this->responder->log('Deleting ' . $file . ': failed', 'danger', 'DeployAction');
                 }
             }
+        }
+
+        // Update remote revision file:
+        if ($this->server->putContent($localRevision, $remotePath.'REVISION') === false) {
+            $this->responder->log('Could not update remote revision file.', 'error', 'DeployAction');
+            return false;
+        } else {
+            $this->responder->log('Revision file successfully updated.', 'default', 'DeployAction');
         }
 
         return true;

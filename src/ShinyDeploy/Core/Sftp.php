@@ -123,6 +123,34 @@ class Sftp
     }
 
     /**
+     * Uploads a file to destination server using scp.
+     *
+     * @param string $content Content to put into remote file
+     * @param string $remoteFile Path to destination file.
+     * @param int $mode Chmod destination file to this value.
+     * @return bool True on success false on error.
+     */
+    public function putContent($content, $remoteFile, $mode = 0644)
+    {
+        $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
+        $remoteDir = dirname($remoteFile);
+        if (!isset($this->existingFolders[$remoteDir])) {
+            $this->mkdir($remoteDir, 0755, true);
+        }
+        $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'w');
+        if ($sftpStream === false) {
+            $this->setError(7);
+            return false;
+        }
+        if (fwrite($sftpStream, $content) === false) {
+            $this->setError(7);
+            return false;
+        }
+        fclose($sftpStream);
+        return true;
+    }
+
+    /**
      * Fetches remote file.
      * If local file is provided content will be store to file.
      *
@@ -191,7 +219,7 @@ class Sftp
     {
         $dir = 'ssh2.sftp://' . $this->sftpConnection . $path;
         $filelist = [];
-        if (($handle = opendir($dir)) !== false) {
+        if (($handle = @opendir($dir)) !== false) {
             while (false !== ($file = readdir($handle))) {
                 if (substr($file, 0, 1) != ".") {
                     $filelist[] = $file;
