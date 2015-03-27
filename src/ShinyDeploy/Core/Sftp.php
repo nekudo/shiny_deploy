@@ -12,6 +12,9 @@ class Sftp
     /** @var resource $sftpConnection */
     private $sftpConnection = null;
 
+    /** @var array $existingFolders */
+    private $existingFolders = [];
+
     // TODO: Auto connect if server data is passed.
     public function __construct()
     {
@@ -49,6 +52,7 @@ class Sftp
             $this->setError(6);
             return false;
         }
+        $this->existingFolders = [];
         return true;
     }
 
@@ -81,6 +85,7 @@ class Sftp
             $this->setError(5);
             return false;
         }
+        $this->existingFolders[$path] = true;
         return true;
     }
 
@@ -95,6 +100,10 @@ class Sftp
     public function put($localFile, $remoteFile, $mode = 0644)
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
+        $remoteDir = dirname($remoteFile);
+        if (!isset($this->existingFolders[$remoteDir])) {
+            $this->mkdir($remoteDir);
+        }
         $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'w');
         if ($sftpStream === false) {
             $this->setError(7);

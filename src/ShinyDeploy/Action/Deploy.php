@@ -185,11 +185,41 @@ class Deploy extends Action
             return true;
         }
         $this->responder->log(
-            'Diff complete: Files to upload: '.$uploadCount.' Files to delete: ' . $deleteCount,
+            'Diff complete. (Files to upload: '.$uploadCount.' - Files to delete: ' . $deleteCount . ')',
             'default',
             'DeployAction'
         );
 
         // Start upload/delete process:
+        $repoPath = rtrim($repoPath, '/') . '/';
+        $remotePath = rtrim($targetConfig['path'], '/') . '/';
+        if ($uploadCount > 0) {
+            $this->responder->log('Starting file uploads...', 'default', 'DeployAction');
+            foreach ($changedFiles['upload'] as $file) {
+                $uploadStart = microtime(true);
+                $result = $this->server->upload($repoPath.$file, $remotePath.$file);
+                $uploadEnd = microtime(true);
+                $uploadDuration = round($uploadEnd - $uploadStart, 2);
+                if ($result === true) {
+                    $this->responder->log($file . ': success ('.$uploadDuration.'s)', 'info', 'DeployAction');
+                } else {
+                    $this->responder->log($file . ': failed', 'warning', 'DeployAction');
+                }
+            }
+        }
+
+        if ($deleteCount > 0) {
+            $this->responder->log('Removing files...', 'default', 'DeployAction');
+            foreach ($changedFiles['delete'] as $file) {
+                $result = $this->server->delete($remotePath.$file);
+                if ($result === true) {
+                    $this->responder->log($file . ': success', 'info', 'DeployAction');
+                } else {
+                    $this->responder->log($file . ': failed', 'warning', 'DeployAction');
+                }
+            }
+        }
+
+        return true;
     }
 }
