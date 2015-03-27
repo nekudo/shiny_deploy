@@ -102,7 +102,7 @@ class Sftp
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $remoteDir = dirname($remoteFile);
         if (!isset($this->existingFolders[$remoteDir])) {
-            $this->mkdir($remoteDir);
+            $this->mkdir($remoteDir, 0755, true);
         }
         $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'w');
         if ($sftpStream === false) {

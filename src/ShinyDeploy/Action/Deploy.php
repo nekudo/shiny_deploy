@@ -55,6 +55,8 @@ class Deploy extends Action
                 return false;
             }
 
+            $this->responder->log("\nShiny, everything done. Your project is up to date.", 'success', 'DeployAction');
+
         } catch (\RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -91,7 +93,6 @@ class Deploy extends Action
         if ($this->repositoryDomain->exists($idSource) === false) {
             $this->responder->log('Local repository not found. Starting git clone...', 'default', 'DeployAction');
             $response = $this->gitDomain->gitClone($idSource, $repoPath);
-            $this->responder->log($response, 'default', 'Git');
             if (strpos($response, 'done.') !== false) {
                 $this->responder->log('Repository successfully cloned.', 'success', 'DeployAction');
                 return true;
@@ -201,9 +202,13 @@ class Deploy extends Action
                 $uploadEnd = microtime(true);
                 $uploadDuration = round($uploadEnd - $uploadStart, 2);
                 if ($result === true) {
-                    $this->responder->log($file . ': success ('.$uploadDuration.'s)', 'info', 'DeployAction');
+                    $this->responder->log(
+                        'Uploading ' . $file . ': success ('.$uploadDuration.'s)',
+                        'info',
+                        'DeployAction'
+                    );
                 } else {
-                    $this->responder->log($file . ': failed', 'warning', 'DeployAction');
+                    $this->responder->log('Uploading ' . $file . ': failed', 'danger', 'DeployAction');
                 }
             }
         }
@@ -213,9 +218,9 @@ class Deploy extends Action
             foreach ($changedFiles['delete'] as $file) {
                 $result = $this->server->delete($remotePath.$file);
                 if ($result === true) {
-                    $this->responder->log($file . ': success', 'info', 'DeployAction');
+                    $this->responder->log('Deleting ' . $file . ': success', 'info', 'DeployAction');
                 } else {
-                    $this->responder->log($file . ': failed', 'warning', 'DeployAction');
+                    $this->responder->log('Deleting ' . $file . ': failed', 'danger', 'DeployAction');
                 }
             }
         }
