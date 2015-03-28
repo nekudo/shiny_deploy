@@ -3,7 +3,8 @@
         "cboden/ratchet": "0.3.*",
         "react/zmq": "0.2.*|0.3.*",
         "noodlehaus/config": "0.7.*",
-        "apix/log": "1.0.*"
+        "apix/log": "1.0.*",
+        "slim/slim": "~2.6"
     },
     "autoload": {
         "psr-4": {"ShinyDeploy\\": "src/ShinyDeploy"}
