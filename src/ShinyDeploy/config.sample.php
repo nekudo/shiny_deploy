@@ -18,7 +18,9 @@ return [
     'repositories' => [
         'path' => __DIR__ . '/../../repositories',
     ],
-
+    'views' => [
+        'path' => __DIR__ . '/Responder/html',
+    ],
     'sources' => [
         'source1' => [
             'title' => 'Source 1',
