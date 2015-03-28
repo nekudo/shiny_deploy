@@ -10,8 +10,8 @@
 **.DS_Store
 
 # Composer
-vendor
+/vendor
 composer.lock
 src/ShinyDeploy/config.php
 logs/*.log
-node_modules
+/node_modules

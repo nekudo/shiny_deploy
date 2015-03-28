@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Language" content="en">
     <meta name="description" content="Shiny Deploy">
     <title>Shiny Deploy</title>
-    <link href="css/bootstrap.min.css" media="all" rel="stylesheet" type="text/css">
+    <link href="css/vendor/bootstrap.min.css" media="all" rel="stylesheet" type="text/css">
     <link href="css/src/console.css" media="all" rel="stylesheet" type="text/css">
 </head>
 <body>
