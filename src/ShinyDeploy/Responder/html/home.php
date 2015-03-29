@@ -32,7 +32,7 @@
                     <li class="header">MAIN NAVIGATION</li>
                     <li>
                         <a href="/server">
-                            <i class="fa fa-linux"></i> <span>Server</span>
+                            <i class="fa fa-linux"></i> <span>Servers</span>
                         </a>
                     </li>
                     <li>
