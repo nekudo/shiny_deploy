@@ -31,12 +31,12 @@
                 <ul class="sidebar-menu">
                     <li class="header">MAIN NAVIGATION</li>
                     <li>
-                        <a href="/server">
+                        <a href="/servers">
                             <i class="fa fa-linux"></i> <span>Servers</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/server">
+                        <a href="/repositories">
                             <i class="fa fa-github"></i> <span>Repositories</span>
                         </a>
                     </li>
