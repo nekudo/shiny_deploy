@@ -27,5 +27,15 @@ $slim->get(
     }
 );
 
+// Repositories routes
+$slim->get(
+    '/repositories',
+    function () use ($slim, $config, $logger) {
+        $listServersAction = new \ShinyDeploy\Action\ListRepositories($config, $logger);
+        $listServersAction->setSlim($slim);
+        $listServersAction->__invoke();
+    }
+);
+
 // let's roll
 $slim->run();
