@@ -38,7 +38,7 @@
                     </a>
                 </li>
                 <?php $active = (strpos($this->slim->request->getPath(), '/repositories') === 0) ? 'active' : ''; ?>
-                <li>
+                <li class="<?php echo $active; ?>">
                     <a href="/repositories">
                         <i class="fa fa-github"></i> <span>Repositories</span>
                     </a>
