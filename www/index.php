@@ -17,5 +17,15 @@ $slim->get(
     }
 );
 
+// Server routes
+$slim->get(
+    '/servers',
+    function () use ($slim, $config, $logger) {
+        $listServersAction = new \ShinyDeploy\Action\ListServers($config, $logger);
+        $listServersAction->setSlim($slim);
+        $listServersAction->__invoke();
+    }
+);
+
 // let's roll
 $slim->run();
