@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-ng-app="shinyDeploy">
 <head>
     <meta charset="UTF-8">
     <title>Shiny Deploy</title>
@@ -33,13 +33,13 @@
 
                 <?php $active = (strpos($this->slim->request->getPath(), '/servers') === 0) ? 'active' : ''; ?>
                 <li class="<?php echo $active; ?>">
-                    <a href="/servers">
+                    <a href="#/servers">
                         <i class="fa fa-linux"></i> <span>Servers</span>
                     </a>
                 </li>
                 <?php $active = (strpos($this->slim->request->getPath(), '/repositories') === 0) ? 'active' : ''; ?>
                 <li class="<?php echo $active; ?>">
-                    <a href="/repositories">
+                    <a href="#/repositories">
                         <i class="fa fa-github"></i> <span>Repositories</span>
                     </a>
                 </li>
