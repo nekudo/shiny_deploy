@@ -7,7 +7,9 @@
     </h1>
 </section>
 
-<section class="content">
+
+
+<section data-ng-view="" class="content">
 
 </section>
 
