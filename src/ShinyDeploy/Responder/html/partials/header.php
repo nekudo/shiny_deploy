@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Shiny Deploy</title>
+    <base href="/">
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <link href="/css/vendor/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
@@ -33,13 +34,13 @@
 
                 <?php $active = (strpos($this->slim->request->getPath(), '/servers') === 0) ? 'active' : ''; ?>
                 <li class="<?php echo $active; ?>">
-                    <a href="#/servers">
+                    <a href="/servers">
                         <i class="fa fa-linux"></i> <span>Servers</span>
                     </a>
                 </li>
                 <?php $active = (strpos($this->slim->request->getPath(), '/repositories') === 0) ? 'active' : ''; ?>
                 <li class="<?php echo $active; ?>">
-                    <a href="#/repositories">
+                    <a href="/repositories">
                         <i class="fa fa-github"></i> <span>Repositories</span>
                     </a>
                 </li>
