@@ -61,6 +61,7 @@
 <script src="/js/vendor/template.min.js"></script>
 
 <script src="/js/app.js"></script>
+<script src="/js/app/services/servers.js"></script>
 <script src="/js/app/controllers/home.js"></script>
 <script src="/js/app/controllers/menu.js"></script>
 <script src="/js/app/controllers/servers.js"></script>
