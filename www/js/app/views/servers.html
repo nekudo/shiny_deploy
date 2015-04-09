@@ -4,3 +4,25 @@
         <small>Server Management</small>
     </h1>
 </section>
+
+<div class="row">
+    <div class="col-xs-12">
+        <div class="box">
+            <div class="box-header">
+                <h3 class="box-title">Responsive Hover Table</h3>
+            </div><!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tr>
+                        <th>ID</th>
+                        <th>Server</th>
+                    </tr>
+                    <tr data-ng-repeat="server in getServers()">
+                        <td>{{server.id}}</td>
+                        <td>{{server.name}}</td>
+                    </tr>
+                </table>
+            </div><!-- /.box-body -->
+        </div><!-- /.box -->
+    </div>
+</div>
