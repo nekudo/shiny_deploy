@@ -1,41 +1,69 @@
-<?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+<!DOCTYPE html>
+<html data-ng-app="shinyDeploy">
+<head>
+    <meta charset="UTF-8">
+    <title>Shiny Deploy</title>
+    <base href="/">
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <link href="/css/vendor/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/vendor/AdminLTE.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/vendor/skin-blue.min.css" rel="stylesheet" type="text/css" />
+</head>
 
-require_once '../cli/bootstrap.php';
+<body class="skin-blue">
+<div class="wrapper">
 
-$slim = new \Slim\Slim;
-$slim->config('debug', true);
+    <header class="main-header">
+        <a href="/" class="logo">Shiny<b>Deploy</b></a>
+        <nav class="navbar navbar-static-top" role="navigation">
+            <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+        </nav>
+    </header>
 
-// Home route
-$slim->get(
-    '/',
-    function () use ($slim, $config, $logger) {
-        $showHomepageAction = new \ShinyDeploy\Action\ShowHomepage($config, $logger);
-        $showHomepageAction->setSlim($slim);
-        $showHomepageAction->__invoke();
-    }
-);
+    <aside class="main-sidebar">
+        <section class="sidebar">
+            <ul class="sidebar-menu" data-ng-controller="MenuController">
+                <li class="header">MAIN NAVIGATION</li>
+                <li data-ng-class="{'active':getClass('/servers')}">
+                    <a href="/servers">
+                        <i class="fa fa-linux"></i> <span>Servers</span>
+                    </a>
+                </li>
+                <li data-ng-class="{'active':getClass('/repositories')}">
+                    <a href="/repositories">
+                        <i class="fa fa-github"></i> <span>Repositories</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+    </aside>
 
-// Server routes
-$slim->get(
-    '/servers',
-    function () use ($slim, $config, $logger) {
-        $listServersAction = new \ShinyDeploy\Action\ListServers($config, $logger);
-        $listServersAction->setSlim($slim);
-        $listServersAction->__invoke();
-    }
-);
+    <div class="content-wrapper">
+        <section data-ng-view="" class="content"></section>
+    </div><!-- /content-wrapper -->
 
-// Repositories routes
-$slim->get(
-    '/repositories',
-    function () use ($slim, $config, $logger) {
-        $listServersAction = new \ShinyDeploy\Action\ListRepositories($config, $logger);
-        $listServersAction->setSlim($slim);
-        $listServersAction->__invoke();
-    }
-);
+    <footer class="main-footer">
+        <small>another shiny project by <a href="https://nekudo.com">nekudo.com</a></small>
+    </footer>
 
-// let's roll
-$slim->run();
+</div><!-- /wrapper -->
+<script src="/js/vendor/angular.min.js"></script>
+<script src="/js/vendor/angular-route.min.js"></script>
+<script src="/js/vendor/jquery.min.js"></script>
+<script src="/js/vendor/bootstrap.min.js"></script>
+<script src="/js/vendor/template.min.js"></script>
+
+<script src="/js/app.js"></script>
+<script src="/js/app/controllers/home.js"></script>
+<script src="/js/app/controllers/menu.js"></script>
+<script src="/js/app/controllers/servers.js"></script>
+<script src="/js/app/controllers/repositories.js"></script>
+</body>
+</html>
