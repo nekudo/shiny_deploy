@@ -1,7 +1,9 @@
-var app = angular.module('shinyDeploy', ['ngRoute']);
+var app = angular.module('shinyDeploy', ['ngRoute', 'ws']);
 
-app.config(function ($routeProvider, $locationProvider) {
+app.config(function ($routeProvider, $locationProvider, wsProvider) {
     $locationProvider.html5Mode(true);
+
+    wsProvider.setUrl('ws://127.0.0.1:8090');
 
     $routeProvider
         .when('/', {
@@ -17,4 +19,9 @@ app.config(function ($routeProvider, $locationProvider) {
             templateUrl: '/js/app/views/repositories.html'
         })
         .otherwise({ redirectTo: '/' });
+});
+
+app.run(function(ws) {
+    // connect to websocket server:
+    ws.connect();
 });

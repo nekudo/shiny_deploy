@@ -1,16 +1,5 @@
-app.service('serversService', function () {
-    var servers = [
-        {
-            id: 1,
-            name: 'foo'
-        },
-        {
-            id: 2,
-            name: 'bar'
-        }
-    ];
-
+app.service('serversService', function (ws) {
     this.getServers = function () {
-        return servers;
+        return ws.sendCallbackRequest('getServers');
     };
 });

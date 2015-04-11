@@ -10,6 +10,7 @@
     <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
     <link href="/css/vendor/AdminLTE.min.css" rel="stylesheet" type="text/css" />
     <link href="/css/vendor/skin-blue.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/src/console.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body class="skin-blue">
@@ -47,6 +48,14 @@
 
     <div class="content-wrapper">
         <section data-ng-view="" class="content"></section>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <div id="console" class="nano" data-ng-controller="LogController">
+                    <div id="log" class="nano-content"></div>
+                </div>
+            </div>
+        </div>
     </div><!-- /content-wrapper -->
 
     <footer class="main-footer">
@@ -59,9 +68,12 @@
 <script src="/js/vendor/jquery.min.js"></script>
 <script src="/js/vendor/bootstrap.min.js"></script>
 <script src="/js/vendor/template.min.js"></script>
+<script src="js/vendor/autobahn.min.js"></script>
 
 <script src="/js/app.js"></script>
 <script src="/js/app/services/servers.js"></script>
+<script src="/js/app/services/websocket.js"></script>
+<script src="/js/app/controllers/log.js"></script>
 <script src="/js/app/controllers/home.js"></script>
 <script src="/js/app/controllers/menu.js"></script>
 <script src="/js/app/controllers/servers.js"></script>

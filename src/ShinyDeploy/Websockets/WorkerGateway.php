@@ -81,21 +81,56 @@ class WorkerGateway implements WampServerInterface
             $this->logger->debug('onCall: ' . json_encode($params));
             $actionName = $topic->getId();
             $clientId = $params['clientId'];
-            $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
-            if (!class_exists($actionClassName)) {
-                throw new WebsocketException('Invalid action passed to worker gateway.');
-            }
-            $action = new $actionClassName($this->config, $this->logger);
-            $actionCalled = $action->__invoke($params);
-            if ($actionCalled === true) {
-                $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
+            $callbackId = (isset($params['callbackId'])) ? $params['callbackId'] : null;
+
+            if (!empty($callbackId)) {
+                $actionParams = (isset($params['actionParams'])) ? $params['actionParams'] : [];
+                $this->handleCallbackRequest($clientId, $callbackId, $actionName, $actionParams);
             } else {
-                $this->wsLog($clientId, 'Sry. There was an error while triggering the requested action.', 'error');
+                $this->handleTriggerRequest($clientId, $actionName, $params);
             }
         } catch (WebsocketException $e) {
             $this->logger->alert(
                 'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
+        }
+    }
+
+    /**
+     * Handles requests which directly respond with the requested data.
+     */
+    protected function handleCallbackRequest($clientId, $callbackId, $actionName, array $actionParams)
+    {
+        $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
+        if (!class_exists($actionClassName)) {
+            throw new WebsocketException('Invalid action passed to worker gateway.');
+        }
+        $action = new $actionClassName($this->config, $this->logger);
+        $actionResponse = $action->__invoke($actionParams);
+        $response = [
+            'callback_id' => $callbackId,
+            'data' => $actionResponse
+        ];
+        $Topic = $this->subscriptions[$clientId];
+        $Topic->broadcast($response);
+    }
+
+    /**
+     * Handles requests which just trigger an action. Response data (if any) will be send
+     * later form within the action itself.
+     */
+    protected function handleTriggerRequest($clientId, $actionName, $params)
+    {
+        $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
+        if (!class_exists($actionClassName)) {
+            throw new WebsocketException('Invalid action passed to worker gateway.');
+        }
+        $action = new $actionClassName($this->config, $this->logger);
+        $actionResponse = $action->__invoke($params);
+        if ($actionResponse === true) {
+            $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
+        } else {
+            $this->wsLog($clientId, 'Sry. There was an error while triggering the requested action.', 'error');
         }
     }
 
