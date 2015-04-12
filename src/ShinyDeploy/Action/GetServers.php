@@ -2,21 +2,14 @@
 namespace ShinyDeploy\Action;
 
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Domain\Servers;
 
 class GetServers extends Action
 {
     public function __invoke()
     {
-
-        return [
-            0 => [
-                'id' => 1,
-                'name' => 'foo',
-            ],
-            1 => [
-                'id' => 2,
-                'name' => 'bar',
-            ],
-        ];
+        $serversDomain = new Servers($this->config, $this->logger);
+        $servers = $serversDomain->getServers();
+        return $servers;
     }
 }

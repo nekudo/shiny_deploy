@@ -18,8 +18,11 @@ return [
     'repositories' => [
         'path' => __DIR__ . '/../../repositories',
     ],
-    'views' => [
-        'path' => __DIR__ . '/Responder/html',
+    'db' => [
+        'host' => 'localhost',
+        'user' => '',
+        'pass' => '',
+        'db' => 'my_database',
     ],
     'sources' => [
         'source1' => [
