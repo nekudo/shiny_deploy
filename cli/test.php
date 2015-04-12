@@ -5,9 +5,9 @@ $context = new ZMQContext;
 $zmqSocket = $context->getSocket(ZMQ::SOCKET_PUSH);
 $zmqSocket->connect("tcp://localhost:5556");
 $pushData = [
-    'clientId' => '277b028e-502a-47e8-9866-7160390c7d2b',
-    'wsEventName' => 'log',
-    'wsEventParams' => [
+    'clientId' => 'f2301e92-8f0d-43cd-ab00-dc873e2a8990',
+    'eventName' => 'log',
+    'eventPayload' => [
         'type' => 'info',
         'text' => 'this is just a test',
     ],
