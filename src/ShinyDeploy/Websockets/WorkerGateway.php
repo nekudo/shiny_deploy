@@ -82,10 +82,9 @@ class WorkerGateway implements WampServerInterface
             $actionName = $topic->getId();
             $clientId = $params['clientId'];
             $callbackId = (isset($params['callbackId'])) ? $params['callbackId'] : null;
-
             if (!empty($callbackId)) {
                 $actionPayload = (isset($params['actionPayload'])) ? $params['actionPayload'] : [];
-                $this->handleCallbackRequest($clientId, $callbackId, $actionName, $actionPayload);
+                $this->handleDataRequest($clientId, $callbackId, $actionName, $actionPayload);
             } else {
                 $this->handleTriggerRequest($clientId, $actionName, $params);
             }
@@ -98,8 +97,14 @@ class WorkerGateway implements WampServerInterface
 
     /**
      * Handles requests which directly respond with the requested data.
+     *
+     * @param string $clientId
+     * @param string $callbackId
+     * @param string $actionName
+     * @param array $actionPayload
+     * @throws WebsocketException
      */
-    protected function handleCallbackRequest($clientId, $callbackId, $actionName, array $actionPayload)
+    protected function handleDataRequest($clientId, $callbackId, $actionName, array $actionPayload)
     {
         $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
@@ -111,13 +116,20 @@ class WorkerGateway implements WampServerInterface
             'callbackId' => $callbackId,
             'payload' => $actionResponse
         ];
-        $Topic = $this->subscriptions[$clientId];
-        $Topic->broadcast($response);
+
+        /** @var \Ratchet\Wamp\Topic|string $topic **/
+        $topic = $this->subscriptions[$clientId];
+        $topic->broadcast($response);
     }
 
     /**
      * Handles requests which just trigger an action. Response data (if any) will be send
      * later form within the action itself.
+     *
+     * @param string $clientId
+     * @param string $actionName
+     * @param array $params
+     * @throws WebsocketException
      */
     protected function handleTriggerRequest($clientId, $actionName, $params)
     {
@@ -186,8 +198,8 @@ class WorkerGateway implements WampServerInterface
                 'source' => 'WsGateway'
             ],
         ];
-        /** @var \Ratchet\Wamp\Topic $Topic */
-        $Topic = $this->subscriptions[$clientId];
-        $Topic->broadcast($eventData);
+        /** @var \Ratchet\Wamp\Topic $topic */
+        $topic = $this->subscriptions[$clientId];
+        $topic->broadcast($eventData);
     }
 }
