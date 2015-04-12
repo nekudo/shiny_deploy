@@ -14,6 +14,10 @@ app.config(function ($routeProvider, $locationProvider, wsProvider) {
             controller: 'ServersController',
             templateUrl: '/js/app/views/servers.html'
         })
+        .when('/servers/add', {
+            controller: 'ServersAddController',
+            templateUrl: '/js/app/views/servers_add.html'
+        })
         .when('/repositories', {
             controller: 'RepositoriesController',
             templateUrl: '/js/app/views/repositories.html'

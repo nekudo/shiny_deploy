@@ -1,0 +1,51 @@
+<section class="content-header">
+    <h1>
+        Servers
+        <small>Add new server</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+            <form name="addServerForm" novalidate>
+                <div class="box box-success">
+                    <div class="box-body">
+                        <div class="form-group"
+                             data-ng-class="{ 'has-error': addServerForm.name.$invalid && addServerForm.name.$dirty}">
+                            <label for="server-name">Name</label>
+                            <input
+                                name="name"
+                                type="text"
+                                class="form-control"
+                                id="server-name"
+                                placeholder="My server"
+                                data-ng-model="server.name"
+                                data-ng-minlength="5"
+                                data-ng-maxlength="50"
+                                required>
+                        </div>
+                        <div class="form-group"
+                            data-ng-class="{ 'has-error': addServerForm.hostname.$invalid && addServerForm.hostname.$dirty}">
+                            <label for="server-hostname">Hostname</label>
+                            <input
+                                name="hostname"
+                                type="text"
+                                class="form-control"
+                                id="server-hostname"
+                                placeholder="foo.mydomain.com"
+                                data-ng-model="server.hostname"
+                                data-ng-minlength="3"
+                                data-ng-maxlength="200"
+                                required>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button data-ng-disabled="addServerForm.$invalid" data-ng-click="addCustomer()" class="btn btn-primary">Save</button>
+                        <a href="/servers" class="btn btn-default">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

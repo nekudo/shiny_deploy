@@ -10,6 +10,7 @@
     <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
     <link href="/css/vendor/AdminLTE.min.css" rel="stylesheet" type="text/css" />
     <link href="/css/vendor/skin-blue.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/src/template.css" rel="stylesheet" type="text/css" />
     <link href="/css/src/console.css" rel="stylesheet" type="text/css" />
 </head>
 
