@@ -2,11 +2,10 @@
 namespace ShinyDeploy\Responder;
 
 use Apix\Log\Logger;
-use Guzzle\Common\Exception\RuntimeException;
 use Noodlehaus\Config;
 use ShinyDeploy\Core\Responder;
 
-class WsGatewayResponder extends Responder
+class WsEventResponder extends Responder
 {
     /** @var  \ZMQContext $zmqContext */
     protected $zmqContext;
@@ -16,7 +15,6 @@ class WsGatewayResponder extends Responder
     public function __construct(Config $config, Logger $logger)
     {
         parent::__construct($config, $logger);
-
         $this->zmqContext = new \ZMQContext;
     }
 
@@ -33,32 +31,6 @@ class WsGatewayResponder extends Responder
         }
         $this->clientId = $clientId;
         return true;
-    }
-
-    /**
-     * Sends a log message to websocket server.
-     *
-     * @param string $msg
-     * @param string $type
-     * @param string $source
-     * @throws RuntimeException
-     */
-    public function log($msg, $type = 'default', $source = '')
-    {
-        if (empty($this->clientId)) {
-            throw new \RuntimeException('Client-Id not set.');
-        }
-        $msg = nl2br($msg);
-        $pushData = [
-            'clientId' => $this->clientId,
-            'eventName' => 'log',
-            'eventPayload' => [
-                'source' => $source,
-                'type' => $type,
-                'text' => $msg,
-            ],
-        ];
-        $this->zmqSend($pushData);
     }
 
     /**
