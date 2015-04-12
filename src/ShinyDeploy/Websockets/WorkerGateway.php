@@ -110,16 +110,20 @@ class WorkerGateway implements WampServerInterface
         if (!class_exists($actionClassName)) {
             throw new WebsocketException('Invalid action passed to worker gateway.');
         }
+        /** @var \ShinyDeploy\Action\WsDataAction $action */
         $action = new $actionClassName($this->config, $this->logger);
-        $actionResponse = $action->__invoke($actionPayload);
+        $action->__invoke($actionPayload);
+        $actionResponse = $action->getResponse($callbackId);
+        /*
         $response = [
             'callbackId' => $callbackId,
             'payload' => $actionResponse
         ];
+        */
 
         /** @var \Ratchet\Wamp\Topic|string $topic **/
         $topic = $this->subscriptions[$clientId];
-        $topic->broadcast($response);
+        $topic->broadcast($actionResponse);
     }
 
     /**
