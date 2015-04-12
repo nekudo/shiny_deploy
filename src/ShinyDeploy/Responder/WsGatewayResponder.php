@@ -51,8 +51,8 @@ class WsGatewayResponder extends Responder
         $msg = nl2br($msg);
         $pushData = [
             'clientId' => $this->clientId,
-            'wsEventName' => 'log',
-            'wsEventParams' => [
+            'eventName' => 'log',
+            'eventPayload' => [
                 'source' => $source,
                 'type' => $type,
                 'text' => $msg,

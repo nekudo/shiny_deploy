@@ -24,10 +24,8 @@ function wsProvider() {
     function wsService($rootScope, $q) {
 
         var ws = {};
-
         var currentCallbackId = 0;
-
-        ws.wsEvents = [];
+        ws.listeners = [];
         ws.callbacks = [];
         ws.clientId = null;
 
@@ -82,28 +80,15 @@ function wsProvider() {
          * Handles incoming messages from websocket server.
          *
          * @param {string} clientId
-         * @param {object} data
+         * @param {object} message
          * @returns {boolean}
          */
-        ws.onMessage = function (clientId, data) {
-            /*
-            if (!data.hasOwnProperty('wsEventName')) {
-                console.log('Invalid onEvent request. No event name given.');
-                return false;
-            }
-            */
+        ws.onMessage = function (clientId, message) {
             try {
-                if (ws.wsEvents.hasOwnProperty(data.wsEventName)) {
-                    return ws.wsEvents[data.wsEventName](data.wsEventParams);
-                } else {
-
-                    if(ws.callbacks.hasOwnProperty(data.callback_id)) {
-                        console.log(ws.callbacks[data.callback_id]);
-                        $rootScope.$apply(ws.callbacks[data.callback_id].cb.resolve(data.data));
-                        delete ws.callbacks[data.callback_id];
-                    } else {
-                        console.log('Warning: Requested event is unknown. (' + wsEventName + ')');
-                    }
+                if (message.hasOwnProperty('eventName')) {
+                    handleEventMessage(clientId, message);
+                } else if (message.hasOwnProperty('callbackId')) {
+                    handleDataMessage(clientId, message);
                 }
             } catch (e) {
                 console.log(e);
@@ -111,17 +96,46 @@ function wsProvider() {
             return false;
         };
 
-
-
-
+        /**
+         * Handles incoming data massages.
+         *
+         * @param {string} clientId
+         * @param {object} message
+         */
+        function handleDataMessage(clientId, message) {
+            var callbackId = message.callbackId;
+            var payload = message.payload;
+            if(ws.callbacks.hasOwnProperty(callbackId)) {
+                $rootScope.$apply(ws.callbacks[callbackId].cb.resolve(payload));
+                delete ws.callbacks[callbackId];
+            } else {
+                console.log('Could not resolve callback.');
+            }
+        }
 
         /**
-         * Requests an event on projects php backend.
+         * Handles incoming event massages.
          *
-         * @param {string} action
+         * @param {string} clientId
+         * @param {object} message
+         */
+        function handleEventMessage(clientId, message) {
+            var eventName = message.eventName;
+            var payload = message.eventPayload;
+            if (ws.listeners.hasOwnProperty(eventName)) {
+                return ws.listeners[eventName](payload);
+            } else {
+                console.log('Could not find any listener for event: ' + eventName);
+            }
+        }
+
+        /**
+         * Tiggers an action on projects php backend.
+         *
+         * @param {string} actionName
          * @param {object} params
          */
-        ws.sendTriggerRequest = function (action, params) {
+        ws.sendTriggerRequest = function (actionName, params) {
             if (typeof params !== 'object') {
                 params = {
                     clientId: this.clientId
@@ -129,44 +143,48 @@ function wsProvider() {
             } else {
                 params.clientId = this.clientId;
             }
-            ws.conn.call(action, params);
+            ws.conn.call(actionName, params);
         };
 
-
-        ws.sendCallbackRequest = function (action, params) {
+        /**
+         * Requests data from websocket server.
+         *
+         * @param actionName
+         * @param params
+         * @returns {a.promise|promise|d.promise|fd.g.promise}
+         */
+        ws.sendDataRequest = function (actionName, params) {
             if (typeof params !== 'object') {
                 params = {};
             }
             params.clientId = ws.clientId;
             params.callbackId = ws.getCallbackId();
-
             var defer = $q.defer();
             ws.callbacks[params.callbackId] = {
                 time: new Date(),
                 cb:defer
             };
-            console.log('Sending callback request', action, params);
-            ws.conn.call(action, params);
+            ws.conn.call(actionName, params);
             return defer.promise;
         };
 
-
         /**
-         * Registers a new websocket event.
+         * Adds callback listening for events on websocket connection.
          *
-         * @param {string} wsEventName
+         * @param {string} eventName
          * @param {function} callback
          * @returns {boolean}
          */
-        ws.registerWsEvent = function(wsEventName, callback) {
-            ws.wsEvents[wsEventName] = callback;
+        ws.addListener = function(eventName, callback) {
+            ws.listeners[eventName] = callback;
             return true;
         };
 
-
-
-
-        // This creates a new callback ID for a request
+        /**
+         * Generates a callback id.
+         *
+         * @returns {number}
+         */
         ws.getCallbackId = function() {
             currentCallbackId += 1;
             if(currentCallbackId > 10000) {
@@ -174,12 +192,6 @@ function wsProvider() {
             }
             return currentCallbackId;
         };
-
-
-
-
-
-
 
         /**
          * Generates a unique (random) user-id.
@@ -203,12 +215,11 @@ function wsProvider() {
     }
 
     /**
-     * Define URL.
+     * Set url of websocket server.
      *
      * @param {string} url
      * @returns {wsProvider}
      */
-
     this.setUrl = function setOptions(url) {
         this.config.url = url;
         return this;

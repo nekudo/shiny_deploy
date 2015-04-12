@@ -46,17 +46,7 @@
         </section>
     </aside>
 
-    <div class="content-wrapper">
-        <section data-ng-view="" class="content"></section>
-
-        <div class="row">
-            <div class="col-xs-12">
-                <div id="console" class="nano" data-ng-controller="LogController">
-                    <div id="log" class="nano-content"></div>
-                </div>
-            </div>
-        </div>
-    </div><!-- /content-wrapper -->
+    <div class="content-wrapper" data-ng-view=""></div>
 
     <footer class="main-footer">
         <small>another shiny project by <a href="https://nekudo.com">nekudo.com</a></small>
@@ -66,9 +56,10 @@
 <script src="/js/vendor/angular.min.js"></script>
 <script src="/js/vendor/angular-route.min.js"></script>
 <script src="/js/vendor/jquery.min.js"></script>
+<script src="/js/vendor/jquery.nanoscroller.min.js"></script>
 <script src="/js/vendor/bootstrap.min.js"></script>
 <script src="/js/vendor/template.min.js"></script>
-<script src="js/vendor/autobahn.min.js"></script>
+<script src="/js/vendor/autobahn.min.js"></script>
 
 <script src="/js/app.js"></script>
 <script src="/js/app/services/servers.js"></script>

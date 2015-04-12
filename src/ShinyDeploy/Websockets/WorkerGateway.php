@@ -49,7 +49,7 @@ class WorkerGateway implements WampServerInterface
         try {
             $this->logger->debug('onApiEvent: ' . $dataEncoded);
             $data = json_decode($dataEncoded, true);
-            if (empty($data['clientId']) || empty($data['wsEventName'])) {
+            if (empty($data['clientId']) || empty($data['eventName'])) {
                 throw new WebsocketException('Required parameter missing.');
             }
             if (!isset($this->subscriptions[$data['clientId']])) {
@@ -84,8 +84,8 @@ class WorkerGateway implements WampServerInterface
             $callbackId = (isset($params['callbackId'])) ? $params['callbackId'] : null;
 
             if (!empty($callbackId)) {
-                $actionParams = (isset($params['actionParams'])) ? $params['actionParams'] : [];
-                $this->handleCallbackRequest($clientId, $callbackId, $actionName, $actionParams);
+                $actionPayload = (isset($params['actionPayload'])) ? $params['actionPayload'] : [];
+                $this->handleCallbackRequest($clientId, $callbackId, $actionName, $actionPayload);
             } else {
                 $this->handleTriggerRequest($clientId, $actionName, $params);
             }
@@ -99,17 +99,17 @@ class WorkerGateway implements WampServerInterface
     /**
      * Handles requests which directly respond with the requested data.
      */
-    protected function handleCallbackRequest($clientId, $callbackId, $actionName, array $actionParams)
+    protected function handleCallbackRequest($clientId, $callbackId, $actionName, array $actionPayload)
     {
         $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
             throw new WebsocketException('Invalid action passed to worker gateway.');
         }
         $action = new $actionClassName($this->config, $this->logger);
-        $actionResponse = $action->__invoke($actionParams);
+        $actionResponse = $action->__invoke($actionPayload);
         $response = [
-            'callback_id' => $callbackId,
-            'data' => $actionResponse
+            'callbackId' => $callbackId,
+            'payload' => $actionResponse
         ];
         $Topic = $this->subscriptions[$clientId];
         $Topic->broadcast($response);

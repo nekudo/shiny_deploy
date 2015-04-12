@@ -1,5 +1,6 @@
 app.controller('LogController', function ($scope, $location, ws) {
-    ws.registerWsEvent('log', function(eventData) {
+    // listen to "log" events on websocket stream
+    ws.addListener('log', function(eventData) {
         var message = eventData.text;
         var type = (typeof eventData.type !== 'undefined') ? eventData.type : 'default';
         var source = (typeof eventData.source !== 'undefined') ? eventData.source : '';
@@ -17,7 +18,7 @@ app.controller('LogController', function ($scope, $location, ws) {
      * @param {string} source
      * @param {string} time
      */
-   function log(message, type, source, time) {
+    function log(message, type, source, time) {
         var elLog = $('#log');
         var logClass = 'log-' + type;
         var msgLines = message.split("\n");
