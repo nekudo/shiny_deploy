@@ -6,11 +6,11 @@ use ShinyDeploy\Core\Server\Server;
 use ShinyDeploy\Domain\Git;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Domain\Deploy as DeployDomain;
-use ShinyDeploy\Responder\WsGatewayResponder;
+use ShinyDeploy\Responder\WsLogResponder;
 
 class Deploy extends Action
 {
-    /** @var  WsGatewayResponder $responder */
+    /** @var  WsLogResponder $responder */
     protected $responder;
 
     /** @var  DeployDomain $deployDomain */
@@ -31,7 +31,7 @@ class Deploy extends Action
             $this->deployDomain = new DeployDomain($this->config, $this->logger);
             $this->gitDomain = new Git($this->config, $this->logger);
             $this->repositoryDomain = new Repository($this->config, $this->logger);
-            $responder = new WsGatewayResponder($this->config, $this->logger);
+            $responder = new WsLogResponder($this->config, $this->logger);
             $responder->setClientId($clientId);
             $this->responder = $responder;
 
