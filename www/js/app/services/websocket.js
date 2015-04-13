@@ -103,10 +103,18 @@ function wsProvider() {
          * @param {object} message
          */
         function handleDataMessage(clientId, message) {
+            if (!message.hasOwnProperty('type')) {
+                console.log('Received invalid data message: Type is missing.');
+            }
             var callbackId = message.callbackId;
             var payload = message.payload;
+            var type = message.type;
             if(ws.callbacks.hasOwnProperty(callbackId)) {
-                $rootScope.$apply(ws.callbacks[callbackId].cb.resolve(payload));
+                if (type === 'success') {
+                    $rootScope.$apply(ws.callbacks[callbackId].cb.resolve(payload));
+                } else if (type === 'error') {
+                    $rootScope.$apply(ws.callbacks[callbackId].cb.reject(message.reason));
+                }
                 delete ws.callbacks[callbackId];
             } else {
                 console.log('Could not resolve callback.');
