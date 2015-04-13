@@ -16,6 +16,6 @@ abstract class WsDataAction extends Action
     public function getResponse($callbackId)
     {
         $this->responder->setCallbackId($callbackId);
-        return $this->$responder;
+        return $this->responder->getFrameData();
     }
 }
