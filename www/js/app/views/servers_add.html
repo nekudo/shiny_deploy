@@ -6,7 +6,13 @@
 </section>
 
 <section class="content">
-    <alert-msg></alert-msg>
+    <div data-ng-controller="AlertsController">
+        <div class="alert alert-{{alert.type}} alert-dismissable" data-ng-repeat="alert in alerts">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            {{alert.msg}}
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xs-12">
             <form name="addServerForm" novalidate>
