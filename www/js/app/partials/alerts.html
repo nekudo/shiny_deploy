@@ -1,6 +1,6 @@
 <div data-ng-controller="AlertsController">
     <div class="alert alert-{{alert.type}} alert-dismissable" data-ng-repeat="alert in alerts">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <button data-ng-click="removeAlert($index)" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         {{alert.msg}}
     </div>
 </div>

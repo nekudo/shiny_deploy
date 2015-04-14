@@ -11,6 +11,10 @@ app.controller('AlertsController', function ($scope) {
         });
     };
 
+    $scope.removeAlert = function(index) {
+        $scope.alerts.splice(index, 1);
+    };
+
     function addMessageListener() {
         var _unregister;
         _unregister = $scope.$on('alertMessage', function (event, message, type) {
