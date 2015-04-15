@@ -52,7 +52,7 @@ class WsDataResponder extends Responder
         if (!is_string($msg)) {
             throw new WebsocketException('Error message has to be of type string.');
         }
-        $this->$responseType = 'error';
+        $this->responseType = 'error';
         if (!empty($msg)) {
             $this->errorMsg = $msg;
         }
@@ -77,9 +77,9 @@ class WsDataResponder extends Responder
     {
         $frameData = [
             'callbackId' => $this->callbackId,
-            'type' => $this->$responseType,
+            'type' => $this->responseType,
         ];
-        if ($this->$responseType === 'error') {
+        if ($this->responseType === 'error') {
             $frameData['reason'] = $this->errorMsg;
         } else {
             $frameData['payload'] = $this->payload;

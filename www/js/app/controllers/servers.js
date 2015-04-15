@@ -25,6 +25,7 @@ app.controller('ServersAddController', function ($scope, $location, serversServi
         var promise = serversService.addServer($scope.server);
         promise.then(function(data) {
             $location.path('/servers');
+            alertsService.pushAlert('Server successfully added.', 'success');
         }, function(reason) {
             alertsService.pushAlert(reason, 'warning');
         })

@@ -1,16 +1,8 @@
 <?php
 namespace ShinyDeploy\Domain;
 
-use Apix\Log\Logger;
-use Noodlehaus\Config;
-
 class Servers extends DatabaseDomain
 {
-    public function __construct(Config $config, Logger $logger)
-    {
-        parent::__construct($config, $logger);
-    }
-
     /**
      * Fetches list of servers from database.
      *
@@ -20,5 +12,28 @@ class Servers extends DatabaseDomain
     {
         $rows = $this->db->prepare("SELECT * FROM servers ORDER BY `name`")->getResult(false);
         return $rows;
+    }
+
+    /**
+     * Stores new server in database.
+     *
+     * @param array $serverData
+     * @return bool
+     */
+    public function addServer(array $serverData)
+    {
+        return $this->db->prepare(
+            "INSERT INTO servers
+              (`name`, `type`, `hostname`, `port`, `username`, `password`, `root_path`)
+              VALUES
+                (%s, %s, %s, %d, %s, %s, %s)",
+            $serverData['name'],
+            $serverData['type'],
+            $serverData['hostname'],
+            $serverData['port'],
+            $serverData['username'],
+            $serverData['password'],
+            $serverData['root_path']
+        )->execute();
     }
 }

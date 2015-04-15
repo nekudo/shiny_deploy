@@ -2,16 +2,26 @@
 namespace ShinyDeploy\Action;
 
 use ShinyDeploy\Domain\Servers;
+use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Responder\WsDataResponder;
 
 class AddServer extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
-        $serversDomain = new Servers($this->config, $this->logger);
-        //$servers = $serversDomain->getServers();
         $responder = new WsDataResponder($this->config, $this->logger);
-        $responder->setError('testing error response...');
+        if (!isset($actionPayload['serverData'])) {
+            throw new WebsocketException('Invalid addServer request received.');
+        }
+        $serverData = $actionPayload['serverData'];
+
+        // @todo Implement server side data validation!
+
+        $serversDomain = new Servers($this->config, $this->logger);
+        $addResult = $serversDomain->addServer($serverData);
+        if ($addResult === false) {
+            $responder->setError('testing error response...');
+        }
         $this->setResponse($responder);
     }
 
