@@ -162,17 +162,17 @@ function wsProvider() {
          * @returns {a.promise|promise|d.promise|fd.g.promise}
          */
         ws.sendDataRequest = function (actionName, params) {
-            if (typeof params !== 'object') {
-                params = {};
-            }
-            params.clientId = ws.clientId;
-            params.callbackId = ws.getCallbackId();
+            var requestParams = {
+                clientId: ws.clientId,
+                callbackId: ws.getCallbackId(),
+                actionPayload: params
+            };
             var defer = $q.defer();
-            ws.callbacks[params.callbackId] = {
+            ws.callbacks[requestParams.callbackId] = {
                 time: new Date(),
                 cb:defer
             };
-            ws.conn.call(actionName, params);
+            ws.conn.call(actionName, requestParams);
             return defer.promise;
         };
 

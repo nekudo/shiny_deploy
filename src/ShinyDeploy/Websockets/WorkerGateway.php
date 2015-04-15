@@ -114,12 +114,6 @@ class WorkerGateway implements WampServerInterface
         $action = new $actionClassName($this->config, $this->logger);
         $action->__invoke($actionPayload);
         $actionResponse = $action->getResponse($callbackId);
-        /*
-        $response = [
-            'callbackId' => $callbackId,
-            'payload' => $actionResponse
-        ];
-        */
 
         /** @var \Ratchet\Wamp\Topic|string $topic **/
         $topic = $this->subscriptions[$clientId];
