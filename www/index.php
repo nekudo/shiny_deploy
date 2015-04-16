@@ -47,7 +47,9 @@
         </section>
     </aside>
 
-    <div class="content-wrapper" data-ng-view=""></div>
+    <div class="content-wrapper">
+        <div data-ng-view=""></div>
+    </div>
 
     <footer class="main-footer">
         <small>another shiny project by <a href="https://nekudo.com">nekudo.com</a></small>
