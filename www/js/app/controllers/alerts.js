@@ -45,7 +45,6 @@ app.controller('AlertsController', function ($scope, alertsService) {
      */
     function showQueuedAlert() {
         var queuedAlert = alertsService.getQueuedAlert();
-        console.log(queuedAlert);
         if (queuedAlert !== '') {
             $scope.addAlert(queuedAlert.message, queuedAlert.type);
         }
