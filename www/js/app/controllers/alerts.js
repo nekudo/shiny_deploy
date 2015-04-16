@@ -1,9 +1,18 @@
-app.controller('AlertsController', function ($scope) {
+app.controller('AlertsController', function ($scope, alertsService) {
 
+    /**
+     * Alert message storage.
+     *
+     * @type {Array}
+     */
     $scope.alerts = [];
 
-    addMessageListener();
-
+    /**
+     * Adds new alert message.
+     *
+     * @param message
+     * @param type
+     */
     $scope.addAlert = function(message, type) {
         $scope.alerts.push({
             msg: message,
@@ -11,10 +20,18 @@ app.controller('AlertsController', function ($scope) {
         });
     };
 
+    /**
+     * Removes alert message from storage.
+     *
+     * @param index
+     */
     $scope.removeAlert = function(index) {
         $scope.alerts.splice(index, 1);
     };
 
+    /**
+     * Listens for alertMessages emitted by alerts service.
+     */
     function addMessageListener() {
         var _unregister;
         _unregister = $scope.$on('alertMessage', function (event, message, type) {
@@ -22,4 +39,18 @@ app.controller('AlertsController', function ($scope) {
         });
         $scope.$on("$destroy", _unregister);
     }
+
+    /**
+     * Displays queued alert message.
+     */
+    function showQueuedAlert() {
+        var queuedAlert = alertsService.getQueuedAlert();
+        console.log(queuedAlert);
+        if (queuedAlert !== '') {
+            $scope.addAlert(queuedAlert.message, queuedAlert.type);
+        }
+    }
+
+    addMessageListener();
+    showQueuedAlert();
 });
