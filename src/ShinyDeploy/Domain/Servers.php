@@ -3,6 +3,45 @@ namespace ShinyDeploy\Domain;
 
 class Servers extends DatabaseDomain
 {
+    /** @var array $rules Validation rules */
+    protected $rules = [
+        'required' => [
+            ['name'],
+            ['type'],
+            ['hostname'],
+            ['port'],
+            ['root_path']
+        ],
+        'integer' => [
+            ['port']
+        ],
+        'in' => [
+            ['type', ['sftp', 'ssh']]
+        ],
+        'hostname' => [
+            ['hostname', true]
+        ],
+    ];
+
+    /**
+     * Get validation rules for insert queries.
+     *
+     * @return array
+     */
+    public function getCreateRules()
+    {
+        return $this->rules;
+    }
+
+    /**
+     * Get validation rules for update queries.
+     *
+     * @return array
+     */
+    public function getUpdateRules()
+    {
+        return $this->rules;
+    }
     /**
      * Fetches list of servers from database.
      *
