@@ -3,9 +3,13 @@
         "cboden/ratchet": "0.3.*",
         "react/zmq": "0.2.*|0.3.*",
         "noodlehaus/config": "0.7.*",
-        "apix/log": "1.0.*"
+        "apix/log": "1.0.*",
+        "vlucas/valitron": "~1.2"
     },
     "autoload": {
-        "psr-4": {"ShinyDeploy\\": "src/ShinyDeploy"}
+        "psr-4": {
+            "ShinyDeploy\\": "src/ShinyDeploy",
+            "GG\\": "vendor/gg/valid-hostname"
+        }
     }
 }
