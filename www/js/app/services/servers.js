@@ -22,6 +22,19 @@ app.service('serversService', function (ws) {
     };
 
     /**
+     * Removes a server from database.
+     *
+     * @param {number} serverId
+     * @returns {promise}
+     */
+    this.deleteServer = function (serverId) {
+        var requestParams = {
+            serverId: serverId
+        };
+        return ws.sendDataRequest('deleteServer', requestParams);
+    };
+
+    /**
      * Updates existing server.
      *
      * @param {Array} serverData
