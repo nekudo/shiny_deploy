@@ -2,7 +2,7 @@ app.service('serversService', function (ws) {
     /**
      * Fetches list of servers.
      *
-     * @returns {a.promise|promise|d.promise|fd.g.promise}
+     * @returns {promise}
      */
     this.getServers = function () {
         return ws.sendDataRequest('getServers');
@@ -11,13 +11,42 @@ app.service('serversService', function (ws) {
     /**
      * Adds new server.
      *
-     * @param serverData
-     * @returns {a.promise|promise|d.promise|fd.g.promise}
+     * @param {Array} serverData
+     * @returns {promise}
      */
     this.addServer = function (serverData) {
         var requestParams = {
             serverData: serverData
         };
         return ws.sendDataRequest('addServer', requestParams);
-    }
+    };
+
+    /**
+     * Updates existing server.
+     *
+     * @param {Array} serverData
+     * @returns {promise}
+     */
+    this.updateServer = function (serverData) {
+        var requestParams = {
+            serverData: serverData
+        };
+        return ws.sendDataRequest('updateServer', requestParams);
+    };
+
+    /**
+     * Fetches data for a server.
+     *
+     * @param {number} serverId
+     * @returns {bool|promise}
+     */
+    this.getServerData = function(serverId) {
+        if (serverId === 0) {
+            return false;
+        }
+        var requestParams = {
+            serverId: serverId
+        };
+        return ws.sendDataRequest('getServerData', requestParams);
+    };
 });

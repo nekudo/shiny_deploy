@@ -18,10 +18,17 @@
                         <tr>
                             <th>ID</th>
                             <th>Server</th>
+                            <th></th>
                         </tr>
                         <tr data-ng-repeat="server in getServers()">
                             <td>{{server.id}}</td>
                             <td>{{server.name}}</td>
+                            <td class="text-right">
+                                <a href="/servers/edit/{{server.id}}" type="button" class="btn btn-sm btn-info">
+                                    <i class="fa fa-pencil"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-sm btn-danger"><i class="fa fa-times"></i> Delete</button>
+                            </td>
                         </tr>
                     </table>
                 </div><!-- /.box-body -->
@@ -30,7 +37,7 @@
                 </div>
             </div><!-- /.box -->
 
-            <div data-ng-include="'/js/app/partials/console.html'"></div>
+            <!-- <div data-ng-include="'/js/app/partials/console.html'"></div> -->
         </div>
     </div>
 </section>

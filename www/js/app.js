@@ -16,7 +16,11 @@ app.config(function ($routeProvider, $locationProvider, wsProvider) {
         })
         .when('/servers/add', {
             controller: 'ServersAddController',
-            templateUrl: '/js/app/views/servers_add.html'
+            templateUrl: '/js/app/views/servers_form.html'
+        })
+        .when('/servers/edit/:serverId', {
+            controller: 'ServersEditController',
+            templateUrl: '/js/app/views/servers_form.html'
         })
         .when('/repositories', {
             controller: 'RepositoriesController',

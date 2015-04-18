@@ -40,6 +40,8 @@ class Servers extends DatabaseDomain
      */
     public function getUpdateRules()
     {
+        $rules = $this->rules;
+        $rules['required'][] = ['id'];
         return $this->rules;
     }
     /**
@@ -74,5 +76,56 @@ class Servers extends DatabaseDomain
             $serverData['password'],
             $serverData['root_path']
         )->execute();
+    }
+
+    /**
+     * Updates server.
+     *
+     * @param array $serverData
+     * @return bool
+     */
+    public function updateServer(array $serverData)
+    {
+        if (!isset($serverData['id'])) {
+            return false;
+        }
+        return $this->db->prepare(
+            "UPDATE servers
+            SET `name` = %s,
+              `type` = %s,
+              `hostname` = %s,
+              `port` = %d,
+              `username` = %s,
+              `password` = %s,
+              `root_path` = %s
+            WHERE id = %d",
+            $serverData['name'],
+            $serverData['type'],
+            $serverData['hostname'],
+            $serverData['port'],
+            $serverData['username'],
+            $serverData['password'],
+            $serverData['root_path'],
+            $serverData['id']
+        )->execute();
+    }
+
+    /**
+     * Fetches server data.
+     *
+     * @param int $serverId
+     * @return array
+     */
+    public function getServerData($serverId)
+    {
+        $serverId = (int)$serverId;
+        if ($serverId === 0) {
+            return [];
+        }
+        $serverData = $this->db->prepare("SELECT * FROM servers WHERE id = %d", $serverId)->getResult(true);
+        if (empty($serverData)) {
+            return [];
+        }
+        return $serverData;
     }
 }
