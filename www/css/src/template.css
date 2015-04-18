@@ -1,3 +1,6 @@
+.layout-boxed{
+    background:url('../../img/boxed-bg.jpg') repeat fixed;
+}
 .header-toolbar {
     position: absolute;
     top: 10px;

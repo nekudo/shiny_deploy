@@ -1,0 +1,140 @@
+<section class="content-header">
+    <h1>
+        Servers
+        <small data-ng-if="isAdd">Add new server</small>
+        <small data-ng-if="isEdit">Edit server</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div data-ng-include="'/js/app/partials/alerts.html'"></div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <form name="editServerForm" novalidate>
+                <input type="hidden" name="id" data-ng-model="server.id" data-ng-if="isEdit">
+                <div class="box box-success">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editServerForm.name.$invalid && editServerForm.name.$dirty}">
+                                    <label for="server-name">Name</label>
+                                    <input
+                                        name="name"
+                                        type="text"
+                                        class="form-control"
+                                        id="server-name"
+                                        placeholder="My server"
+                                        data-ng-model="server.name"
+                                        data-ng-minlength="5"
+                                        data-ng-maxlength="50"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                    data-ng-class="{ 'has-error': editServerForm.type.$invalid && editServerForm.type.$dirty}">
+                                    <label for="server-type">Type</label>
+                                    <select
+                                        name="type"
+                                        class="form-control"
+                                        id="server-type"
+                                        data-ng-model="server.type"
+                                        required>
+                                        <option value="ssh">SSH</option>
+                                        <option value="sftp">SFTP</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                    data-ng-class="{ 'has-error': editServerForm.hostname.$invalid && editServerForm.hostname.$dirty}">
+                                    <label for="server-hostname">Hostname</label>
+                                    <input
+                                        name="hostname"
+                                        type="text"
+                                        class="form-control"
+                                        id="server-hostname"
+                                        placeholder="foo.mydomain.com"
+                                        data-ng-model="server.hostname"
+                                        data-ng-minlength="3"
+                                        data-ng-maxlength="200"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editServerForm.port.$invalid && editServerForm.port.$dirty}">
+                                    <label for="server-port">Port</label>
+                                    <input
+                                            name="port"
+                                            type="number"
+                                            min="1"
+                                            max="65535"
+                                            class="form-control"
+                                            id="server-port"
+                                            placeholder="22"
+                                            data-ng-model="server.port"
+                                            data-ng-minlength="1"
+                                            data-ng-maxlength="5"
+                                            required>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editServerForm.username.$invalid && editServerForm.username.$dirty}">
+                                    <label for="server-username">Username</label>
+                                    <input
+                                            name="username"
+                                            type="text"
+                                            class="form-control"
+                                            id="server-username"
+                                            placeholder="usr1337"
+                                            data-ng-model="server.username"
+                                            data-ng-minlength="3"
+                                            data-ng-maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editServerForm.password.$invalid && editServerForm.password.$dirty}">
+                                    <label for="server-password">Password</label>
+                                    <input
+                                            name="password"
+                                            type="password"
+                                            class="form-control"
+                                            id="server-password"
+                                            data-ng-model="server.password"
+                                            data-ng-minlength="6"
+                                            data-ng-maxlength="50">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="form-group"
+                                    data-ng-class="{ 'has-error': editServerForm.root_path.$invalid && editServerForm.root_path.$dirty}">
+                                    <label for="server-root_path">Root path</label>
+                                    <input
+                                            name="root_path"
+                                            type="text"
+                                            class="form-control"
+                                            id="server-root_path"
+                                            placeholder="/"
+                                            data-ng-model="server.root_path"
+                                            data-ng-minlength="1"
+                                            data-ng-maxlength="200"
+                                            required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button data-ng-if="isAdd" data-ng-disabled="editServerForm.$invalid" data-ng-click="addServer()" class="btn btn-success">Save</button>
+                        <button data-ng-if="isEdit" data-ng-disabled="editServerForm.$invalid" data-ng-click="updateServer()" class="btn btn-info">Update</button>
+                        <a href="/servers" class="btn btn-default">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

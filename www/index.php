@@ -14,7 +14,7 @@
     <link href="/css/src/console.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body class="skin-blue">
+<body class="skin-blue layout-boxed">
 <div class="wrapper">
 
     <header class="main-header">
