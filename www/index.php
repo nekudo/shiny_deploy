@@ -5,13 +5,8 @@
     <title>Shiny Deploy</title>
     <base href="/">
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-    <link href="/css/vendor/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-    <link href="http://code.ionicframework.com/ionicons/2.0.0/css/ionicons.min.css" rel="stylesheet" type="text/css" />
-    <link href="/css/vendor/AdminLTE.min.css" rel="stylesheet" type="text/css" />
-    <link href="/css/vendor/skin-blue.min.css" rel="stylesheet" type="text/css" />
-    <link href="/css/src/template.css" rel="stylesheet" type="text/css" />
-    <link href="/css/src/console.css" rel="stylesheet" type="text/css" />
+    <link href="/css/vendor.min.css" rel="stylesheet" type="text/css" />
+    <link href="/css/project.min.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body class="skin-blue layout-boxed">
@@ -33,14 +28,19 @@
         <section class="sidebar">
             <ul class="sidebar-menu" data-ng-controller="MenuController">
                 <li class="header">MAIN NAVIGATION</li>
+                <li data-ng-class="{'active':getClass('/repositories')}">
+                    <a href="/repositories">
+                        <i class="fa fa-github"></i> <span>Repositories</span>
+                    </a>
+                </li>
                 <li data-ng-class="{'active':getClass('/servers')}">
                     <a href="/servers">
                         <i class="fa fa-linux"></i> <span>Servers</span>
                     </a>
                 </li>
-                <li data-ng-class="{'active':getClass('/repositories')}">
-                    <a href="/repositories">
-                        <i class="fa fa-github"></i> <span>Repositories</span>
+                <li data-ng-class="{'active':getClass('/deployments')}">
+                    <a href="/deployments">
+                        <i class="fa fa-cloud-upload"></i> <span>Deployments</span>
                     </a>
                 </li>
             </ul>

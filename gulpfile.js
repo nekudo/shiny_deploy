@@ -1,20 +1,33 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
-/*
 var minifyCSS = require('gulp-minify-css');
+/*
 var uglifyJS = require('gulp-uglifyjs');
 var rename = require('gulp-rename');
 */
 
-// Tasks
-/*
-gulp.task('css', function(){
-    gulp.src('provider/assets/stylesheets/*.css')
+// CSS Tasks
+gulp.task('project_css', function(){
+    gulp.src('www/css/src/*.css')
         .pipe(minifyCSS())
-        .pipe(concat('style.min.css'))
-        .pipe(gulp.dest('public/assets/css/'))
+        .pipe(concat('project.min.css'))
+        .pipe(gulp.dest('www/css/'))
 });
-*/
+
+gulp.task('vendor_css', function(){
+    gulp.src([
+        'www/css/vendor/bootstrap.min.css',
+        'www/css/vendor/font-awesome.min.css',
+        'www/css/vendor/AdminLTE.min.css',
+        'www/css/vendor/skin-blue.min.css',
+        'www/fonts/source-code-pro.css',
+        'www/fonts/source-sans-pro.css'
+    ])
+        .pipe(concat('vendor.min.css'))
+        .pipe(gulp.dest('www/css/'))
+});
+
+// JS Tasks
 gulp.task('project_js', function(){
     gulp.src([
         'www/js/app/app.js',
@@ -23,6 +36,7 @@ gulp.task('project_js', function(){
         .pipe(concat('project.js'))
         .pipe(gulp.dest('www/js/'))
 });
+
 gulp.task('vendor_js', function(){
     gulp.src([
         'www/js/vendor/angular.min.js',
@@ -39,7 +53,7 @@ gulp.task('vendor_js', function(){
 
 // Watcher
 gulp.task('watch_project_js', function() {
-    //gulp.watch('www/css/src/*.css', ['css']);
+    gulp.watch('www/css/src/*.css', ['project_css']);
     gulp.watch(['www/js/app.js', 'www/js/app/**/*.js'], ['project_js']);
 });
 
