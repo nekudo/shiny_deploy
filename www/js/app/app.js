@@ -26,6 +26,14 @@ app.config(function ($routeProvider, $locationProvider, wsProvider) {
             controller: 'RepositoriesController',
             templateUrl: '/js/app/views/repositories.html'
         })
+        .when('/repositories/add', {
+            controller: 'RepositoriesAddController',
+            templateUrl: '/js/app/views/repositories_form.html'
+        })
+        .when('/repositories/edit/:repositoryId', {
+            controller: 'RepositoriesEditController',
+            templateUrl: '/js/app/views/repositories_form.html'
+        })
         .otherwise({ redirectTo: '/' });
 });
 

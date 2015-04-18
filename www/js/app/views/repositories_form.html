@@ -1,0 +1,76 @@
+<section class="content-header">
+    <h1>
+        Repositories
+        <small data-ng-if="isAdd">Add new repository</small>
+        <small data-ng-if="isEdit">Edit repository</small>
+    </h1>
+</section>
+
+<section class="content">
+    <div data-ng-include="'/js/app/partials/alerts.html'"></div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <form name="editRepositoryForm" novalidate>
+                <input type="hidden" name="id" data-ng-model="repository.id" data-ng-if="isEdit">
+                <div class="box" data-ng-class="{'box-primary': isEdit, 'box-success': isAdd}">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editRepositoryForm.name.$invalid && editRepositoryForm.name.$dirty}">
+                                    <label for="repository-name">Name</label>
+                                    <input
+                                            name="name"
+                                            type="text"
+                                            class="form-control"
+                                            id="repository-name"
+                                            placeholder="My repository"
+                                            data-ng-model="repository.name"
+                                            data-ng-minlength="5"
+                                            data-ng-maxlength="100"
+                                            required>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editRepositoryForm.type.$invalid && editRepositoryForm.type.$dirty}">
+                                    <label for="repository-type">Type</label>
+                                    <select
+                                            name="type"
+                                            class="form-control"
+                                            id="repository-type"
+                                            data-ng-model="repository.type"
+                                            required>
+                                        <option value="git">GIT</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editRepositoryForm.url.$invalid && editRepositoryForm.url.$dirty}">
+                                    <label for="repository-url">URL</label>
+                                    <input
+                                            name="url"
+                                            type="text"
+                                            class="form-control"
+                                            id="repository-url"
+                                            placeholder="https://github.com/nekudo/shiny_deploy.git"
+                                            data-ng-model="repository.url"
+                                            data-ng-minlength="10"
+                                            data-ng-maxlength="200"
+                                            required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box-footer">
+                        <button data-ng-if="isAdd" data-ng-disabled="editRepositoryForm.$invalid" data-ng-click="addRepository()" class="btn btn-success">Save</button>
+                        <button data-ng-if="isEdit" data-ng-disabled="editRepositoryForm.$invalid" data-ng-click="updateRepository()" class="btn btn-primary">Update</button>
+                        <a href="/repositories" class="btn btn-default">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
