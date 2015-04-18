@@ -1,4 +1,4 @@
-app.controller('ServersController', function ($scope, serversService) {
+app.controller('ServersController', function ($scope, serversService, alertsService) {
     var servers = null;
 
     loadServers();
@@ -26,6 +26,26 @@ app.controller('ServersController', function ($scope, serversService) {
     $scope.getServers = function() {
         return servers;
     };
+
+    /**
+     * Removes a server.
+     *
+     * @param {number} serverId
+     */
+    $scope.deleteServer = function(serverId) {
+        var promise = serversService.deleteServer(serverId);
+        promise.then(function(data) {
+            for (var i = servers.length - 1; i >= 0; i--) {
+                if (servers[i].id === serverId) {
+                    servers.splice(i, 1);
+                    break;
+                }
+            }
+            alertsService.pushAlert('Server successfully deleted.', 'success');
+        }, function(reason) {
+            alertsService.pushAlert(reason, 'warning');
+        });
+    }
 });
 
 app.controller('ServersAddController', function ($scope, $location, serversService, alertsService) {
@@ -58,7 +78,6 @@ app.controller('ServersEditController', function ($scope, $location, $routeParam
         $scope.server = data;
     }, function(reason) {
         $location.path('/servers');
-        alertsService.queueAlert('Could not fetch server data.', 'danger');
     });
 
     $scope.updateServer = function() {

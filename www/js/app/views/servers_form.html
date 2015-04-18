@@ -13,7 +13,7 @@
         <div class="col-xs-12">
             <form name="editServerForm" novalidate>
                 <input type="hidden" name="id" data-ng-model="server.id" data-ng-if="isEdit">
-                <div class="box box-success">
+                <div class="box" data-ng-class="{'box-primary': isEdit, 'box-success': isAdd}">
                     <div class="box-body">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
@@ -130,7 +130,7 @@
                     </div>
                     <div class="box-footer">
                         <button data-ng-if="isAdd" data-ng-disabled="editServerForm.$invalid" data-ng-click="addServer()" class="btn btn-success">Save</button>
-                        <button data-ng-if="isEdit" data-ng-disabled="editServerForm.$invalid" data-ng-click="updateServer()" class="btn btn-info">Update</button>
+                        <button data-ng-if="isEdit" data-ng-disabled="editServerForm.$invalid" data-ng-click="updateServer()" class="btn btn-primary">Update</button>
                         <a href="/servers" class="btn btn-default">Cancel</a>
                     </div>
                 </div>

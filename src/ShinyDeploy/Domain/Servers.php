@@ -111,6 +111,21 @@ class Servers extends DatabaseDomain
     }
 
     /**
+     * Deletes a server.
+     *
+     * @param int $serverId
+     * @return bool
+     */
+    public function deleteServer($serverId)
+    {
+        $serverId = (int)$serverId;
+        if ($serverId === 0) {
+            return false;
+        }
+        return $this->db->prepare("DELETE FROM servers WHERE id = %d LIMIT 1", $serverId)->execute();
+    }
+
+    /**
      * Fetches server data.
      *
      * @param int $serverId

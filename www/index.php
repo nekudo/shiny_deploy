@@ -68,6 +68,7 @@
 <script src="/js/app/services/alerts.js"></script>
 <script src="/js/app/services/servers.js"></script>
 <script src="/js/app/services/websocket.js"></script>
+<script src="/js/app/directives/ngreally.js"></script>
 <script src="/js/app/controllers/log.js"></script>
 <script src="/js/app/controllers/alerts.js"></script>
 <script src="/js/app/controllers/home.js"></script>
