@@ -7,14 +7,11 @@ app.controller('ServersController', function ($scope, serversService, alertsServ
      * Requests server list from project backend.
      */
     function loadServers() {
-        $scope.isLoading = true;
         var promise = serversService.getServers();
         promise.then(function(data) {
             servers = data;
-            $scope.isLoading = false;
         }, function(reason) {
             console.log('Error fetching servers: ' + reason);
-            $scope.isLoading = false;
         });
     }
 
@@ -82,9 +79,9 @@ app.controller('ServersEditController', function ($scope, $location, $routeParam
 
     $scope.updateServer = function() {
         var promise = serversService.updateServer($scope.server);
-        promise.then(function(data) {
+        promise.then(function (data) {
             alertsService.pushAlert('Server successfully updated.', 'success');
-        }, function(reason) {
+        }, function (reason) {
             alertsService.pushAlert(reason, 'warning');
         })
     }
