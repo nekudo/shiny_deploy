@@ -56,6 +56,7 @@
     </footer>
 
 </div><!-- /wrapper -->
+<!--
 <script src="/js/vendor/angular.min.js"></script>
 <script src="/js/vendor/angular-route.min.js"></script>
 <script src="/js/vendor/jquery.min.js"></script>
@@ -75,5 +76,8 @@
 <script src="/js/app/controllers/menu.js"></script>
 <script src="/js/app/controllers/servers.js"></script>
 <script src="/js/app/controllers/repositories.js"></script>
+-->
+<script src="/js/vendor.min.js"></script>
+<script src="/js/project.js"></script>
 </body>
 </html>
