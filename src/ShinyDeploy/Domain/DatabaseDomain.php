@@ -54,10 +54,6 @@ class DatabaseDomain extends Domain
                     return false;
                 }
 
-                if ($realWorld === true && !Hostname::valid($value)) {
-                    return false;
-                }
-
                 return true;
             },
             'not valid.'

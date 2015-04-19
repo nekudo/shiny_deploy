@@ -1,20 +1,16 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
-/*
-var uglifyJS = require('gulp-uglifyjs');
-var rename = require('gulp-rename');
-*/
 
 // CSS Tasks
-gulp.task('project_css', function(){
+gulp.task('project_css', function() {
     gulp.src('www/css/src/*.css')
         .pipe(minifyCSS())
         .pipe(concat('project.min.css'))
         .pipe(gulp.dest('www/css/'))
 });
 
-gulp.task('vendor_css', function(){
+gulp.task('vendor_css', function() {
     gulp.src([
         'www/css/vendor/bootstrap.min.css',
         'www/css/vendor/font-awesome.min.css',
@@ -28,7 +24,7 @@ gulp.task('vendor_css', function(){
 });
 
 // JS Tasks
-gulp.task('project_js', function(){
+gulp.task('project_js', function() {
     gulp.src([
         'www/js/app/app.js',
         'www/js/app/**/*.js'
@@ -37,7 +33,7 @@ gulp.task('project_js', function(){
         .pipe(gulp.dest('www/js/'))
 });
 
-gulp.task('vendor_js', function(){
+gulp.task('vendor_js', function() {
     gulp.src([
         'www/js/vendor/angular.min.js',
         'www/js/vendor/angular-route.min.js',
@@ -52,10 +48,10 @@ gulp.task('vendor_js', function(){
 });
 
 // Watcher
-gulp.task('watch_project_js', function() {
+gulp.task('watch', function() {
     gulp.watch('www/css/src/*.css', ['project_css']);
     gulp.watch(['www/js/app.js', 'www/js/app/**/*.js'], ['project_js']);
 });
 
 // Default task
-gulp.task('default', ['watch_project_js']);
+gulp.task('default', ['watch']);

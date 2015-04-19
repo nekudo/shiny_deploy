@@ -19,7 +19,7 @@ class Servers extends DatabaseDomain
             ['type', ['sftp', 'ssh']]
         ],
         'hostname' => [
-            ['hostname', true]
+            ['hostname']
         ],
     ];
 
