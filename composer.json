@@ -8,8 +8,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ShinyDeploy\\": "src/ShinyDeploy",
-            "GG\\": "vendor/gg/valid-hostname"
+            "ShinyDeploy\\": "src/ShinyDeploy"
         }
     }
 }
