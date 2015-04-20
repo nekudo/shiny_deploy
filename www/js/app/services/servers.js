@@ -1,4 +1,4 @@
-app.service('serversService', function (ws) {
+app.service('serversService', ['ws', function (ws) {
     /**
      * Fetches list of servers.
      *
@@ -62,4 +62,4 @@ app.service('serversService', function (ws) {
         };
         return ws.sendDataRequest('getServerData', requestParams);
     };
-});
+}]);

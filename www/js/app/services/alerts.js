@@ -1,4 +1,4 @@
-app.service('alertsService', function ($rootScope) {
+app.service('alertsService', ['$rootScope', function ($rootScope) {
 
     /**
      * Alert message queue.
@@ -41,4 +41,4 @@ app.service('alertsService', function ($rootScope) {
     this.getQueuedAlert = function() {
         return this.queue.shift() || "";
     };
-});
+}]);

@@ -1,3 +1,5 @@
-app.controller('DeploymentsController', function ($scope) {
+app.controller('DeploymentsController', ['$scope',
+    function ($scope) {
 
-});
+    }
+]);
