@@ -1,4 +1,4 @@
-app.service('repositoriesService', function (ws) {
+app.service('repositoriesService', ['ws', function (ws) {
     /**
      * Fetches list of repositories.
      *
@@ -62,4 +62,4 @@ app.service('repositoriesService', function (ws) {
         };
         return ws.sendDataRequest('getRepositoryData', requestParams);
     };
-});
+}]);
