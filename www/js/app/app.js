@@ -34,6 +34,10 @@ app.config(function ($routeProvider, $locationProvider, wsProvider) {
             controller: 'RepositoriesEditController',
             templateUrl: '/js/app/views/repositories_form.html'
         })
+        .when('/deployments', {
+            controller: 'DeploymentsController',
+            templateUrl: '/js/app/views/deployments.html'
+        })
         .otherwise({ redirectTo: '/' });
 });
 
