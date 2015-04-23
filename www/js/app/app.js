@@ -42,6 +42,10 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', function ($rout
             controller: 'DeploymentsAddController',
             templateUrl: '/js/app/views/deployments_form.html'
         })
+        .when('/deployments/edit/:deploymentId', {
+            controller: 'DeploymentsEditController',
+            templateUrl: '/js/app/views/deployments_form.html'
+        })
         .otherwise({ redirectTo: '/' });
 }]);
 
