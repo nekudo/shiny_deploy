@@ -53,6 +53,7 @@ MODIFY `id` int(10) unsigned NOT NULL AUTO_INCREMENT;
 --
 CREATE TABLE IF NOT EXISTS `deployments` (
   `id` int(10) unsigned NOT NULL,
+  `name` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
   `server_id` int(10) unsigned NOT NULL DEFAULT '0',
   `repository_id` int(10) unsigned NOT NULL DEFAULT '0',
   `branch` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',

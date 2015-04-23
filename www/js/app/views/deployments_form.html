@@ -16,6 +16,22 @@
                 <div class="box" data-ng-class="{'box-primary': isEdit, 'box-success': isAdd}">
                     <div class="box-body">
                         <div class="row">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editDeploymentForm.name.$invalid && editDeploymentForm.name.$dirty}">
+                                    <label for="deployment-name">Name</label>
+                                    <input
+                                        name="name"
+                                        type="text"
+                                        class="form-control"
+                                        id="deployment-name"
+                                        placeholder="My deployment"
+                                        data-ng-model="deployment.name"
+                                        data-ng-minlength="3"
+                                        data-ng-maxlength="100"
+                                        required>
+                                </div>
+                            </div>
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.repository_id.$invalid && editDeploymentForm.repository_id.$dirty}">
