@@ -8,6 +8,26 @@ app.controller('AlertsController', ['$scope', 'alertsService',
          */
         $scope.alerts = [];
 
+        init();
+
+        /**
+         * Display queued and listen for new alerts.
+         */
+        function init() {
+            // listen for new alert messages:
+            var _unregister;
+            _unregister = $scope.$on('alertMessage', function (event, message, type) {
+                $scope.addAlert(message, type);
+            });
+            $scope.$on("$destroy", _unregister);
+
+            // display alert messages still in queue:
+            var queuedAlert = alertsService.getQueuedAlert();
+            if (queuedAlert !== '') {
+                $scope.addAlert(queuedAlert.message, queuedAlert.type);
+            }
+        }
+
         /**
          * Adds new alert message.
          *
@@ -29,29 +49,5 @@ app.controller('AlertsController', ['$scope', 'alertsService',
         $scope.removeAlert = function(index) {
             $scope.alerts.splice(index, 1);
         };
-
-        /**
-         * Listens for alertMessages emitted by alerts service.
-         */
-        function addMessageListener() {
-            var _unregister;
-            _unregister = $scope.$on('alertMessage', function (event, message, type) {
-                $scope.addAlert(message, type);
-            });
-            $scope.$on("$destroy", _unregister);
-        }
-
-        /**
-         * Displays queued alert message.
-         */
-        function showQueuedAlert() {
-            var queuedAlert = alertsService.getQueuedAlert();
-            if (queuedAlert !== '') {
-                $scope.addAlert(queuedAlert.message, queuedAlert.type);
-            }
-        }
-
-        addMessageListener();
-        showQueuedAlert();
     }
 ]);

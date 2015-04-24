@@ -2,12 +2,12 @@ app.controller('DeploymentsController', ['$scope', 'deploymentsService', 'alerts
     function ($scope, deploymentsService, alertsService) {
         var deployments = null;
 
-        loadDeployments();
+        init();
 
         /**
-         * Requests server list from project backend.
+         * Loads data required for deployments list view.
          */
-        function loadDeployments() {
+        function init() {
             var promise = deploymentsService.getDeployments();
             promise.then(function(data) {
                 deployments = data;
@@ -43,7 +43,7 @@ app.controller('DeploymentsController', ['$scope', 'deploymentsService', 'alerts
             }, function(reason) {
                 alertsService.pushAlert(reason, 'warning');
             });
-        }
+        };
     }
 ]);
 
@@ -53,8 +53,28 @@ app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsS
         var servers = null;
         var repositories = null;
 
-        loadServers();
-        loadRepositories();
+        init();
+
+        /**
+         * Loads data required for add deployment form.
+         */
+        function init() {
+            // load servers:
+            var getServersPromise = deploymentsService.getServers();
+            getServersPromise.then(function(data) {
+                servers = data;
+            }, function(reason) {
+                console.log('Error fetching servers: ' + reason);
+            });
+
+            // load repositories:
+            var getRepositoriesPromise = deploymentsService.getRepositories();
+            getRepositoriesPromise.then(function(data) {
+                repositories = data;
+            }, function(reason) {
+                console.log('Error fetching repositories: ' + reason);
+            });
+        }
 
         /**
          * Returns list of servers.
@@ -83,50 +103,68 @@ app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsS
                 deploymentData.repository_id = deploymentData.repository_id.id;
                 deploymentData.server_id = deploymentData.server_id.id;
             }
-            var promise = deploymentsService.addDeployment($scope.deployment);
-            promise.then(function(data) {
+            var addDeploymentPromise = deploymentsService.addDeployment($scope.deployment);
+            addDeploymentPromise.then(function(data) {
                 $location.path('/deployments');
                 alertsService.queueAlert('Deployment successfully added.', 'success');
             }, function(reason) {
                 alertsService.pushAlert(reason, 'warning');
             })
         };
-
-        /**
-         * Requests server list from project backend.
-         */
-        function loadServers() {
-            var promise = deploymentsService.getServers();
-            promise.then(function(data) {
-                servers = data;
-            }, function(reason) {
-                console.log('Error fetching servers: ' + reason);
-            });
-        }
-
-        /**
-         * Requests repositories list from project backend.
-         */
-        function loadRepositories() {
-            var promise = deploymentsService.getRepositories();
-            promise.then(function(data) {
-                repositories = data;
-            }, function(reason) {
-                console.log('Error fetching repositories: ' + reason);
-            });
-        }
     }
 ]);
 
 app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParams', 'deploymentsService', 'alertsService',
     function ($scope, $location, $routeParams, deploymentsService, alertsService) {
         $scope.isEdit = true;
-
         var servers = null;
         var repositories = null;
 
-        loadServers();
-        loadRepositories();
+        init();
+
+        /**
+         * Loads data required for edit deployment form.
+         */
+        function init() {
+            // load servers:
+            var getServersPromise = deploymentsService.getServers();
+            getServersPromise.then(function(data) {
+                servers = data;
+            }, function(reason) {
+                console.log('Error fetching servers: ' + reason);
+            });
+
+            // load repositories:
+            var getRepositoriesPromise = deploymentsService.getRepositories();
+            getRepositoriesPromise.then(function(data) {
+                repositories = data;
+            }, function(reason) {
+                console.log('Error fetching repositories: ' + reason);
+            });
+
+            // load deployment:
+            var deploymentId = ($routeParams.deploymentId) ? parseInt($routeParams.deploymentId) : 0;
+            var getDeploymentDataPromise = deploymentsService.getDeploymentData(deploymentId);
+            getDeploymentDataPromise.then(function(data) {
+                if (data.hasOwnProperty('repository_id')) {
+                    for (var i = repositories.length - 1; i >= 0; i--) {
+                        if (repositories[i].id === data.repository_id) {
+                            data.repository_id = repositories[i];
+                            break;
+                        }
+                    }
+                    for (var j = servers.length - 1; j >= 0; j--) {
+                        if (servers[j].id === data.server_id) {
+                            data.server_id = servers[j];
+                            break;
+                        }
+                    }
+                }
+                $scope.deployment = data;
+            }, function(reason) {
+                $location.path('/deployments');
+            });
+        }
 
         /**
          * Returns list of servers.
@@ -146,65 +184,21 @@ app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParam
             return repositories;
         };
 
-        // Fetch server data:
-        var deploymentId = ($routeParams.deploymentId) ? parseInt($routeParams.deploymentId) : 0;
-        var promise = deploymentsService.getDeploymentData(deploymentId);
-        promise.then(function(data) {
-            if (data.hasOwnProperty('repository_id')) {
-                for (var i = repositories.length - 1; i >= 0; i--) {
-                    if (repositories[i].id === data.repository_id) {
-                        data.repository_id = repositories[i];
-                        break;
-                    }
-                }
-                for (var i = servers.length - 1; i >= 0; i--) {
-                    if (servers[i].id === data.server_id) {
-                        data.server_id = servers[i];
-                        break;
-                    }
-                }
-            }
-            $scope.deployment = data;
-        }, function(reason) {
-            $location.path('/deployments');
-        });
-
+        /**
+         * Updates deployment data.
+         */
         $scope.updateDeployment = function() {
-            var deploymentData = $scope.deployment;
+            var deploymentData = angular.copy($scope.deployment);
             if ($scope.deployment.hasOwnProperty('repository_id')) {
                 deploymentData.repository_id = deploymentData.repository_id.id;
                 deploymentData.server_id = deploymentData.server_id.id;
             }
-            var promise = deploymentsService.updateDeployment($scope.deployment);
-            promise.then(function (data) {
+            var updateDeploymentPromise = deploymentsService.updateDeployment(deploymentData);
+            updateDeploymentPromise.then(function (data) {
                 alertsService.pushAlert('Deployment successfully updated.', 'success');
             }, function (reason) {
                 alertsService.pushAlert(reason, 'warning');
             })
         };
-
-        /**
-         * Requests server list from project backend.
-         */
-        function loadServers() {
-            var promise = deploymentsService.getServers();
-            promise.then(function(data) {
-                servers = data;
-            }, function(reason) {
-                console.log('Error fetching servers: ' + reason);
-            });
-        }
-
-        /**
-         * Requests repositories list from project backend.
-         */
-        function loadRepositories() {
-            var promise = deploymentsService.getRepositories();
-            promise.then(function(data) {
-                repositories = data;
-            }, function(reason) {
-                console.log('Error fetching repositories: ' + reason);
-            });
-        }
     }
 ]);

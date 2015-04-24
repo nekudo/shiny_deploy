@@ -2,14 +2,15 @@ app.controller('RepositoriesController', ['$scope', 'repositoriesService', 'aler
     function ($scope, repositoriesService, alertsService) {
         var repositories = null;
 
-        loadRepositories();
+        init();
 
         /**
-         * Requests repositories list from project backend.
+         * Loads data required for repositories index view.
          */
-        function loadRepositories() {
-            var promise = repositoriesService.getRepositories();
-            promise.then(function(data) {
+        function init() {
+            // load repositories:
+            var getRepositoriesPromise = repositoriesService.getRepositories();
+            getRepositoriesPromise.then(function(data) {
                 repositories = data;
             }, function(reason) {
                 console.log('Error fetching repositories: ' + reason);
@@ -31,8 +32,8 @@ app.controller('RepositoriesController', ['$scope', 'repositoriesService', 'aler
          * @param {number} repositoryId
          */
         $scope.deleteRepository = function(repositoryId) {
-            var promise = repositoriesService.deleteRepository(repositoryId);
-            promise.then(function(data) {
+            var deleteRepositoryPromise = repositoriesService.deleteRepository(repositoryId);
+            deleteRepositoryPromise.then(function(data) {
                 for (var i = repositories.length - 1; i >= 0; i--) {
                     if (repositories[i].id === repositoryId) {
                         repositories.splice(i, 1);
@@ -70,18 +71,28 @@ app.controller('RepositoriesEditController', ['$scope', '$location', '$routePara
     function ($scope, $location, $routeParams, repositoriesService, alertsService) {
         $scope.isEdit = true;
 
-        // Fetch repository data:
-        var repositoryId = ($routeParams.repositoryId) ? parseInt($routeParams.repositoryId) : 0;
-        var promise = repositoriesService.getRepositoryData(repositoryId);
-        promise.then(function(data) {
-            $scope.repository = data;
-        }, function(reason) {
-            $location.path('/repositories');
-        });
+        init();
 
+        /**
+         * Loads data required for edit repository view.
+         */
+        function init() {
+            // load repository data:
+            var repositoryId = ($routeParams.repositoryId) ? parseInt($routeParams.repositoryId) : 0;
+            var getRepositoryDataPromise = repositoriesService.getRepositoryData(repositoryId);
+            getRepositoryDataPromise.then(function(data) {
+                $scope.repository = data;
+            }, function(reason) {
+                $location.path('/repositories');
+            });
+        }
+
+        /**
+         * Updates a repository.
+         */
         $scope.updateRepository = function() {
-            var promise = repositoriesService.updateRepository($scope.repository);
-            promise.then(function (data) {
+            var updateRepositoryPromise = repositoriesService.updateRepository($scope.repository);
+            updateRepositoryPromise.then(function (data) {
                 alertsService.pushAlert('Repository successfully updated.', 'success');
             }, function (reason) {
                 alertsService.pushAlert(reason, 'warning');
