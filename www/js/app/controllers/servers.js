@@ -2,14 +2,14 @@ app.controller('ServersController', ['$scope', 'serversService', 'alertsService'
     function ($scope, serversService, alertsService) {
         var servers = null;
 
-        loadServers();
+        init();
 
         /**
-         * Requests server list from project backend.
+         * Load data required for servers index view.
          */
-        function loadServers() {
-            var promise = serversService.getServers();
-            promise.then(function(data) {
+        function init() {
+            var getServersPromise = serversService.getServers();
+            getServersPromise.then(function(data) {
                 servers = data;
             }, function(reason) {
                 console.log('Error fetching servers: ' + reason);
@@ -31,8 +31,8 @@ app.controller('ServersController', ['$scope', 'serversService', 'alertsService'
          * @param {number} serverId
          */
         $scope.deleteServer = function(serverId) {
-            var promise = serversService.deleteServer(serverId);
-            promise.then(function(data) {
+            var deleteServerPromise = serversService.deleteServer(serverId);
+            deleteServerPromise.then(function(data) {
                 for (var i = servers.length - 1; i >= 0; i--) {
                     if (servers[i].id === serverId) {
                         servers.splice(i, 1);
@@ -70,18 +70,28 @@ app.controller('ServersEditController', ['$scope', '$location', '$routeParams', 
     function ($scope, $location, $routeParams, serversService, alertsService) {
         $scope.isEdit = true;
 
-        // Fetch server data:
-        var serverId = ($routeParams.serverId) ? parseInt($routeParams.serverId) : 0;
-        var promise = serversService.getServerData(serverId);
-        promise.then(function(data) {
-            if (data.hasOwnProperty('port')) {
-                data.port = parseInt(data.port);
-            }
-            $scope.server = data;
-        }, function(reason) {
-            $location.path('/servers');
-        });
+        init();
 
+        /**
+         * Loads data required for edit server view.
+         */
+        function init() {
+            // load server data:
+            var serverId = ($routeParams.serverId) ? parseInt($routeParams.serverId) : 0;
+            var getServerDataPromise = serversService.getServerData(serverId);
+            getServerDataPromise.then(function(data) {
+                if (data.hasOwnProperty('port')) {
+                    data.port = parseInt(data.port);
+                }
+                $scope.server = data;
+            }, function(reason) {
+                $location.path('/servers');
+            });
+        }
+
+        /**
+         * Updates a server.
+         */
         $scope.updateServer = function() {
             var promise = serversService.updateServer($scope.server);
             promise.then(function (data) {
