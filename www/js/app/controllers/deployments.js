@@ -50,8 +50,6 @@ app.controller('DeploymentsController', ['$scope', 'deploymentsService', 'alerts
 app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsService', 'alertsService',
     function ($scope, $location, deploymentsService, alertsService) {
         $scope.isAdd = true;
-        var servers = null;
-        var repositories = null;
 
         init();
 
@@ -62,7 +60,7 @@ app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsS
             // load servers:
             var getServersPromise = deploymentsService.getServers();
             getServersPromise.then(function(data) {
-                servers = data;
+                $scope.servers = data;
             }, function(reason) {
                 console.log('Error fetching servers: ' + reason);
             });
@@ -70,29 +68,11 @@ app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsS
             // load repositories:
             var getRepositoriesPromise = deploymentsService.getRepositories();
             getRepositoriesPromise.then(function(data) {
-                repositories = data;
+                $scope.repositories = data;
             }, function(reason) {
                 console.log('Error fetching repositories: ' + reason);
             });
         }
-
-        /**
-         * Returns list of servers.
-         *
-         * @returns {null|Array}
-         */
-        $scope.getServers = function() {
-            return servers;
-        };
-
-        /**
-         * Returns list of repositories.
-         *
-         * @returns {null|Array}
-         */
-        $scope.getRepositories = function() {
-            return repositories;
-        };
 
         /**
          * Requests add-deployment action on project backend.
@@ -117,8 +97,6 @@ app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsS
 app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParams', 'deploymentsService', 'alertsService',
     function ($scope, $location, $routeParams, deploymentsService, alertsService) {
         $scope.isEdit = true;
-        var servers = null;
-        var repositories = null;
 
         init();
 
@@ -129,7 +107,7 @@ app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParam
             // load servers:
             var getServersPromise = deploymentsService.getServers();
             getServersPromise.then(function(data) {
-                servers = data;
+                $scope.servers = data;
             }, function(reason) {
                 console.log('Error fetching servers: ' + reason);
             });
@@ -137,7 +115,7 @@ app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParam
             // load repositories:
             var getRepositoriesPromise = deploymentsService.getRepositories();
             getRepositoriesPromise.then(function(data) {
-                repositories = data;
+                $scope.repositories = data;
             }, function(reason) {
                 console.log('Error fetching repositories: ' + reason);
             });
@@ -146,43 +124,11 @@ app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParam
             var deploymentId = ($routeParams.deploymentId) ? parseInt($routeParams.deploymentId) : 0;
             var getDeploymentDataPromise = deploymentsService.getDeploymentData(deploymentId);
             getDeploymentDataPromise.then(function(data) {
-                if (data.hasOwnProperty('repository_id')) {
-                    for (var i = repositories.length - 1; i >= 0; i--) {
-                        if (repositories[i].id === data.repository_id) {
-                            data.repository_id = repositories[i];
-                            break;
-                        }
-                    }
-                    for (var j = servers.length - 1; j >= 0; j--) {
-                        if (servers[j].id === data.server_id) {
-                            data.server_id = servers[j];
-                            break;
-                        }
-                    }
-                }
                 $scope.deployment = data;
             }, function(reason) {
                 $location.path('/deployments');
             });
         }
-
-        /**
-         * Returns list of servers.
-         *
-         * @returns {null|Array}
-         */
-        $scope.getServers = function() {
-            return servers;
-        };
-
-        /**
-         * Returns list of repositories.
-         *
-         * @returns {null|Array}
-         */
-        $scope.getRepositories = function() {
-            return repositories;
-        };
 
         /**
          * Updates deployment data.
@@ -200,5 +146,19 @@ app.controller('DeploymentsEditController', ['$scope', '$location', '$routeParam
                 alertsService.pushAlert(reason, 'warning');
             })
         };
+    }
+]);
+
+app.controller('DeploymentsRunController', ['$scope', '$location', '$routeParams', 'deploymentsService', 'alertsService',
+    function ($scope, $location, $routeParams, deploymentsService, alertsService) {
+
+        init();
+
+        /**
+         * Loads data required for run deployment view.
+         */
+        function init() {
+
+        }
     }
 ]);

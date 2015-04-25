@@ -41,7 +41,7 @@
                                         id="repository-id"
                                         class="form-control"
                                         data-ng-model="deployment.repository_id"
-                                        data-ng-options="repo.name for repo in getRepositories() track by repo.id"
+                                        data-ng-options="repo.name for repo in repositories track by repo.id"
                                         required>
                                     </select>
                                 </div>
@@ -55,7 +55,7 @@
                                         id="server-id"
                                         class="form-control"
                                         data-ng-model="deployment.server_id"
-                                        data-ng-options="server.name for server in getServers() track by server.id"
+                                        data-ng-options="server.name for server in servers track by server.id"
                                         required>
                                     </select>
                                 </div>
