@@ -158,7 +158,14 @@ app.controller('DeploymentsRunController', ['$scope', '$location', '$routeParams
          * Loads data required for run deployment view.
          */
         function init() {
-
+            // load deployment:
+            var deploymentId = ($routeParams.deploymentId) ? parseInt($routeParams.deploymentId) : 0;
+            var getDeploymentDataPromise = deploymentsService.getDeploymentData(deploymentId);
+            getDeploymentDataPromise.then(function(data) {
+                $scope.deployment = data;
+            }, function(reason) {
+                $location.path('/deployments');
+            });
         }
     }
 ]);
