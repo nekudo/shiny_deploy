@@ -5,6 +5,7 @@
     <title>Shiny Deploy</title>
     <base href="/">
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link href="/css/vendor.min.css" rel="stylesheet" type="text/css" />
     <link href="/css/project.min.css" rel="stylesheet" type="text/css" />
 </head>
