@@ -82,11 +82,11 @@ class WorkerGateway implements WampServerInterface
             $actionName = $topic->getId();
             $clientId = $params['clientId'];
             $callbackId = (isset($params['callbackId'])) ? $params['callbackId'] : null;
+            $actionPayload = (isset($params['actionPayload'])) ? $params['actionPayload'] : [];
             if (!empty($callbackId)) {
-                $actionPayload = (isset($params['actionPayload'])) ? $params['actionPayload'] : [];
                 $this->handleDataRequest($clientId, $callbackId, $actionName, $actionPayload);
             } else {
-                $this->handleTriggerRequest($clientId, $actionName, $params);
+                $this->handleTriggerRequest($clientId, $actionName, $actionPayload);
             }
         } catch (WebsocketException $e) {
             $this->logger->alert(
@@ -126,17 +126,19 @@ class WorkerGateway implements WampServerInterface
      *
      * @param string $clientId
      * @param string $actionName
-     * @param array $params
+     * @param array $actionPayload
      * @throws WebsocketException
      */
-    protected function handleTriggerRequest($clientId, $actionName, $params)
+    protected function handleTriggerRequest($clientId, $actionName, $actionPayload)
     {
         $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
             throw new WebsocketException('Invalid action passed to worker gateway.');
         }
+        /** @var \ShinyDeploy\Action\WsTriggerAction $action */
         $action = new $actionClassName($this->config, $this->logger);
-        $actionResponse = $action->__invoke($params);
+        $action->setClientId($clientId);
+        $actionResponse = $action->__invoke($actionPayload);
         if ($actionResponse === true) {
             $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
         } else {
@@ -189,8 +191,8 @@ class WorkerGateway implements WampServerInterface
         }
         $eventData = [
             'clientId' => $clientId,
-            'wsEventName' => 'log',
-            'wsEventParams' => [
+            'eventName' => 'log',
+            'eventPayload' => [
                 'text' => $msg,
                 'type' => $type,
                 'source' => 'WsGateway'

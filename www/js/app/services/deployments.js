@@ -121,4 +121,13 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
 
         return deferred.promise;
     };
+
+    this.triggerDeployAction = function(deploymentId) {
+        if (deploymentId === 0) {
+            return false;
+        }
+        ws.sendTriggerRequest('deploy', {
+            deploymentId: deploymentId
+        })
+    }
 }]);

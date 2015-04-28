@@ -167,5 +167,9 @@ app.controller('DeploymentsRunController', ['$scope', '$location', '$routeParams
                 $location.path('/deployments');
             });
         }
+
+        $scope.triggerDeploy = function(deploymentId) {
+            deploymentsService.triggerDeployAction(deploymentId);
+        };
     }
 ]);
