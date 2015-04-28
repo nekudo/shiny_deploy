@@ -1,14 +1,13 @@
 <?php
 namespace ShinyDeploy\Action;
 
-use ShinyDeploy\Core\Action;
 use ShinyDeploy\Core\Server\Server;
 use ShinyDeploy\Domain\Git;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Domain\Deploy as DeployDomain;
 use ShinyDeploy\Responder\WsLogResponder;
 
-class Deploy extends Action
+class Deploy extends WsTriggerAction
 {
     /** @var  WsLogResponder $responder */
     protected $responder;
@@ -25,14 +24,14 @@ class Deploy extends Action
     /** @var  Server $server */
     protected $server;
 
-    public function __invoke($clientId, $idSource, $idTarget)
+    public function __invoke(array $actionPayload)
     {
         try {
             $this->deployDomain = new DeployDomain($this->config, $this->logger);
             $this->gitDomain = new Git($this->config, $this->logger);
             $this->repositoryDomain = new Repository($this->config, $this->logger);
             $responder = new WsLogResponder($this->config, $this->logger);
-            $responder->setClientId($clientId);
+            $responder->setClientId($this->clientId);
             $this->responder = $responder;
 
             // check if git executable is available:
