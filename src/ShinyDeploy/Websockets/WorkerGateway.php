@@ -138,12 +138,8 @@ class WorkerGateway implements WampServerInterface
         /** @var \ShinyDeploy\Action\WsTriggerAction $action */
         $action = new $actionClassName($this->config, $this->logger);
         $action->setClientId($clientId);
-        $actionResponse = $action->__invoke($actionPayload);
-        if ($actionResponse === true) {
-            $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
-        } else {
-            $this->wsLog($clientId, 'Sry. There was an error while triggering the requested action.', 'error');
-        }
+        $action->__invoke($actionPayload);
+        $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
     }
 
     /**

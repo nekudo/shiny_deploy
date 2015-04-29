@@ -2,6 +2,7 @@
 namespace ShinyDeploy\Action;
 
 use ShinyDeploy\Core\Server\Server;
+use ShinyDeploy\Domain\Deployments;
 use ShinyDeploy\Domain\Git;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Domain\Deploy as DeployDomain;
@@ -9,8 +10,8 @@ use ShinyDeploy\Responder\WsLogResponder;
 
 class Deploy extends WsTriggerAction
 {
-    /** @var  WsLogResponder $responder */
-    protected $responder;
+    /** @var  WsLogResponder $logResponder */
+    protected $logResponder;
 
     /** @var  DeployDomain $deployDomain */
     protected $deployDomain;
@@ -21,6 +22,9 @@ class Deploy extends WsTriggerAction
     /** @var  Repository $repositoryDomain */
     protected $repositoryDomain;
 
+    /** @var  Deployments $deploymentsDomain */
+    protected $deploymentsDomain;
+
     /** @var  Server $server */
     protected $server;
 
@@ -28,16 +32,24 @@ class Deploy extends WsTriggerAction
     {
         try {
             $this->deployDomain = new DeployDomain($this->config, $this->logger);
+            $this->deploymentsDomain = new Deployments($this->config, $this->logger);
             $this->gitDomain = new Git($this->config, $this->logger);
             $this->repositoryDomain = new Repository($this->config, $this->logger);
-            $responder = new WsLogResponder($this->config, $this->logger);
-            $responder->setClientId($this->clientId);
-            $this->responder = $responder;
+            $this->logResponder = new WsLogResponder($this->config, $this->logger);
+            $this->logResponder->setClientId($this->clientId);
+
+            // check required arguments:
+            if (empty($actionPayload['deploymentId'])) {
+                throw new \RuntimeException('Deployment-ID can not be empty');
+            }
 
             // check if git executable is available:
             if ($this->checkGitExecutable() === false) {
                 return false;
             }
+
+            $deployment = $this->deploymentsDomain->getDeploymentData($actionPayload['deploymentId']);
+            var_dump($deployment);
 
             // prepare local repository:
             if ($this->prepareRepository($idSource) === false) {
@@ -56,13 +68,13 @@ class Deploy extends WsTriggerAction
 
             // @todo update remote revision file
 
-            $this->responder->log("\nShiny, everything done. Your project is up to date.", 'success', 'DeployAction');
+            $this->logResponder->log("\nShiny, everything done. Your project is up to date.", 'success', 'DeployAction');
 
         } catch (\RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
-            $this->responder->log('Exception: ' . $e->getMessage() . ' Aborting.', 'error', 'DeployAction');
+            $this->logResponder->log('Exception: ' . $e->getMessage() . ' Aborting.', 'error', 'DeployAction');
             return false;
         }
     }
@@ -75,10 +87,10 @@ class Deploy extends WsTriggerAction
     {
         $versionString = $this->gitDomain->getVersion();
         if ($versionString === false) {
-            $this->responder->log('Git executable not found. Aborting job.', 'error', 'DeployAction');
+            $this->logResponder->log('Git executable not found. Aborting job.', 'error', 'DeployAction');
             return false;
         }
-        $this->responder->log($versionString . ' detected.', 'default', 'DeployAction');
+        $this->logResponder->log($versionString . ' detected.', 'default', 'DeployAction');
         return true;
     }
 
@@ -92,22 +104,22 @@ class Deploy extends WsTriggerAction
     {
         $repoPath = $this->repositoryDomain->createLocalPath($idSource);
         if ($this->repositoryDomain->exists($idSource) === false) {
-            $this->responder->log('Local repository not found. Starting git clone...', 'default', 'DeployAction');
+            $this->logResponder->log('Local repository not found. Starting git clone...', 'default', 'DeployAction');
             $response = $this->gitDomain->gitClone($idSource, $repoPath);
             if (strpos($response, 'done.') !== false) {
-                $this->responder->log('Repository successfully cloned.', 'success', 'DeployAction');
+                $this->logResponder->log('Repository successfully cloned.', 'success', 'DeployAction');
                 return true;
             }
         } else {
-            $this->responder->log('Local repository found. Starting update...', 'default', 'DeployAction');
+            $this->logResponder->log('Local repository found. Starting update...', 'default', 'DeployAction');
             $response = $this->gitDomain->gitPull($idSource, $repoPath);
             if (strpos($response, 'up-to-date') !== false ||
                 (stripos($response, 'updating') !== false && strpos($response, 'done.') !== false)) {
-                $this->responder->log('Local repository successfully updated.', 'success', 'DeployAction');
+                $this->logResponder->log('Local repository successfully updated.', 'success', 'DeployAction');
                 return true;
             }
         }
-        $this->responder->log('Error updating repository. Aborting.', 'error', 'DeployAction');
+        $this->logResponder->log('Error updating repository. Aborting.', 'error', 'DeployAction');
         return false;
     }
 
@@ -119,15 +131,15 @@ class Deploy extends WsTriggerAction
      */
     protected function checkRemoteServer($idTarget)
     {
-        $this->responder->log('Checking remote server...', 'default', 'DeployAction');
+        $this->logResponder->log('Checking remote server...', 'default', 'DeployAction');
         $serverConfig = $this->config->get('targets.'.$idTarget);
         $this->server = $this->deployDomain->getServer($serverConfig['type']);
         $connectivity = $this->deployDomain->checkConnectivity($this->server, $serverConfig['credentials']);
         if ($connectivity === true) {
-            $this->responder->log('Successfully connected to remote server.', 'success', 'DeployAction');
+            $this->logResponder->log('Successfully connected to remote server.', 'success', 'DeployAction');
             return true;
         }
-        $this->responder->log('Connection to remote server failed. Aborting.', 'error', 'DeployAction');
+        $this->logResponder->log('Connection to remote server failed. Aborting.', 'error', 'DeployAction');
         return false;
     }
 
@@ -148,32 +160,32 @@ class Deploy extends WsTriggerAction
         // get revision on target server:
         $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $targetConfig['path'].'/REVISION');
         if ($remoteRevision === false) {
-            $this->responder->log('Could not estimate revision on remote server.', 'error', 'DeployAction');
+            $this->logResponder->log('Could not estimate revision on remote server.', 'error', 'DeployAction');
             return false;
         }
         if ($remoteRevision === '-1') {
-            $this->responder->log('Remote revision not found - deploying all files.', 'info', 'DeployAction');
+            $this->logResponder->log('Remote revision not found - deploying all files.', 'info', 'DeployAction');
         } else {
-            $this->responder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
+            $this->logResponder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
         }
 
         // get revision of local repository:
         $repoPath = $this->repositoryDomain->createLocalPath($idSource);
         $localRevision = $this->deployDomain->getLocalRevision($repoPath, $this->gitDomain);
         if (empty($localRevision)) {
-            $this->responder->log('Could not estimate revision of local repository.', 'error', 'DeployAction');
+            $this->logResponder->log('Could not estimate revision of local repository.', 'error', 'DeployAction');
             return false;
         }
-        $this->responder->log('Local repository is at revision: ' . $localRevision, 'default', 'DeployAction');
+        $this->logResponder->log('Local repository is at revision: ' . $localRevision, 'default', 'DeployAction');
 
         // stop processing if remote server is up to date:
         if ($localRevision === $remoteRevision) {
-            $this->responder->log('Remote server is up to date.', 'info', 'DeployAction');
+            $this->logResponder->log('Remote server is up to date.', 'info', 'DeployAction');
             return true;
         }
 
         // collect file changes:
-        $this->responder->log('Collecting file changes...', 'default', 'DeployAction');
+        $this->logResponder->log('Collecting file changes...', 'default', 'DeployAction');
         $changedFiles = $this->deployDomain->getChangedFiles(
             $repoPath,
             $localRevision,
@@ -181,16 +193,16 @@ class Deploy extends WsTriggerAction
             $this->gitDomain
         );
         if (empty($changedFiles)) {
-            $this->responder->log('Could not estimate changed files.', 'error', 'DeployAction');
+            $this->logResponder->log('Could not estimate changed files.', 'error', 'DeployAction');
             return false;
         }
         $uploadCount = count($changedFiles['upload']);
         $deleteCount = count($changedFiles['delete']);
         if ($uploadCount === 0 && $deleteCount === 0) {
-            $this->responder->log('Noting to upload or delete.', 'info', 'DeployAction');
+            $this->logResponder->log('Noting to upload or delete.', 'info', 'DeployAction');
             return true;
         }
-        $this->responder->log(
+        $this->logResponder->log(
             'Diff complete. (Files to upload: '.$uploadCount.' - Files to delete: ' . $deleteCount . ')',
             'default',
             'DeployAction'
@@ -200,41 +212,41 @@ class Deploy extends WsTriggerAction
         $repoPath = rtrim($repoPath, '/') . '/';
         $remotePath = rtrim($targetConfig['path'], '/') . '/';
         if ($uploadCount > 0) {
-            $this->responder->log('Starting file uploads...', 'default', 'DeployAction');
+            $this->logResponder->log('Starting file uploads...', 'default', 'DeployAction');
             foreach ($changedFiles['upload'] as $file) {
                 $uploadStart = microtime(true);
                 $result = $this->server->upload($repoPath.$file, $remotePath.$file);
                 $uploadEnd = microtime(true);
                 $uploadDuration = round($uploadEnd - $uploadStart, 2);
                 if ($result === true) {
-                    $this->responder->log(
+                    $this->logResponder->log(
                         'Uploading ' . $file . ': success ('.$uploadDuration.'s)',
                         'info',
                         'DeployAction'
                     );
                 } else {
-                    $this->responder->log('Uploading ' . $file . ': failed', 'danger', 'DeployAction');
+                    $this->logResponder->log('Uploading ' . $file . ': failed', 'danger', 'DeployAction');
                 }
             }
         }
         if ($deleteCount > 0) {
-            $this->responder->log('Removing files...', 'default', 'DeployAction');
+            $this->logResponder->log('Removing files...', 'default', 'DeployAction');
             foreach ($changedFiles['delete'] as $file) {
                 $result = $this->server->delete($remotePath.$file);
                 if ($result === true) {
-                    $this->responder->log('Deleting ' . $file . ': success', 'info', 'DeployAction');
+                    $this->logResponder->log('Deleting ' . $file . ': success', 'info', 'DeployAction');
                 } else {
-                    $this->responder->log('Deleting ' . $file . ': failed', 'danger', 'DeployAction');
+                    $this->logResponder->log('Deleting ' . $file . ': failed', 'danger', 'DeployAction');
                 }
             }
         }
 
         // Update remote revision file:
         if ($this->server->putContent($localRevision, $remotePath.'REVISION') === false) {
-            $this->responder->log('Could not update remote revision file.', 'error', 'DeployAction');
+            $this->logResponder->log('Could not update remote revision file.', 'error', 'DeployAction');
             return false;
         } else {
-            $this->responder->log('Revision file successfully updated.', 'default', 'DeployAction');
+            $this->logResponder->log('Revision file successfully updated.', 'default', 'DeployAction');
         }
 
         return true;
