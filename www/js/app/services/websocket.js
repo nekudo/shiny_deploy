@@ -144,14 +144,11 @@ function wsProvider() {
          * @param {object} params
          */
         ws.sendTriggerRequest = function (actionName, params) {
-            if (typeof params !== 'object') {
-                params = {
-                    clientId: this.clientId
-                };
-            } else {
-                params.clientId = this.clientId;
-            }
-            ws.conn.call(actionName, params);
+            var requestParams = {
+                clientId: this.clientId,
+                actionPayload: params
+            };
+            ws.conn.call(actionName, requestParams);
         };
 
         /**
