@@ -4,8 +4,10 @@ namespace ShinyDeploy\Action;
 use ShinyDeploy\Core\Server\Server;
 use ShinyDeploy\Domain\Deployments;
 use ShinyDeploy\Domain\Git;
+use ShinyDeploy\Domain\Repositories;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Domain\Deploy as DeployDomain;
+use ShinyDeploy\Domain\Servers;
 use ShinyDeploy\Responder\WsLogResponder;
 
 class Deploy extends WsTriggerAction
@@ -22,8 +24,14 @@ class Deploy extends WsTriggerAction
     /** @var  Repository $repositoryDomain */
     protected $repositoryDomain;
 
+    /** @var  Repositories $repositoriesDomain */
+    protected $repositoriesDomain;
+
     /** @var  Deployments $deploymentsDomain */
     protected $deploymentsDomain;
+
+    /** @var  Servers $serversDomain */
+    protected $serversDomain;
 
     /** @var  Server $server */
     protected $server;
@@ -35,6 +43,8 @@ class Deploy extends WsTriggerAction
             $this->deploymentsDomain = new Deployments($this->config, $this->logger);
             $this->gitDomain = new Git($this->config, $this->logger);
             $this->repositoryDomain = new Repository($this->config, $this->logger);
+            $this->repositoriesDomain = new Repositories($this->config, $this->logger);
+            $this->serversDomain = new Servers($this->config, $this->logger);
             $this->logResponder = new WsLogResponder($this->config, $this->logger);
             $this->logResponder->setClientId($this->clientId);
 
@@ -43,21 +53,32 @@ class Deploy extends WsTriggerAction
                 throw new \RuntimeException('Deployment-ID can not be empty');
             }
 
+            // collect required data:
+            $deploymentData = $this->deploymentsDomain->getDeploymentData($actionPayload['deploymentId']);
+            if (empty($deploymentData)) {
+                throw new \RuntimeException('Could not load deployment data.');
+            }
+            $repositoryData = $this->repositoriesDomain->getRepositoryData($deploymentData['repository_id']);
+            if (empty($repositoryData)) {
+                throw new \RuntimeException('Could not load repository data.');
+            }
+            $serverData = $this->serversDomain->getServerData($deploymentData['server_id']);
+            if (empty($serverData)) {
+                throw new \RuntimeException('Could not load server data.');
+            }
+
             // check if git executable is available:
             if ($this->checkGitExecutable() === false) {
                 return false;
             }
 
-            $deployment = $this->deploymentsDomain->getDeploymentData($actionPayload['deploymentId']);
-            var_dump($deployment);
-
             // prepare local repository:
-            if ($this->prepareRepository($idSource) === false) {
+            if ($this->prepareRepository($repositoryData) === false) {
                 return false;
             }
 
             // check remove server connectivity:
-            if ($this->checkRemoteServer($idTarget) === false) {
+            if ($this->checkRemoteServer($serverData) === false) {
                 return false;
             }
 
