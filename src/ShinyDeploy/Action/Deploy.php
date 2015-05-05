@@ -85,7 +85,7 @@ class Deploy extends Action
             }
 
             // deploy changes:
-            if ($this->deploy($idSource, $idTarget) === false) {
+            if ($this->deploy($repositoryData, $serverData, $deploymentData) === false) {
                 return false;
             }
 
@@ -168,19 +168,22 @@ class Deploy extends Action
     /**
      * Deploys changes from local repository to remote server.
      *
-     * @param string $idSource
-     * @param string $idTarget
+     * @param array $repoData
+     * @param array $serverData
+     * @param array $deploymentData
      * @return bool
      */
-    protected function deploy($idSource, $idTarget)
+    protected function deploy(array $repoData, array $serverData, array $deploymentData)
     {
         if (empty($this->server)) {
             throw new \RuntimeException('No instance of target server.');
         }
-        $targetConfig = $this->config->get('targets.'.$idTarget);
 
         // get revision on target server:
-        $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $targetConfig['path'].'/REVISION');
+        $remotePath = rtrim($serverData['root_path']);
+        $remotePath .= '/' . trim($deploymentData['target_path']) . '/';
+        $revisionFilePath = $remotePath . 'REVISION';
+        $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $revisionFilePath);
         if ($remoteRevision === false) {
             $this->logResponder->log('Could not estimate revision on remote server.', 'error', 'DeployAction');
             return false;
@@ -192,7 +195,7 @@ class Deploy extends Action
         }
 
         // get revision of local repository:
-        $repoPath = $this->repositoryDomain->createLocalPath($idSource);
+        $repoPath = $this->repositoryDomain->createLocalPath($repoData['url']);
         $localRevision = $this->deployDomain->getLocalRevision($repoPath, $this->gitDomain);
         if (empty($localRevision)) {
             $this->logResponder->log('Could not estimate revision of local repository.', 'error', 'DeployAction');
@@ -232,7 +235,6 @@ class Deploy extends Action
 
         // Start upload/delete process:
         $repoPath = rtrim($repoPath, '/') . '/';
-        $remotePath = rtrim($targetConfig['path'], '/') . '/';
         if ($uploadCount > 0) {
             $this->logResponder->log('Starting file uploads...', 'default', 'DeployAction');
             foreach ($changedFiles['upload'] as $file) {
