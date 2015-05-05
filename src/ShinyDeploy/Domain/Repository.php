@@ -9,15 +9,14 @@ class Repository extends Domain
     /**
      * Checks if repositories local folder exists.
      *
-     * @param string $idSource
+     * @param string $repoPath
      * @return bool
      */
-    public function exists($idSource)
+    public function exists($repoPath)
     {
-        if (empty($idSource)) {
-            throw new \RuntimeException('Source-ID can not be empty.');
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Required argument missing.');
         }
-        $repoPath = $this->getLocalPath($idSource);
         if (!file_exists($repoPath)) {
             return false;
         }
@@ -30,19 +29,15 @@ class Repository extends Domain
     /**
      * Gets local repository path.
      *
-     * @param string $idSource
+     * @param string $repoUrl
      * @return string
      */
-    public function getLocalPath($idSource)
+    public function getLocalPath($repoUrl)
     {
-        if (empty($idSource)) {
-            throw new \RuntimeException('Source-ID can not be empty.');
+        if (empty($repoUrl)) {
+            throw new \RuntimeException('Required argument missing.');
         }
-        $repoConfig = $this->config->get('sources.'.$idSource, null);
-        if (empty($repoConfig)) {
-            throw new \RuntimeException('Repository configuration not found.');
-        }
-        $repoUrlPath = parse_url($repoConfig['url'], PHP_URL_PATH);
+        $repoUrlPath = parse_url($repoUrl, PHP_URL_PATH);
         $repoFolder = str_replace('.git', '', $repoUrlPath);
         $repoPath = $this->config->get('repositories.path') . $repoFolder;
         return $repoPath;
@@ -51,15 +46,15 @@ class Repository extends Domain
     /**
      * Creates local repository path.
      *
-     * @param string $idSource
+     * @param string $repoUrl
      * @return bool|string
      */
-    public function createLocalPath($idSource)
+    public function createLocalPath($repoUrl)
     {
-        if (empty($idSource)) {
-            throw new \RuntimeException('Source-ID can not be empty.');
+        if (empty($repoUrl)) {
+            throw new \RuntimeException('Required argument missing.');
         }
-        $localPath = $this->getLocalPath($idSource);
+        $localPath = $this->getLocalPath($repoUrl);
         if (file_exists($localPath)) {
             return $localPath;
         }

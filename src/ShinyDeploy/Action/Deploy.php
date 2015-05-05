@@ -41,10 +41,10 @@ class Deploy extends WsTriggerAction
         try {
             $this->deployDomain = new DeployDomain($this->config, $this->logger);
             $this->deploymentsDomain = new Deployments($this->config, $this->logger);
-            $this->gitDomain = new Git($this->config, $this->logger);
             $this->repositoryDomain = new Repository($this->config, $this->logger);
             $this->repositoriesDomain = new Repositories($this->config, $this->logger);
             $this->serversDomain = new Servers($this->config, $this->logger);
+            $this->gitDomain = new Git($this->config, $this->logger);
             $this->logResponder = new WsLogResponder($this->config, $this->logger);
             $this->logResponder->setClientId($this->clientId);
 
@@ -118,22 +118,22 @@ class Deploy extends WsTriggerAction
     /**
      * If local repository does not exist it will be pulled from git. It it exists it will be updated.
      *
-     * @param string $idSource
+     * @param array $repositoryData
      * @return bool
      */
-    protected function prepareRepository($idSource)
+    protected function prepareRepository(array $repositoryData)
     {
-        $repoPath = $this->repositoryDomain->createLocalPath($idSource);
-        if ($this->repositoryDomain->exists($idSource) === false) {
+        $repoPath = $this->repositoryDomain->createLocalPath($repositoryData['url']);
+        if ($this->repositoryDomain->exists($repoPath) === false) {
             $this->logResponder->log('Local repository not found. Starting git clone...', 'default', 'DeployAction');
-            $response = $this->gitDomain->gitClone($idSource, $repoPath);
+            $response = $this->gitDomain->gitClone($repositoryData, $repoPath);
             if (strpos($response, 'done.') !== false) {
                 $this->logResponder->log('Repository successfully cloned.', 'success', 'DeployAction');
                 return true;
             }
         } else {
             $this->logResponder->log('Local repository found. Starting update...', 'default', 'DeployAction');
-            $response = $this->gitDomain->gitPull($idSource, $repoPath);
+            $response = $this->gitDomain->gitPull($repositoryData, $repoPath);
             if (strpos($response, 'up-to-date') !== false ||
                 (stripos($response, 'updating') !== false && strpos($response, 'done.') !== false)) {
                 $this->logResponder->log('Local repository successfully updated.', 'success', 'DeployAction');
