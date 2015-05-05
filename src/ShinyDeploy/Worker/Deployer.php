@@ -30,18 +30,14 @@ class Deployer extends Worker
         try {
             $this->countJob();
             $params = json_decode($Job->workload(), true);
-            $clientId = (!empty($params['clientId'])) ? $params['clientId'] : false;
-            $sourceId = (!empty($params['idSource'])) ? $params['idSource'] : false;
-            $targetId = (!empty($params['idTarget'])) ? $params['idTarget'] : false;
-            if (empty($clientId)) {
-                throw new WebsocketException('Can not handle job. No uuid provided.');
+            if (empty($params['clientId'])) {
+                throw new WebsocketException('Can not handle job. No client-id provided.');
             }
-            if (empty($sourceId) || empty($targetId)) {
-                $this->wsLog($clientId, 'No source or target defined. Aborting job.', 'error');
-                return true;
+            if (empty($params['deploymentId'])) {
+                throw new WebsocketException('Can not handle job. No deployment-id provided.');
             }
             $deployAction = new Deploy($this->config, $this->logger);
-            $deployAction->__invoke($clientId, $sourceId, $targetId);
+            $deployAction->__invoke($params['deploymentId'], $params['clientId']);
         } catch (WorkerException $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'

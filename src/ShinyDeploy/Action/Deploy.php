@@ -1,6 +1,7 @@
 <?php
 namespace ShinyDeploy\Action;
 
+use ShinyDeploy\Core\Action;
 use ShinyDeploy\Core\Server\Server;
 use ShinyDeploy\Domain\Deployments;
 use ShinyDeploy\Domain\Git;
@@ -10,7 +11,7 @@ use ShinyDeploy\Domain\Deploy as DeployDomain;
 use ShinyDeploy\Domain\Servers;
 use ShinyDeploy\Responder\WsLogResponder;
 
-class Deploy extends WsTriggerAction
+class Deploy extends Action
 {
     /** @var  WsLogResponder $logResponder */
     protected $logResponder;
@@ -36,7 +37,7 @@ class Deploy extends WsTriggerAction
     /** @var  Server $server */
     protected $server;
 
-    public function __invoke(array $actionPayload)
+    public function __invoke($deploymentId, $clientId)
     {
         try {
             $this->deployDomain = new DeployDomain($this->config, $this->logger);
@@ -46,15 +47,16 @@ class Deploy extends WsTriggerAction
             $this->serversDomain = new Servers($this->config, $this->logger);
             $this->gitDomain = new Git($this->config, $this->logger);
             $this->logResponder = new WsLogResponder($this->config, $this->logger);
-            $this->logResponder->setClientId($this->clientId);
+            $this->logResponder->setClientId($clientId);
 
             // check required arguments:
-            if (empty($actionPayload['deploymentId'])) {
+            $deploymentId = (int)$deploymentId;
+            if (empty($deploymentId)) {
                 throw new \RuntimeException('Deployment-ID can not be empty');
             }
 
             // collect required data:
-            $deploymentData = $this->deploymentsDomain->getDeploymentData($actionPayload['deploymentId']);
+            $deploymentData = $this->deploymentsDomain->getDeploymentData($deploymentId);
             if (empty($deploymentData)) {
                 throw new \RuntimeException('Could not load deployment data.');
             }
