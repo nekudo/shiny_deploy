@@ -24,24 +24,23 @@ class Git extends Domain
     /**
      * Clones git repository to local folder.
      *
-     * @param string $idSource
+     * @param array $repositoryData
      * @param string $targetPath
      * @return string
      */
-    public function gitClone($idSource, $targetPath)
+    public function gitClone(array $repositoryData, $targetPath)
     {
-        if (empty($idSource) || empty($targetPath)) {
-            throw new \RuntimeException('Required parameter missing.');
+        if (empty($repositoryData) || empty($targetPath)) {
+            throw new \RuntimeException('Required argument missing.');
         }
         $oldDir = getcwd();
         if (chdir($targetPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
-        $repoUrl = $this->config->get('sources.'.$idSource.'.url', null);
-        if (empty($repoUrl)) {
-            throw new \RuntimeException('Could not get repository URL.');
+        if (empty($repositoryData['url'])) {
+            throw new \RuntimeException('Repository url can not be empty.');
         }
-        $response = $this->exec('clone --progress ' . $repoUrl . ' .');
+        $response = $this->exec('clone --progress ' . $repositoryData['url'] . ' .');
         chdir($oldDir);
         return $response;
     }
@@ -49,24 +48,23 @@ class Git extends Domain
     /**
      * Updates local git repository.
      *
-     * @param string $idSource
+     * @param array $repositoryData
      * @param string $targetPath
      * @return string
      */
-    public function gitPull($idSource, $targetPath)
+    public function gitPull(array $repositoryData, $targetPath)
     {
-        if (empty($idSource) || empty($targetPath)) {
+        if (empty($repositoryData) || empty($targetPath)) {
             throw new \RuntimeException('Required parameter missing.');
         }
         $oldDir = getcwd();
         if (chdir($targetPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
-        $repoUrl = $this->config->get('sources.'.$idSource.'.url', null);
-        if (empty($repoUrl)) {
-            throw new \RuntimeException('Could not get repository URL.');
+        if (empty($repositoryData['url'])) {
+            throw new \RuntimeException('Repository URL can not be empty.');
         }
-        $response = $this->exec('pull --progress ' . $repoUrl);
+        $response = $this->exec('pull --progress ' . $repositoryData['url']);
         chdir($oldDir);
         return $response;
     }
