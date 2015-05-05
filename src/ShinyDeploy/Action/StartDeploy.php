@@ -1,22 +1,21 @@
 <?php
 namespace ShinyDeploy\Action;
 
-use ShinyDeploy\Core\Action;
-
-class StartDeploy extends Action
+class StartDeploy extends WsTriggerAction
 {
     /**
      * This action is called by the websocket server to pass a deployment
      * job to a worker.
      *
-     * @param $params
+     * @param $actionPayload
      * @return array
      */
-    public function __invoke($params)
+    public function __invoke(array $actionPayload)
     {
         $client = new \GearmanClient;
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
-        $payload = json_encode($params);
+        $actionPayload['clientId'] = $this->clientId;
+        $payload = json_encode($actionPayload);
         $client->doBackground('deploy', $payload);
         return true;
     }

@@ -126,7 +126,7 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
         if (deploymentId === 0) {
             return false;
         }
-        ws.sendTriggerRequest('deploy', {
+        ws.sendTriggerRequest('startDeploy', {
             deploymentId: deploymentId
         })
     }
