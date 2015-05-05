@@ -147,15 +147,14 @@ class Deploy extends WsTriggerAction
     /**
      * Checks if connection to remote server is possible.
      *
-     * @param string $idTarget
+     * @param array $serverData
      * @return bool
      */
-    protected function checkRemoteServer($idTarget)
+    protected function checkRemoteServer(array $serverData)
     {
         $this->logResponder->log('Checking remote server...', 'default', 'DeployAction');
-        $serverConfig = $this->config->get('targets.'.$idTarget);
-        $this->server = $this->deployDomain->getServer($serverConfig['type']);
-        $connectivity = $this->deployDomain->checkConnectivity($this->server, $serverConfig['credentials']);
+        $this->server = $this->deployDomain->getServer($serverData['type']);
+        $connectivity = $this->deployDomain->checkConnectivity($this->server, $serverData);
         if ($connectivity === true) {
             $this->logResponder->log('Successfully connected to remote server.', 'success', 'DeployAction');
             return true;

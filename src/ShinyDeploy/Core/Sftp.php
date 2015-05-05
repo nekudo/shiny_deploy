@@ -39,16 +39,16 @@ class Sftp
         if (empty($host) || empty($user)) {
             return false;
         }
-        $this->sshConnection = ssh2_connect($host, $port);
+        $this->sshConnection = @ssh2_connect($host, $port);
         if ($this->sshConnection === false) {
             $this->setError(2);
             return false;
         }
-        if (ssh2_auth_password($this->sshConnection, $user, $pass) === false) {
+        if (@ssh2_auth_password($this->sshConnection, $user, $pass) === false) {
             $this->setError(3);
             return false;
         }
-        if (($this->sftpConnection = ssh2_sftp($this->sshConnection)) === false) {
+        if (($this->sftpConnection = @ssh2_sftp($this->sshConnection)) === false) {
             $this->setError(6);
             return false;
         }

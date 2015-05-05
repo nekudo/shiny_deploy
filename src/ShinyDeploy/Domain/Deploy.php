@@ -33,16 +33,16 @@ class Deploy extends Domain
      * Checks if connection to server is possible.
      *
      * @param Server $server
-     * @param array $credentials
+     * @param array $serverData
      * @return bool
      */
-    public function checkConnectivity(Server $server, array $credentials)
+    public function checkConnectivity(Server $server, array $serverData)
     {
         $connectionResult = $server->connect(
-            $credentials['host'],
-            $credentials['user'],
-            $credentials['pass'],
-            $credentials['port']
+            $serverData['hostname'],
+            $serverData['username'],
+            $serverData['password'],
+            $serverData['port']
         );
         return $connectionResult;
     }
