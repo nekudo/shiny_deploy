@@ -89,8 +89,20 @@ app.controller('DeploymentsAddController', ['$scope', '$location', 'deploymentsS
                 alertsService.queueAlert('Deployment successfully added.', 'success');
             }, function(reason) {
                 alertsService.pushAlert(reason, 'warning');
-            })
+            });
         };
+
+        /**
+         * Refresh branches list if repository is changed.
+         */
+        $scope.refreshBranches = function() {
+            var getBranchesPromise = deploymentsService.getRepositoryBranches($scope.deployment.repository_id.id);
+            getBranchesPromise.then(function(data) {
+                $scope.branches = data;
+            }, function(reason) {
+                alertsService.pushAlert(reason, 'warning');
+            });
+        }
     }
 ]);
 
