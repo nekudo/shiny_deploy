@@ -26,7 +26,7 @@ class AddRepository extends WsDataAction
             return false;
         }
 
-        // add server:
+        // add repository:
         $addResult = $repositoriesDomain->addRepository($repositoryData);
         if ($addResult === false) {
             $this->responder->setError('Could not add repository to database.');

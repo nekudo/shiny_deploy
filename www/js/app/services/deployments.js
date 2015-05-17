@@ -28,6 +28,18 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
     };
 
     /**
+     * Fetches list of repository branches.
+     *
+     * @returns {promise}
+     */
+    this.getRepositoryBranches = function(repositoryId) {
+        var requestParams = {
+            repositoryId: repositoryId
+        };
+        return ws.sendDataRequest('getRepositoryBranches', requestParams);
+    };
+
+    /**
      * Adds new repository.
      *
      * @param {Array} deploymentData

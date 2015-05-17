@@ -118,6 +118,12 @@ class Git extends Domain
         return $changes;
     }
 
+    /**
+     * Lists files in repository.
+     *
+     * @param string $repoPath
+     * @return string
+     */
     public function listFiles($repoPath)
     {
         if (empty($repoPath)) {
@@ -130,6 +136,44 @@ class Git extends Domain
         $changes = $this->exec('ls-files');
         chdir($oldDir);
         return $changes;
+    }
+
+    /**
+     * Fetches list of repositories remote branches.
+     *
+     * @param string $repoPath
+     * @return string
+     */
+    public function getRemoteBranches($repoPath)
+    {
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (@chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $output = $this->exec('branch -r');
+        chdir($oldDir);
+        $output = trim($output);
+        if (empty($output)) {
+            $this->logger->warning('Could not fetch braches of repository: '  . $repoPath);
+            return false;
+        }
+        $branches = [];
+        $lines = explode("\n", $output);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) {
+                continue;
+            }
+            $branchId = preg_replace("/[^[:alnum:]]/ui", '', $line);
+            $branches[] = [
+                'id' => $branchId,
+                'name' => $line,
+            ];
+        }
+        return $branches;
     }
 
     /**

@@ -40,6 +40,7 @@
                                         name="repository_id"
                                         id="repository-id"
                                         class="form-control"
+                                        data-ng-change="refreshBranches()"
                                         data-ng-model="deployment.repository_id"
                                         data-ng-options="repo.name for repo in repositories track by repo.id"
                                         required>
@@ -64,16 +65,14 @@
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.branch.$invalid && editDeploymentForm.branch.$dirty}">
                                     <label for="repository-branch">Branch</label>
-                                    <input
+                                    <select
                                         name="branch"
-                                        type="text"
-                                        class="form-control"
                                         id="repository-branch"
-                                        placeholder="master"
+                                        class="form-control"
                                         data-ng-model="deployment.branch"
-                                        data-ng-minlength="1"
-                                        data-ng-maxlength="100"
+                                        data-ng-options="branch.name for branch in branches track by branch.id"
                                         required>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-md-6">
