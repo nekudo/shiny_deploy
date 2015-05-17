@@ -8,8 +8,6 @@ app.controller('AlertsController', ['$scope', 'alertsService',
          */
         $scope.alerts = [];
 
-        init();
-
         /**
          * Display queued and listen for new alerts.
          */
@@ -49,5 +47,7 @@ app.controller('AlertsController', ['$scope', 'alertsService',
         $scope.removeAlert = function(index) {
             $scope.alerts.splice(index, 1);
         };
+
+        init();
     }
 ]);
