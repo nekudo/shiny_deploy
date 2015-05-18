@@ -1,0 +1,7 @@
+<div id="notifications-container" data-ng-controller="NotificationsController">
+    <div id="notification-{{notification.id}}" class="box box-{{notification.type}}" data-ng-repeat="notification in notifications">
+        <div class="box-body">
+            {{notification.msg}}
+        </div>
+    </div>
+</div>

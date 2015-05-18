@@ -112,6 +112,7 @@ class WorkerGateway implements WampServerInterface
         }
         /** @var \ShinyDeploy\Action\WsDataAction $action */
         $action = new $actionClassName($this->config, $this->logger);
+        $action->setClientId($clientId);
         $action->__invoke($actionPayload);
         $actionResponse = $action->getResponse($callbackId);
 
