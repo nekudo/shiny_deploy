@@ -54,11 +54,11 @@ class Repositories extends DatabaseDomain
      * Stores new repository in database.
      *
      * @param array $repositoryData
-     * @return bool
+     * @return bool|int
      */
     public function addRepository(array $repositoryData)
     {
-        return $this->db->prepare(
+        $result = $this->db->prepare(
             "INSERT INTO repositories
               (`name`, `type`, `url`)
               VALUES
@@ -67,6 +67,10 @@ class Repositories extends DatabaseDomain
             $repositoryData['type'],
             $repositoryData['url']
         )->execute();
+        if ($result === false) {
+            return false;
+        }
+        return $this->db->getInsertId();
     }
 
     /**

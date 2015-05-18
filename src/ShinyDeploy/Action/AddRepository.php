@@ -27,11 +27,19 @@ class AddRepository extends WsDataAction
         }
 
         // add repository:
-        $addResult = $repositoriesDomain->addRepository($repositoryData);
-        if ($addResult === false) {
+        $repositoryId = $repositoriesDomain->addRepository($repositoryData);
+        if ($repositoryId === false) {
             $this->responder->setError('Could not add repository to database.');
             return false;
         }
+
+        // trigger initial cloning:
+        $client = new \GearmanClient;
+        $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
+        $actionPayload['clientId'] = $this->clientId;
+        $actionPayload['repositoryId'] = $repositoryId;
+        $payload = json_encode($actionPayload);
+        $client->doBackground('cloneRepository', $payload);
         return true;
     }
 

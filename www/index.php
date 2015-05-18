@@ -58,6 +58,8 @@
 
 </div><!-- /wrapper -->
 
+<div data-ng-include="'/js/app/partials/notifications.html'"></div>
+
 <script src="/js/vendor.min.js"></script>
 <script src="/js/project.js"></script>
 </body>
