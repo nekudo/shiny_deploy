@@ -26,7 +26,7 @@ class CloneRepository extends Action
             $gitDomain = new Git($this->config, $this->logger);
             $repositoryData = $repositoriesDomain->getRepositoryData($repositoryId);
             if (empty($repositoryData)) {
-                $notificationResponder->send('Could not clone repository. Repository not found in database.', 'error');
+                $notificationResponder->send('Could not clone repository. Repository not found in database.', 'danger');
             }
             $repoPath = $repositoryDomain->createLocalPath($repositoryData['url']);
             if ($repositoryDomain->exists($repoPath) === true) {
@@ -45,7 +45,7 @@ class CloneRepository extends Action
                     return true;
                 }
             }
-            $notificationResponder->send('Could not clone repository to local server.', 'error');
+            $notificationResponder->send('Could not clone repository to local server.', 'danger');
             return false;
         } catch (\RuntimeException $e) {
             $this->logger->alert(
