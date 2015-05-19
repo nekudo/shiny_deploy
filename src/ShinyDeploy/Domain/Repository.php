@@ -63,4 +63,48 @@ class Repository extends Domain
         }
         return $localPath;
     }
+
+    /**
+     * Deletes files of a local repository.
+     *
+     * @param string $repoPath
+     * @return bool
+     */
+    public function remove($repoPath)
+    {
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Repository path can not be empty.');
+        }
+        if (!is_dir($repoPath)) {
+            return false;
+        }
+        $this->removeDir($repoPath);
+        return true;
+    }
+
+    /**
+     * Recursively removes a not empty directory.
+     *
+     * @param string $path
+     */
+    private function removeDir($path)
+    {
+        if (is_dir($path)) {
+            $objects = scandir($path);
+            foreach ($objects as $object) {
+                if ($object !== '.' && $object !== '..') {
+                    if (is_link($path.'/'.$object)) {
+                        continue;
+                    }
+                    if (filetype($path.'/'.$object) === 'dir') {
+                        $this->removeDir($path.'/'.$object);
+                    } else {
+                        unlink($path.'/'.$object);
+                    }
+                }
+            }
+            reset($objects);
+            rmdir($path);
+        }
+    }
 }
