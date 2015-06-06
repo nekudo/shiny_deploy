@@ -186,7 +186,7 @@ class Sftp
      */
     public function unlink($file)
     {
-        if (!ssh2_sftp_unlink($this->sftpConnection, $file) === false) {
+        if (ssh2_sftp_unlink($this->sftpConnection, $file) === false) {
             $this->setError(8);
             return false;
         }
