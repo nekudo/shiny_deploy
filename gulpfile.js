@@ -28,6 +28,7 @@ gulp.task('vendor_css', function() {
 gulp.task('project_js', function() {
     gulp.src([
         'www/js/app/app.js',
+        'www/js/app/app.config.js',
         'www/js/app/**/*.js'
     ])
         .pipe(concat('project.js'))

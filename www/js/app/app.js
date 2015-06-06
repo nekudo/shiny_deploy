@@ -1,9 +1,9 @@
-var app = angular.module('shinyDeploy', ['ngRoute', 'ws']);
+var app = angular.module('shinyDeploy', ['ngRoute', 'ws', 'shinyDeploy.config']);
 
-app.config(['$routeProvider', '$locationProvider', 'wsProvider', function ($routeProvider, $locationProvider, wsProvider) {
+app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployConfig', function ($routeProvider, $locationProvider, wsProvider, shinyDeployConfig) {
     $locationProvider.html5Mode(true);
 
-    wsProvider.setUrl('ws://127.0.0.1:8090');
+    wsProvider.setUrl(shinyDeployConfig.wsUrl);
 
     $routeProvider
         .when('/', {
