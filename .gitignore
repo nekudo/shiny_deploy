@@ -13,5 +13,6 @@
 /vendor
 composer.lock
 src/ShinyDeploy/config.php
+www/js/app/app.config.js
 logs/*.log
 /node_modules

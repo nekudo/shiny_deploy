@@ -44,6 +44,8 @@ class WsEventResponder extends Responder
         $zmqSocket = $this->zmqContext->getSocket(\ZMQ::SOCKET_PUSH);
         $zmqSocket->connect($zmqDsn);
         $zmqSocket->send(json_encode($data));
-        $zmqSocket->disconnect($zmqDsn);
+        if (method_exists($zmqSocket, 'disconnect')) {
+            $zmqSocket->disconnect($zmqDsn);
+        }
     }
 }

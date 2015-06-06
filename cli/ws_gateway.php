@@ -1,8 +1,8 @@
 <?php
 require_once 'bootstrap.php';
 
-$logger->info('Starting worker gateway.');
-$WorkerGateway = new ShinyDeploy\Websockets\WorkerGateway($config, $logger);
+$logger->info('Starting websocket gateway.');
+$WorkerGateway = new ShinyDeploy\Websockets\WsGateway($config, $logger);
 $loop = React\EventLoop\Factory::create();
 $context = new React\ZMQ\Context($loop);
 $pull = $context->getSocket(ZMQ::SOCKET_PULL);

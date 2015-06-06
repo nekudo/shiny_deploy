@@ -7,7 +7,7 @@ use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\WampServerInterface;
 use ShinyDeploy\Exceptions\WebsocketException;
 
-class WorkerGateway implements WampServerInterface
+class WsGateway implements WampServerInterface
 {
     /** @var Config $config */
     protected $config;
