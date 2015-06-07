@@ -29,25 +29,26 @@ PHP Internationalization
 
   ```git clone https://github.com/nekudo/shiny_deploy.git```
   
-* Run composer update
+* Install dependencies
+
+  ```composer install```
+  
+  ```npm install```
+
 * Create MySQL tables (db_structure.sql)
 * Adjust config files
   * /src/ShinyDeploy/config.sample.php -> /src/ShinyDeploy/config.php
   * /www/js/app/app.config.sample.js -> /www/js/app.config.js
-* Install node dependencies
-
-  ```npm install```
-
 * Build css/js files
 
   ```gulp build```
   
 * Start cli scripts
 
-  ```
-  php cli/ws_gateway.php
-  php cli/worker.deployer.php --name deploy1
-  php cli/worker.repo_actions.php --name repo1
-  ```
+  ```php cli/ws_gateway.php```
+  
+  ```php cli/worker.deployer.php --name deploy1```
+  
+  ```php cli/worker.repo_actions.php --name repo1```
 
 * Happy hacking...
