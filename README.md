@@ -38,14 +38,9 @@ PHP Internationalization
 
   ```npm install```
 
-* Run gulp tasks
+* Build css/js files
 
-  ```
-  gulp vendor_css
-  gulp project_css
-  gulp vendor_js
-  gulp project_js
-  ```
+  ```gulp build```
   
 * Start cli scripts
 
