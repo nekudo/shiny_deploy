@@ -56,5 +56,13 @@ gulp.task('watch', function() {
     gulp.watch(['www/js/app.js', 'www/js/app/**/*.js'], ['project_js']);
 });
 
+// Build all
+gulp.task('build', [
+    'vendor_css',
+    'project_css',
+    'vendor_js',
+    'project_js'
+]);
+
 // Default task
-gulp.task('default', ['watch']);
+gulp.task('default', ['build']);
