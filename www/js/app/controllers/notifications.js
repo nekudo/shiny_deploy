@@ -1,8 +1,20 @@
-app.controller('NotificationsController', ['$scope', '$timeout', 'ws',
-    function ($scope, $timeout, ws) {
+(function () {
+    "use strict";
 
-        $scope.notifications = [];
+    angular
+        .module('shinyDeploy')
+        .controller('NotificationsController', NotificationsController);
+
+    NotificationsController.$inject = ['$scope', '$timeout', 'ws'];
+
+    function NotificationsController($scope, $timeout, ws) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.notifications = [];
         var notificationsCount = 0;
+
+        addNotificationListener();
 
         /**
          * Listen for notification events on websocket connection:
@@ -23,7 +35,7 @@ app.controller('NotificationsController', ['$scope', '$timeout', 'ws',
          */
         function pushNotification(message, type) {
             $scope.$apply(function() {
-                $scope.notifications.push({
+                vm.notifications.push({
                     msg: message,
                     type: type,
                     id: 'notification-' + notificationsCount
@@ -37,9 +49,7 @@ app.controller('NotificationsController', ['$scope', '$timeout', 'ws',
          * Removes notification from stack.
          */
         function removeNotification() {
-            $scope.notifications.splice(0, 1);
+            vm.notifications.splice(0, 1);
         }
-
-        addNotificationListener();
     }
-]);
+}());

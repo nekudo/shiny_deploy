@@ -1,15 +1,26 @@
-app.controller('AlertsController', ['$scope', 'alertsService',
-    function ($scope, alertsService) {
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('AlertsController', AlertsController);
+
+    AlertsController.$inject = ['$scope', 'alertsService'];
+
+    function AlertsController($scope, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        /** @type {Array} Alert message storage. */
+        vm.alerts = [];
+
+        vm.addAlert = addAlert;
+        vm.removeAlert = removeAlert;
+
+        init();
 
         /**
-         * Alert message storage.
-         *
-         * @type {Array}
-         */
-        $scope.alerts = [];
-
-        /**
-         * Display queued and listen for new alerts.
+         * Display queued alerts and listen for new alerts.
          */
         function init() {
             // listen for new alert messages:
@@ -32,22 +43,21 @@ app.controller('AlertsController', ['$scope', 'alertsService',
          * @param message
          * @param type
          */
-        $scope.addAlert = function(message, type) {
+        function addAlert(message, type) {
             $scope.alerts.push({
                 msg: message,
                 type: type
             });
-        };
+        }
 
         /**
          * Removes alert message from storage.
          *
          * @param index
          */
-        $scope.removeAlert = function(index) {
+        function removeAlert(index) {
             $scope.alerts.splice(index, 1);
-        };
-
-        init();
+        }
     }
-]);
+
+}());

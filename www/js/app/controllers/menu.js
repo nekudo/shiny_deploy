@@ -1,13 +1,20 @@
-app.controller('MenuController', ['$scope', '$location',
-    function ($scope, $location) {
-        /**
-         * Checks weather menu-item is active.
-         *
-         * @param path
-         * @returns {boolean}
-         */
-        $scope.getClass = function (path) {
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('MenuController', MenuController);
+
+    MenuController.$inject = ['$location'];
+
+    function MenuController($location) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.getClass = getClass;
+
+        function getClass(path) {
             return ($location.path().substr(0, path.length) == path);
         }
     }
-]);
+}());
