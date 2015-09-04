@@ -9,10 +9,13 @@
 # OSX
 **.DS_Store
 
-# Composer
+# Composer/Gulp
 /vendor
-composer.lock
-src/ShinyDeploy/config.php
-www/js/app/app.config.js
-logs/*.log
 /node_modules
+composer.lock
+
+# Project
+/src/ShinyDeploy/config.php
+/www/js/app/app.config.js
+/www/js/project.min.js
+/www/js/vendor.min.js

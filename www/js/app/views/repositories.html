@@ -17,7 +17,7 @@
                             <th>Repository</th>
                             <th></th>
                         </tr>
-                        <tr data-ng-repeat="repository in getRepositories()">
+                        <tr data-ng-repeat="repository in vm.getRepositories()">
                             <td>{{repository.id}}</td>
                             <td>{{repository.name}}</td>
                             <td class="text-right">
@@ -26,7 +26,7 @@
                                 </a>
                                 <button
                                         data-ng-really-message="Are you sure you want to delete this repository?"
-                                        data-ng-really-click="deleteRepository(repository.id)"
+                                        data-ng-really-click="vm.deleteRepository(repository.id)"
                                         type="button"
                                         class="btn btn-sm btn-danger">
                                     <i class="fa fa-times"></i> Delete

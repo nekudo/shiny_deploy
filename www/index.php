@@ -27,19 +27,19 @@
 
     <aside class="main-sidebar">
         <section class="sidebar">
-            <ul class="sidebar-menu" data-ng-controller="MenuController">
+            <ul class="sidebar-menu" data-ng-controller="MenuController as vm">
                 <li class="header">MAIN NAVIGATION</li>
-                <li data-ng-class="{'active':getClass('/repositories')}">
+                <li data-ng-class="{'active':vm.getClass('/repositories')}">
                     <a href="/repositories">
                         <i class="fa fa-github"></i> <span>Repositories</span>
                     </a>
                 </li>
-                <li data-ng-class="{'active':getClass('/servers')}">
+                <li data-ng-class="{'active':vm.getClass('/servers')}">
                     <a href="/servers">
                         <i class="fa fa-linux"></i> <span>Servers</span>
                     </a>
                 </li>
-                <li data-ng-class="{'active':getClass('/deployments')}">
+                <li data-ng-class="{'active':vm.getClass('/deployments')}">
                     <a href="/deployments">
                         <i class="fa fa-cloud-upload"></i> <span>Deployments</span>
                     </a>
@@ -61,6 +61,6 @@
 <div data-ng-include="'/js/app/partials/notifications.html'"></div>
 
 <script src="/js/vendor.min.js"></script>
-<script src="/js/project.js"></script>
+<script src="/js/project.min.js"></script>
 </body>
 </html>

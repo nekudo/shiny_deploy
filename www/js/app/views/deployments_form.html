@@ -1,8 +1,8 @@
 <section class="content-header">
     <h1>
         Deployments
-        <small data-ng-if="isAdd">Add new deployment</small>
-        <small data-ng-if="isEdit">Edit deployment</small>
+        <small data-ng-if="vm.isAdd">Add new deployment</small>
+        <small data-ng-if="vm.isEdit">Edit deployment</small>
     </h1>
 </section>
 
@@ -12,38 +12,36 @@
     <div class="row">
         <div class="col-xs-12">
             <form name="editDeploymentForm" novalidate>
-                <input type="hidden" name="id" data-ng-model="deployment.id" data-ng-if="isEdit">
-                <div class="box" data-ng-class="{'box-primary': isEdit, 'box-success': isAdd}">
+                <input type="hidden" name="id" data-ng-model="vm.deployment.id" data-ng-if="vm.isEdit">
+                <div class="box" data-ng-class="{'box-primary': vm.isEdit, 'box-success': vm.isAdd}">
                     <div class="box-body">
                         <div class="row">
                             <div class="col-xs-12 col-md-12">
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.name.$invalid && editDeploymentForm.name.$dirty}">
                                     <label for="deployment-name">Name</label>
-                                    <input
-                                        name="name"
-                                        type="text"
-                                        class="form-control"
-                                        id="deployment-name"
-                                        placeholder="My deployment"
-                                        data-ng-model="deployment.name"
-                                        data-ng-minlength="3"
-                                        data-ng-maxlength="100"
-                                        required>
+                                    <input name="name"
+                                           type="text"
+                                           class="form-control"
+                                           id="deployment-name"
+                                           placeholder="My deployment"
+                                           data-ng-model="vm.deployment.name"
+                                           data-ng-minlength="3"
+                                           data-ng-maxlength="100"
+                                           required>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.repository_id.$invalid && editDeploymentForm.repository_id.$dirty}">
                                     <label for="repository-id">Repository</label>
-                                    <select
-                                        name="repository_id"
-                                        id="repository-id"
-                                        class="form-control"
-                                        data-ng-change="refreshBranches()"
-                                        data-ng-model="deployment.repository_id"
-                                        data-ng-options="repo.name for repo in repositories track by repo.id"
-                                        required>
+                                    <select name="repository_id"
+                                            id="repository-id"
+                                            class="form-control"
+                                            data-ng-change="vm.refreshBranches()"
+                                            data-ng-model="vm.deployment.repository_id"
+                                            data-ng-options="repo.name for repo in vm.repositories track by repo.id"
+                                            required>
                                     </select>
                                 </div>
                             </div>
@@ -51,13 +49,12 @@
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.server_id.$invalid && editDeploymentForm.server_id.$dirty}">
                                     <label for="server-id">Server</label>
-                                    <select
-                                        name="server_id"
-                                        id="server-id"
-                                        class="form-control"
-                                        data-ng-model="deployment.server_id"
-                                        data-ng-options="server.name for server in servers track by server.id"
-                                        required>
+                                    <select name="server_id"
+                                            id="server-id"
+                                            class="form-control"
+                                            data-ng-model="vm.deployment.server_id"
+                                            data-ng-options="server.name for server in vm.servers track by server.id"
+                                            required>
                                     </select>
                                 </div>
                             </div>
@@ -65,13 +62,12 @@
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.branch.$invalid && editDeploymentForm.branch.$dirty}">
                                     <label for="repository-branch">Branch</label>
-                                    <select
-                                        name="branch"
-                                        id="repository-branch"
-                                        class="form-control"
-                                        data-ng-model="deployment.branch"
-                                        data-ng-options="branch.name for branch in branches track by branch.id"
-                                        required>
+                                    <select name="branch"
+                                            id="repository-branch"
+                                            class="form-control"
+                                            data-ng-model="vm.deployment.branch"
+                                            data-ng-options="branch.name for branch in vm.branches track by branch.id"
+                                            required>
                                     </select>
                                 </div>
                             </div>
@@ -79,23 +75,22 @@
                                 <div class="form-group"
                                      data-ng-class="{ 'has-error': editDeploymentForm.target_path.$invalid && editDeploymentForm.target_path.$dirty}">
                                     <label for="server-target_path">Target path</label>
-                                    <input
-                                        name="target_path"
-                                        type="text"
-                                        class="form-control"
-                                        id="server-target_path"
-                                        placeholder="/"
-                                        data-ng-model="deployment.target_path"
-                                        data-ng-minlength="1"
-                                        data-ng-maxlength="200"
-                                        required>
+                                    <input name="target_path"
+                                           type="text"
+                                           class="form-control"
+                                           id="server-target_path"
+                                           placeholder="/"
+                                           data-ng-model="vm.deployment.target_path"
+                                           data-ng-minlength="1"
+                                           data-ng-maxlength="200"
+                                           required>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="box-footer">
-                        <button data-ng-if="isAdd" data-ng-disabled="editDeploymentForm.$invalid" data-ng-click="addDeployment()" class="btn btn-success">Save</button>
-                        <button data-ng-if="isEdit" data-ng-disabled="editDeploymentForm.$invalid" data-ng-click="updateDeployment()" class="btn btn-primary">Update</button>
+                        <button data-ng-if="vm.isAdd" data-ng-disabled="editDeploymentForm.$invalid" data-ng-click="vm.addDeployment()" class="btn btn-success">Save</button>
+                        <button data-ng-if="vm.isEdit" data-ng-disabled="editDeploymentForm.$invalid" data-ng-click="vm.updateDeployment()" class="btn btn-primary">Update</button>
                         <a href="/deployments" class="btn btn-default">Cancel</a>
                     </div>
                 </div>

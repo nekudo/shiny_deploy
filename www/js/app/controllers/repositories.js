@@ -1,6 +1,20 @@
-app.controller('RepositoriesController', ['$scope', 'repositoriesService', 'alertsService',
-    function ($scope, repositoriesService, alertsService) {
-        var repositories = null;
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('RepositoriesController', RepositoriesController);
+
+    RepositoriesController.$inject = ['repositoriesService', 'alertsService'];
+
+    function RepositoriesController(repositoriesService, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.repositories = {};
+
+        vm.getRepositories = getRepositories;
+        vm.deleteRepository = deleteRepository;
 
         init();
 
@@ -9,9 +23,8 @@ app.controller('RepositoriesController', ['$scope', 'repositoriesService', 'aler
          */
         function init() {
             // load repositories:
-            var getRepositoriesPromise = repositoriesService.getRepositories();
-            getRepositoriesPromise.then(function(data) {
-                repositories = data;
+            repositoriesService.getRepositories().then(function(data) {
+                vm.repositories = data;
             }, function(reason) {
                 console.log('Error fetching repositories: ' + reason);
             });
@@ -20,23 +33,22 @@ app.controller('RepositoriesController', ['$scope', 'repositoriesService', 'aler
         /**
          * Returns list of repositories.
          *
-         * @returns {null|Array}
+         * @returns {Array}
          */
-        $scope.getRepositories = function() {
-            return repositories;
-        };
+        function getRepositories() {
+            return vm.repositories;
+        }
 
         /**
          * Removes a repository.
          *
          * @param {number} repositoryId
          */
-        $scope.deleteRepository = function(repositoryId) {
-            var deleteRepositoryPromise = repositoriesService.deleteRepository(repositoryId);
-            deleteRepositoryPromise.then(function(data) {
-                for (var i = repositories.length - 1; i >= 0; i--) {
-                    if (repositories[i].id === repositoryId) {
-                        repositories.splice(i, 1);
+        function deleteRepository(repositoryId) {
+            repositoriesService.deleteRepository(repositoryId).then(function() {
+                for (var i = vm.repositories.length - 1; i >= 0; i--) {
+                    if (vm.repositories[i].id === repositoryId) {
+                        vm.repositories.splice(i, 1);
                         break;
                     }
                 }
@@ -46,18 +58,32 @@ app.controller('RepositoriesController', ['$scope', 'repositoriesService', 'aler
             });
         }
     }
-]);
+}());
 
-app.controller('RepositoriesAddController', ['$scope', '$location', 'repositoriesService', 'alertsService',
-    function ($scope, $location, repositoriesService, alertsService) {
-        $scope.isAdd = true;
+
+
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('RepositoriesAddController', RepositoriesAddController);
+
+    RepositoriesAddController.$inject = ['$location', 'repositoriesService', 'alertsService'];
+
+    function RepositoriesAddController($location, repositoriesService, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.isAdd = true;
+        vm.repository = {};
+        vm.addRepository = addRepository;
 
         /**
          * Requests add-repository action on project backend.
          */
-        $scope.addRepository = function() {
-            var promise = repositoriesService.addRepository($scope.repository);
-            promise.then(function(data) {
+        function addRepository() {
+            repositoriesService.addRepository(vm.repository).then(function() {
                 $location.path('/repositories');
                 alertsService.queueAlert('Repository successfully added.', 'success');
             }, function(reason) {
@@ -65,11 +91,27 @@ app.controller('RepositoriesAddController', ['$scope', '$location', 'repositorie
             })
         }
     }
-]);
+}());
 
-app.controller('RepositoriesEditController', ['$scope', '$location', '$routeParams', 'repositoriesService', 'alertsService',
-    function ($scope, $location, $routeParams, repositoriesService, alertsService) {
-        $scope.isEdit = true;
+
+
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('RepositoriesEditController', RepositoriesEditController);
+
+    RepositoriesEditController.$inject = ['$location', '$routeParams', 'repositoriesService', 'alertsService'];
+
+    function RepositoriesEditController($location, $routeParams, repositoriesService, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.isEdit = true;
+        vm.repository = {};
+
+        vm.updateRepository = updateRepository;
 
         init();
 
@@ -79,10 +121,9 @@ app.controller('RepositoriesEditController', ['$scope', '$location', '$routePara
         function init() {
             // load repository data:
             var repositoryId = ($routeParams.repositoryId) ? parseInt($routeParams.repositoryId) : 0;
-            var getRepositoryDataPromise = repositoriesService.getRepositoryData(repositoryId);
-            getRepositoryDataPromise.then(function(data) {
-                $scope.repository = data;
-            }, function(reason) {
+            repositoriesService.getRepositoryData(repositoryId).then(function(data) {
+                vm.repository = data;
+            }, function() {
                 $location.path('/repositories');
             });
         }
@@ -90,13 +131,12 @@ app.controller('RepositoriesEditController', ['$scope', '$location', '$routePara
         /**
          * Updates a repository.
          */
-        $scope.updateRepository = function() {
-            var updateRepositoryPromise = repositoriesService.updateRepository($scope.repository);
-            updateRepositoryPromise.then(function (data) {
+        function updateRepository() {
+            repositoriesService.updateRepository(vm.repository).then(function() {
                 alertsService.pushAlert('Repository successfully updated.', 'success');
             }, function (reason) {
                 alertsService.pushAlert(reason, 'warning');
             })
         }
     }
-]);
+}());
