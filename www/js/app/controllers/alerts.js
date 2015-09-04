@@ -26,14 +26,14 @@
             // listen for new alert messages:
             var _unregister;
             _unregister = $scope.$on('alertMessage', function (event, message, type) {
-                $scope.addAlert(message, type);
+                vm.addAlert(message, type);
             });
             $scope.$on("$destroy", _unregister);
 
             // display alert messages still in queue:
             var queuedAlert = alertsService.getQueuedAlert();
             if (queuedAlert !== '') {
-                $scope.addAlert(queuedAlert.message, queuedAlert.type);
+                vm.addAlert(queuedAlert.message, queuedAlert.type);
             }
         }
 
@@ -44,7 +44,7 @@
          * @param type
          */
         function addAlert(message, type) {
-            $scope.alerts.push({
+            vm.alerts.push({
                 msg: message,
                 type: type
             });
@@ -56,7 +56,7 @@
          * @param index
          */
         function removeAlert(index) {
-            $scope.alerts.splice(index, 1);
+            vm.alerts.splice(index, 1);
         }
     }
 

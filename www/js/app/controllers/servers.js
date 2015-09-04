@@ -1,6 +1,20 @@
-app.controller('ServersController', ['$scope', 'serversService', 'alertsService',
-    function ($scope, serversService, alertsService) {
-        var servers = null;
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('ServersController', ServersController);
+
+    ServersController.$inject = ['$scope', 'serversService', 'alertsService'];
+
+    function ServersController($scope, serversService, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.servers = {};
+
+        vm.getServers = getServers;
+        vm.deleteServer = deleteServer;
 
         init();
 
@@ -8,9 +22,8 @@ app.controller('ServersController', ['$scope', 'serversService', 'alertsService'
          * Load data required for servers index view.
          */
         function init() {
-            var getServersPromise = serversService.getServers();
-            getServersPromise.then(function(data) {
-                servers = data;
+            serversService.getServers().then(function(data) {
+                vm.servers = data;
             }, function(reason) {
                 console.log('Error fetching servers: ' + reason);
             });
@@ -19,23 +32,22 @@ app.controller('ServersController', ['$scope', 'serversService', 'alertsService'
         /**
          * Returns list of servers.
          *
-         * @returns {null|Array}
+         * @returns {Array}
          */
-        $scope.getServers = function() {
-            return servers;
-        };
+        function getServers() {
+            return vm.servers;
+        }
 
         /**
          * Removes a server.
          *
          * @param {number} serverId
          */
-        $scope.deleteServer = function(serverId) {
-            var deleteServerPromise = serversService.deleteServer(serverId);
-            deleteServerPromise.then(function(data) {
-                for (var i = servers.length - 1; i >= 0; i--) {
-                    if (servers[i].id === serverId) {
-                        servers.splice(i, 1);
+        function deleteServer(serverId) {
+            serversService.deleteServer(serverId).then(function() {
+                for (var i = vm.servers.length - 1; i >= 0; i--) {
+                    if (vm.servers[i].id === serverId) {
+                        vm.servers.splice(i, 1);
                         break;
                     }
                 }
@@ -45,18 +57,33 @@ app.controller('ServersController', ['$scope', 'serversService', 'alertsService'
             });
         }
     }
-]);
+}());
 
-app.controller('ServersAddController', ['$scope', '$location', 'serversService', 'alertsService',
-    function ($scope, $location, serversService, alertsService) {
-        $scope.isAdd = true;
+
+
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('ServersAddController', ServersAddController);
+
+    ServersAddController.$inject = ['$location', 'serversService', 'alertsService'];
+
+    function ServersAddController($location, serversService, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.isAdd = true;
+        vm.server = {};
+
+        vm.addServer = addServer;
 
         /**
          * Requests add-server action on project backend.
          */
-        $scope.addServer = function() {
-            var promise = serversService.addServer($scope.server);
-            promise.then(function(data) {
+        function addServer() {
+            serversService.addServer(vm.server).then(function() {
                 $location.path('/servers');
                 alertsService.queueAlert('Server successfully added.', 'success');
             }, function(reason) {
@@ -64,11 +91,27 @@ app.controller('ServersAddController', ['$scope', '$location', 'serversService',
             })
         }
     }
-]);
+}());
 
-app.controller('ServersEditController', ['$scope', '$location', '$routeParams', 'serversService', 'alertsService',
-    function ($scope, $location, $routeParams, serversService, alertsService) {
-        $scope.isEdit = true;
+
+
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('ServersEditController', ServersEditController);
+
+    ServersEditController.$inject = ['$location', '$routeParams', 'serversService', 'alertsService'];
+
+    function ServersEditController($location, $routeParams, serversService, alertsService) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.isEdit = true;
+        vm.server = {};
+
+        vm.updateServer = updateServer;
 
         init();
 
@@ -78,13 +121,12 @@ app.controller('ServersEditController', ['$scope', '$location', '$routeParams', 
         function init() {
             // load server data:
             var serverId = ($routeParams.serverId) ? parseInt($routeParams.serverId) : 0;
-            var getServerDataPromise = serversService.getServerData(serverId);
-            getServerDataPromise.then(function(data) {
+            serversService.getServerData(serverId).then(function(data) {
                 if (data.hasOwnProperty('port')) {
                     data.port = parseInt(data.port);
                 }
-                $scope.server = data;
-            }, function(reason) {
+                vm.server = data;
+            }, function() {
                 $location.path('/servers');
             });
         }
@@ -92,13 +134,12 @@ app.controller('ServersEditController', ['$scope', '$location', '$routeParams', 
         /**
          * Updates a server.
          */
-        $scope.updateServer = function() {
-            var promise = serversService.updateServer($scope.server);
-            promise.then(function (data) {
+        function updateServer() {
+            serversService.updateServer(vm.server).then(function () {
                 alertsService.pushAlert('Server successfully updated.', 'success');
             }, function (reason) {
                 alertsService.pushAlert(reason, 'warning');
             })
         }
     }
-]);
+}());

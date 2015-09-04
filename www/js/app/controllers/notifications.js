@@ -12,7 +12,7 @@
         var vm = this;
 
         vm.notifications = [];
-        var notificationsCount = 0;
+        vm.notificationsCount = 0;
 
         addNotificationListener();
 
@@ -41,7 +41,7 @@
                     id: 'notification-' + notificationsCount
                 });
                 $timeout(removeNotification, 5000);
-                notificationsCount++;
+                vm.notificationsCount++;
             });
         }
 

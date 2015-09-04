@@ -31,7 +31,7 @@ gulp.task('project_js', function() {
         'www/js/app/app.config.js',
         'www/js/app/**/*.js'
     ])
-        .pipe(concat('project.js'))
+        .pipe(concat('project.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('www/js/'))
 });

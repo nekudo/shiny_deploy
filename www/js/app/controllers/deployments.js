@@ -114,8 +114,7 @@
                 vm.deployment.repository_id = vm.deployment.repository_id.id;
                 vm.deployment.server_id = vm.deployment.server_id.id;
             }
-            var addDeploymentPromise = deploymentsService.addDeployment(vm.deployment);
-            addDeploymentPromise.then(function(data) {
+            deploymentsService.addDeployment(vm.deployment).then(function(data) {
                 $location.path('/deployments');
                 alertsService.queueAlert('Deployment successfully added.', 'success');
             }, function(reason) {

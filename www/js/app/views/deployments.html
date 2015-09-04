@@ -17,7 +17,7 @@
                             <th>Deployment</th>
                             <th></th>
                         </tr>
-                        <tr data-ng-repeat="deployment in getDeployments()">
+                        <tr data-ng-repeat="deployment in vm.getDeployments()">
                             <td>{{deployment.id}}</td>
                             <td>{{deployment.name}}</td>
                             <td class="text-right">
@@ -29,7 +29,7 @@
                                 </a>
                                 <button
                                     data-ng-really-message="Are you sure you want to delete this deployment?"
-                                    data-ng-really-click="deleteDeployment(deployment.id)"
+                                    data-ng-really-click="vm.deleteDeployment(deployment.id)"
                                     type="button"
                                     class="btn btn-sm btn-danger">
                                     <i class="fa fa-times"></i> Delete

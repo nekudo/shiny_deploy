@@ -17,7 +17,7 @@
                             <th>Server</th>
                             <th></th>
                         </tr>
-                        <tr data-ng-repeat="server in getServers()">
+                        <tr data-ng-repeat="server in vm.getServers()">
                             <td>{{server.id}}</td>
                             <td>{{server.name}}</td>
                             <td class="text-right">
@@ -26,7 +26,7 @@
                                 </a>
                                 <button
                                     data-ng-really-message="Are you sure you want to delete this server?"
-                                    data-ng-really-click="deleteServer(server.id)"
+                                    data-ng-really-click="vm.deleteServer(server.id)"
                                     type="button"
                                     class="btn btn-sm btn-danger">
                                     <i class="fa fa-times"></i> Delete
