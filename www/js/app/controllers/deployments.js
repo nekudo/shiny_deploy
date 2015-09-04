@@ -109,11 +109,6 @@
          * Requests add-deployment action on project backend.
          */
         function addDeployment() {
-
-            if (vm.deployment.hasOwnProperty('repository_id')) {
-                vm.deployment.repository_id = vm.deployment.repository_id.id;
-                vm.deployment.server_id = vm.deployment.server_id.id;
-            }
             deploymentsService.addDeployment(vm.deployment).then(function(data) {
                 $location.path('/deployments');
                 alertsService.queueAlert('Deployment successfully added.', 'success');
