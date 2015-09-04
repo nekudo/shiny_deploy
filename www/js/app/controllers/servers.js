@@ -5,9 +5,9 @@
         .module('shinyDeploy')
         .controller('ServersController', ServersController);
 
-    ServersController.$inject = ['$scope', 'serversService', 'alertsService'];
+    ServersController.$inject = ['serversService', 'alertsService'];
 
-    function ServersController($scope, serversService, alertsService) {
+    function ServersController(serversService, alertsService) {
         /*jshint validthis: true */
         var vm = this;
 
