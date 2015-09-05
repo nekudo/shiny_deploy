@@ -39,7 +39,7 @@
                                             id="repository-id"
                                             class="form-control"
                                             data-ng-change="vm.refreshBranches()"
-                                            data-ng-model="vm.deployment.repository_id"
+                                            data-ng-model="vm.deployment.repository"
                                             data-ng-options="repo.name for repo in vm.repositories track by repo.id"
                                             required>
                                     </select>
@@ -52,7 +52,7 @@
                                     <select name="server_id"
                                             id="server-id"
                                             class="form-control"
-                                            data-ng-model="vm.deployment.server_id"
+                                            data-ng-model="vm.deployment.server"
                                             data-ng-options="server.name for server in vm.servers track by server.id"
                                             required>
                                     </select>
@@ -65,7 +65,7 @@
                                     <select name="branch"
                                             id="repository-branch"
                                             class="form-control"
-                                            data-ng-model="vm.deployment.branch"
+                                            data-ng-model="vm.deployment.branchObj"
                                             data-ng-options="branch.name for branch in vm.branches track by branch.id"
                                             required>
                                     </select>
@@ -97,4 +97,6 @@
             </form>
         </div>
     </div>
+    <pre>{{ vm.deployment }}</pre>
+    <pre>{{ vm.servers }}</pre>
 </section>

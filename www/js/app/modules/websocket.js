@@ -18,6 +18,18 @@ function wsProvider() {
     this.$get = ['$rootScope', '$q', wsService];
 
     /**
+     * Set url of websocket server.
+     *
+     * @param {string} url
+     * @returns {wsProvider}
+     */
+    this.setUrl = function setOptions(url) {
+        this.config.url = url;
+        return this;
+    };
+
+
+    /**
      * Create a new wsService.
      */
 
@@ -29,13 +41,21 @@ function wsProvider() {
         ws.callbacks = [];
         ws.clientId = null;
 
+        ws.connect = connect;
+        ws.onClose = onClose;
+        ws.onMessage = onMessage;
+        ws.sendTriggerRequest = sendTriggerRequest;
+        ws.sendDataRequest = sendDataRequest;
+        ws.addListener = addListener;
+        ws.getCallbackId = getCallbackId;
+        ws.getUuid = getUuid;
+
         /**
          * Connect the WebSocket.
          *
          * @param {object} config
          */
-
-        ws.connect = function (config) {
+        function connect(config) {
             config = config || {};
             if (config.url) provider.config.url = config.url;
             ws.clientId = ws.getUuid();
@@ -51,14 +71,14 @@ function wsProvider() {
                     ws.onClose(reason);
                 }
             );
-        };
+        }
 
         /**
          * Callback method triggered on websocket close event.
          *
          * @param {number} reason
          */
-        ws.onClose = function (reason) {
+        function onClose(reason) {
             switch (reason) {
                 case ab.CONNECTION_CLOSED:
                     console.log("Connection was closed properly.");
@@ -74,7 +94,7 @@ function wsProvider() {
                     console.log("Websocket connection lost.");
                     break;
             }
-        };
+        }
 
         /**
          * Handles incoming messages from websocket server.
@@ -83,7 +103,7 @@ function wsProvider() {
          * @param {object} message
          * @returns {boolean}
          */
-        ws.onMessage = function (clientId, message) {
+        function onMessage(clientId, message) {
             try {
                 if (message.hasOwnProperty('eventName')) {
                     handleEventMessage(clientId, message);
@@ -94,7 +114,86 @@ function wsProvider() {
                 console.log(e);
             }
             return false;
-        };
+        }
+
+        /**
+         * Tiggers an action on projects php backend.
+         *
+         * @param {string} actionName
+         * @param {object} params
+         */
+        function sendTriggerRequest(actionName, params) {
+            var requestParams = {
+                clientId: this.clientId,
+                actionPayload: params
+            };
+            ws.conn.call(actionName, requestParams);
+        }
+
+        /**
+         * Requests data from websocket server.
+         *
+         * @param actionName
+         * @param params
+         * @returns {a.promise|promise|d.promise|fd.g.promise}
+         */
+        function sendDataRequest(actionName, params) {
+            var requestParams = {
+                clientId: ws.clientId,
+                callbackId: ws.getCallbackId(),
+                actionPayload: params
+            };
+            var defer = $q.defer();
+            ws.callbacks[requestParams.callbackId] = {
+                time: new Date(),
+                cb:defer
+            };
+            ws.conn.call(actionName, requestParams);
+            return defer.promise;
+        }
+
+        /**
+         * Adds callback listening for events on websocket connection.
+         *
+         * @param {string} eventName
+         * @param {function} callback
+         * @returns {boolean}
+         */
+        function addListener(eventName, callback) {
+            ws.listeners[eventName] = callback;
+            return true;
+        }
+
+        /**
+         * Generates a callback id.
+         *
+         * @returns {number}
+         */
+        function getCallbackId() {
+            currentCallbackId += 1;
+            if(currentCallbackId > 10000) {
+                currentCallbackId = 0;
+            }
+            return currentCallbackId;
+        }
+
+        /**
+         * Generates a unique (random) user-id.
+         *
+         * @returns {string}
+         */
+        function getUuid() {
+            var uuid = sessionStorage.getItem('uuid');
+            if (uuid !== null) {
+                return uuid;
+            }
+            uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+                return v.toString(16);
+            });
+            sessionStorage.setItem('uuid', uuid);
+            return uuid;
+        }
 
         /**
          * Handles incoming data massages.
@@ -137,96 +236,6 @@ function wsProvider() {
             }
         }
 
-        /**
-         * Tiggers an action on projects php backend.
-         *
-         * @param {string} actionName
-         * @param {object} params
-         */
-        ws.sendTriggerRequest = function (actionName, params) {
-            var requestParams = {
-                clientId: this.clientId,
-                actionPayload: params
-            };
-            ws.conn.call(actionName, requestParams);
-        };
-
-        /**
-         * Requests data from websocket server.
-         *
-         * @param actionName
-         * @param params
-         * @returns {a.promise|promise|d.promise|fd.g.promise}
-         */
-        ws.sendDataRequest = function (actionName, params) {
-            var requestParams = {
-                clientId: ws.clientId,
-                callbackId: ws.getCallbackId(),
-                actionPayload: params
-            };
-            var defer = $q.defer();
-            ws.callbacks[requestParams.callbackId] = {
-                time: new Date(),
-                cb:defer
-            };
-            ws.conn.call(actionName, requestParams);
-            return defer.promise;
-        };
-
-        /**
-         * Adds callback listening for events on websocket connection.
-         *
-         * @param {string} eventName
-         * @param {function} callback
-         * @returns {boolean}
-         */
-        ws.addListener = function(eventName, callback) {
-            ws.listeners[eventName] = callback;
-            return true;
-        };
-
-        /**
-         * Generates a callback id.
-         *
-         * @returns {number}
-         */
-        ws.getCallbackId = function() {
-            currentCallbackId += 1;
-            if(currentCallbackId > 10000) {
-                currentCallbackId = 0;
-            }
-            return currentCallbackId;
-        };
-
-        /**
-         * Generates a unique (random) user-id.
-         *
-         * @returns {string}
-         */
-        ws.getUuid = function () {
-            var uuid = sessionStorage.getItem('uuid');
-            if (uuid !== null) {
-                return uuid;
-            }
-            uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-                return v.toString(16);
-            });
-            sessionStorage.setItem('uuid', uuid);
-            return uuid;
-        };
-
         return ws;
     }
-
-    /**
-     * Set url of websocket server.
-     *
-     * @param {string} url
-     * @returns {wsProvider}
-     */
-    this.setUrl = function setOptions(url) {
-        this.config.url = url;
-        return this;
-    };
 }

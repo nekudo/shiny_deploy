@@ -18,9 +18,10 @@ If you want to contribute here are some rough instructions to get you started:
 ```sudo apt-get install gearman-job-server php5-gearman```
 
 
-PHP Internationalization
+PHP Extensions
 
 ```sudo apt-get install php5-intl```
+```sudo apt-get install libssh2-php```
 
 
 ### Installation
