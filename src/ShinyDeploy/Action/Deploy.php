@@ -194,9 +194,17 @@ class Deploy extends Action
             $this->logResponder->log('Remote server is at revision: ' . $remoteRevision, 'default', 'DeployAction');
         }
 
-        // get revision of local repository:
         $repoPath = $this->repositoryDomain->createLocalPath($repoData['url']);
-        $localRevision = $this->deployDomain->getLocalRevision($repoPath, $this->gitDomain);
+
+        // switch to selected branch:
+        $switchResult = $this->gitDomain->switchBranch($repoPath, $deploymentData['branch']);
+        if ($switchResult === false) {
+            $this->logResponder->log('Could not switch to selected branch.', 'error', 'DeployAction');
+            return false;
+        }
+
+        // get revision of local repository:
+        $localRevision = $this->deployDomain->getLocalRevision($repoPath, $deploymentData['branch'], $this->gitDomain);
         if (empty($localRevision)) {
             $this->logResponder->log('Could not estimate revision of local repository.', 'error', 'DeployAction');
             return false;

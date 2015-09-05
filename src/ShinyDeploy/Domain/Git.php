@@ -73,9 +73,10 @@ class Git extends Domain
      * Gets revision (latest commit hash) of local repository.
      *
      * @param string $repoPath
+     * @param string $branch
      * @return bool|string
      */
-    public function getLocalRepositoryRevision($repoPath)
+    public function getLocalRepositoryRevision($repoPath, $branch)
     {
         if (empty($repoPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -87,7 +88,7 @@ class Git extends Domain
         if (chdir($repoPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
-        $revision = $this->exec('rev-parse HEAD');
+        $revision = $this->exec('rev-parse ' . $branch);
         $revision = trim($revision);
         chdir($oldDir);
         if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
@@ -142,7 +143,7 @@ class Git extends Domain
      * Fetches list of repositories remote branches.
      *
      * @param string $repoPath
-     * @return string
+     * @return array
      */
     public function getRemoteBranches($repoPath)
     {
@@ -177,6 +178,72 @@ class Git extends Domain
             ];
         }
         return $branches;
+    }
+
+    /**
+     * Fetches list of local repository branches.
+     *
+     * @param string $repoPath
+     * @return string
+     */
+    public function getLocalBranches($repoPath)
+    {
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (@chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $output = $this->exec('branch');
+        chdir($oldDir);
+        $output = trim($output);
+        if (empty($output)) {
+            $this->logger->warning('Could not fetch local repository branches: '  . $repoPath);
+            return false;
+        }
+        $branches = [];
+        $lines = explode("\n", $output);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            $line = str_replace('*', '', $line);
+            if (empty($line)) {
+                continue;
+            }
+            array_push($branches, $line);
+        }
+        return $branches;
+    }
+
+    /**
+     * Switch to a branch.
+     *
+     * @param string $repoPath
+     * @param string $branch
+     * @return bool
+     */
+    public function switchBranch($repoPath, $branch)
+    {
+        if (empty($repoPath) || empty($branch)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        if (strpos($branch, 'origin/') !== false) {
+            $branch = str_replace('origin/', '', $branch);
+        }
+        $oldDir = getcwd();
+        if (@chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $output = $this->exec('checkout ' . $branch);
+        chdir($oldDir);
+        $output = trim($output);
+        if (strpos($output, 'Switched to a new branch') !== false) {
+            return true;
+        }
+        if (strpos($output, 'branch is up-to-date') !== false) {
+            return true;
+        }
+        return false;
     }
 
     /**
