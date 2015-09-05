@@ -223,9 +223,17 @@
         .module('shinyDeploy')
         .controller('DeploymentsRunController', DeploymentsRunController);
 
-    DeploymentsRunController.$inject = ['$location', '$routeParams', 'deploymentsService'];
+    DeploymentsRunController.$inject = [
+        '$location', '$routeParams', 'deploymentsService', 'serversService', 'repositoriesService'
+    ];
 
-    function DeploymentsRunController($location, $routeParams, deploymentsService) {
+    function DeploymentsRunController(
+        $location,
+        $routeParams,
+        deploymentsService,
+        serversService,
+        repositoriesService
+    ) {
         /*jshint validthis: true */
         var vm = this;
 
@@ -243,13 +251,31 @@
             var deploymentId = ($routeParams.deploymentId) ? parseInt($routeParams.deploymentId) : 0;
             deploymentsService.getDeploymentData(deploymentId).then(function (data) {
                 vm.deployment = data;
+                resolveRelations();
             }, function(reason) {
                 $location.path('/deployments');
             });
         }
 
+        /**
+         * Start new deployment job.
+         *
+         * @param {number} deploymentId
+         */
         function triggerDeploy(deploymentId) {
             deploymentsService.triggerDeployAction(deploymentId);
+        }
+
+        /**
+         * Fetches data not directly stored within deployments table and stores it into deployment object.
+         */
+        function resolveRelations() {
+            serversService.getServerData(vm.deployment.server_id).then(function(server) {
+                vm.deployment.server = server;
+            });
+            repositoriesService.getRepositoryData(vm.deployment.repository_id).then(function(repository) {
+                vm.deployment.repository = repository;
+            });
         }
     }
 }());
