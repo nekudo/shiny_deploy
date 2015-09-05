@@ -1,6 +1,6 @@
 <section class="content-header">
     <h1>
-        {{deployment.name}}
+        {{vm.deployment.name}}
         <small>Run deployment</small>
     </h1>
 </section>
@@ -17,10 +17,10 @@
                 <div class="box-body">
                     <dl class="dl-horizontal">
                         <dt>Repository</dt>
-                        <dd>{{deployment.repository_id.name}}</dd>
+                        <dd>{{vm.deployment.repository_id.name}}</dd>
 
                         <dt>Branch</dt>
-                        <dd> ({{deployment.branch}})</dd>
+                        <dd> ({{vm.deployment.branch}})</dd>
                     </dl>
                 </div>
             </div>
@@ -34,10 +34,10 @@
                 <div class="box-body">
                     <dl class="dl-horizontal">
                         <dt>Server</dt>
-                        <dd>{{deployment.server_id.name}}</dd>
+                        <dd>{{vm.deployment.server_id.name}}</dd>
 
                         <dt>Path</dt>
-                        <dd>{{deployment.target_path}}</dd>
+                        <dd>{{vm.deployment.target_path}}</dd>
                     </dl>
                 </div>
             </div>
@@ -47,7 +47,7 @@
             <div class="box box-solid">
                 <div class="box-body">
                     <button class="btn btn-info"><i class="fa fa-list"></i> List Changes</button>
-                    <button class="btn btn-success" data-ng-click="triggerDeploy(deployment.id)"><i class="fa fa-play"></i> Deploy</button>
+                    <button class="btn btn-success" data-ng-click="vm.triggerDeploy(vm.deployment.id)"><i class="fa fa-play"></i> Deploy</button>
                     <a href="/deployments" class="pull-right btn btn-default"><i class="fa fa-chevron-left"></i> Back</a>
                 </div>
             </div>

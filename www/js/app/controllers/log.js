@@ -1,39 +1,52 @@
-app.controller('LogController', ['$scope', '$location', 'ws',
-    function ($scope, $location, ws) {
+(function () {
+    "use strict";
+
+    angular
+        .module('shinyDeploy')
+        .controller('LogController', LogController);
+
+    LogController.$inject = ['$scope', 'ws'];
+
+    function LogController($scope, ws) {
+        /*jshint validthis: true */
+        var vm = this;
+
+        vm.logs = [];
+
         // listen to "log" events on websocket stream
         ws.addListener('log', function(eventData) {
-            var message = eventData.text;
-            var type = (typeof eventData.type !== 'undefined') ? eventData.type : 'default';
-            var source = (typeof eventData.source !== 'undefined') ? eventData.source : '';
-            var time = (typeof eventData.time !== 'undefined') ? eventData.time : getTimeString();
-            log(message, type, source, time);
+            addLogMessage(eventData);
         });
 
         /**
-         * Logs a message to console.
+         * Logs message to console.
          *
          * Possible log-types are: default,info,success,danger,error
          *
-         * @param {string} message
-         * @param {string} type
-         * @param {string} source
-         * @param {string} time
+         * @param {Array} data
          */
-        function log(message, type, source, time) {
-            var elLog = $('#log');
-            var logClass = 'log-' + type;
-            var msgLines = message.split("\n");
-            $.each(msgLines, function(i, msgLine) {
-                var logMsg = '<div class="logMsg"><span class="log-time">' + time
-                    + '</span> <span class="log-source">' + source
-                    + '</span> <span class="' + logClass + '">' + msgLine + '</span></div>';
-                var elLogMsg = $(logMsg);
-                elLog.append(elLogMsg);
-            });
-            while ($('.logMsg').length > 2000) {
-                elLog.find('logMsg').first().remove();
+        function addLogMessage(data) {
+            var msgLines = data.text.split("\n");
+            for (var i = 0; i < msgLines.length; i++) {
+                pushMessageToQueue({
+                    message: msgLines[i],
+                    styleclass: (data.hasOwnProperty('type')) ? 'log-' + data.type : 'log-default',
+                    time: (data.hasOwnProperty('time')) ? data.time : getTimeString(),
+                    source: (data.hasOwnProperty('source')) ? data.source : ''
+                });
             }
             $(".nano").nanoScroller().nanoScroller({ scroll: 'bottom' });
+        }
+
+        /**
+         * Pushes a new log-message to queue and relaods scope.
+         *
+         * @param {Object} logMessage
+         */
+        function pushMessageToQueue(logMessage) {
+            $scope.$apply(function() {
+                vm.logs.push(logMessage);
+            });
         }
 
         /**
@@ -48,4 +61,4 @@ app.controller('LogController', ['$scope', '$location', 'ws',
                 + ((currentdate.getSeconds() < 10)?"0":"") + currentdate.getSeconds();
         }
     }
-]);
+}());

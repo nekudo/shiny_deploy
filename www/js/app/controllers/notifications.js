@@ -38,7 +38,7 @@
                 vm.notifications.push({
                     msg: message,
                     type: type,
-                    id: 'notification-' + notificationsCount
+                    id: 'notification-' + vm.notificationsCount
                 });
                 $timeout(removeNotification, 5000);
                 vm.notificationsCount++;

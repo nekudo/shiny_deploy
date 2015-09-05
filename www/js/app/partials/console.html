@@ -1,3 +1,8 @@
-<div id="console" class="nano" data-ng-controller="LogController">
-    <div id="log" class="nano-content"></div>
+<div id="console" class="nano" data-ng-controller="LogController as vm">
+    <div id="log" class="nano-content">
+        <div class="logMsg" data-ng-repeat="log in vm.logs">
+            <span class="log-time">{{ log.time }}</span> <span class="log-source">{{ log.source }}</span>
+            <span class="{{ log.styleclass }}">{{ log.message }}</span>
+        </div>
+    </div>
 </div>

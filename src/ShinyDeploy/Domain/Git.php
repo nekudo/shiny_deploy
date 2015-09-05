@@ -167,10 +167,13 @@ class Git extends Domain
             if (empty($line)) {
                 continue;
             }
-            $branchId = preg_replace("/[^[:alnum:]]/ui", '', $line);
+            // skip links/aliases:
+            if (strpos($line, ' -> ') !== false) {
+                continue;
+            }
             $branches[] = [
-                'id' => $branchId,
-                'name' => $line,
+                'id' => $line,
+                'name' => str_replace('origin/', '', $line),
             ];
         }
         return $branches;

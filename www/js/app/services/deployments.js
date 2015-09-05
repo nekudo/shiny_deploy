@@ -90,44 +90,26 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
         }
 
         var deferred = $q.defer();
-        var servers = null;
-        var repositories = null;
-
-        // load servers:
-        var getServersPromise = ws.sendDataRequest('getServers');
-        getServersPromise.then(function(data) {
-            servers = data;
-        }, function(reason) {
-            deferred.reject('Error fetching servers: ' + reason);
-        });
-
-        // load repositories:
-        var getRepositoriesPromise = ws.sendDataRequest('getRepositories');
-        getRepositoriesPromise.then(function(data) {
-            repositories = data;
-        }, function(reason) {
-            deferred.reject('Error fetching repositories: ' + reason);
-        });
-
-        // load deployment:
-        var getDeploymentDataPromise = ws.sendDataRequest('getDeploymentData', {
+        var requestParams = {
             deploymentId: deploymentId
-        });
-        getDeploymentDataPromise.then(function(data) {
-            if (data.hasOwnProperty('repository_id')) {
-                for (var i = repositories.length - 1; i >= 0; i--) {
-                    if (repositories[i].id === data.repository_id) {
-                        data.repository_id = repositories[i];
-                        break;
-                    }
-                }
-                for (var j = servers.length - 1; j >= 0; j--) {
-                    if (servers[j].id === data.server_id) {
-                        data.server_id = servers[j];
-                        break;
-                    }
-                }
+        };
+
+        ws.sendDataRequest('getDeploymentData', requestParams).then(function(data) {
+            data.server = {};
+            if (data.hasOwnProperty('server_id')) {
+                data.server = { id: data.server_id };
             }
+
+            data.repository = {};
+            if (data.hasOwnProperty('repository_id')) {
+                data.repository = { id: data.repository_id };
+            }
+
+            data.branchObj = {};
+            if (data.hasOwnProperty('branch')) {
+                data.branchObj = { id: data.branch };
+            }
+
             deferred.resolve(data);
         });
 

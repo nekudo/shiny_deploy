@@ -48,7 +48,7 @@
             deploymentsService.deleteDeployment(deploymentId).then(function (data) {
                 for (var i = vm.deployments.length - 1; i >= 0; i--) {
                     if (vm.deployments[i].id === deploymentId) {
-                        deployments.splice(i, 1);
+                        vm.deployments.splice(i, 1);
                         break;
                     }
                 }
@@ -76,10 +76,10 @@
         var vm = this;
 
         vm.isAdd = true;
-        vm.deployment = [];
-        vm.servers = [];
-        vm.repositories = [];
-        vm.branches = [];
+        vm.deployment = {};
+        vm.servers = {};
+        vm.repositories = {};
+        vm.branches = {};
 
         vm.addDeployment = addDeployment;
         vm.refreshBranches = refreshBranches;
@@ -109,6 +109,9 @@
          * Requests add-deployment action on project backend.
          */
         function addDeployment() {
+            vm.deployment.server_id = vm.deployment.server.id;
+            vm.deployment.repository_id = vm.deployment.repository.id;
+            vm.deployment.branch = vm.deployment.branchObj.id;
             deploymentsService.addDeployment(vm.deployment).then(function(data) {
                 $location.path('/deployments');
                 alertsService.queueAlert('Deployment successfully added.', 'success');
@@ -121,7 +124,7 @@
          * Refresh branches list if repository is changed.
          */
         function refreshBranches() {
-            deploymentsService.getRepositoryBranches(vm.deployment.repository_id.id).then(function (data) {
+            deploymentsService.getRepositoryBranches(vm.deployment.repository.id).then(function (data) {
                 vm.branches = data;
             }, function(reason) {
                 alertsService.pushAlert(reason, 'warning');
@@ -146,11 +149,13 @@
         var vm = this;
 
         vm.isEdit = true;
-        vm.servers = [];
-        vm.repositories = [];
-        vm.deployment = [];
+        vm.servers = {};
+        vm.repositories = {};
+        vm.branches = {};
+        vm.deployment = {};
 
         vm.updateDeployment = updateDeployment;
+        vm.refreshBranches = refreshBranches;
 
         init();
 
@@ -174,9 +179,9 @@
 
             // load deployment:
             var deploymentId = ($routeParams.deploymentId) ? parseInt($routeParams.deploymentId) : 0;
-            var getDeploymentDataPromise = deploymentsService.getDeploymentData(deploymentId);
-            getDeploymentDataPromise.then(function(data) {
+            deploymentsService.getDeploymentData(deploymentId).then(function(data) {
                 vm.deployment = data;
+                vm.refreshBranches();
             }, function(reason) {
                 $location.path('/deployments');
             });
@@ -186,14 +191,23 @@
          * Updates deployment data.
          */
         function updateDeployment() {
-            var deploymentData = angular.copy(vm.deployment);
-            if (vm.deployment.hasOwnProperty('repository_id')) {
-                deploymentData.repository_id = deploymentData.repository_id.id;
-                deploymentData.server_id = deploymentData.server_id.id;
-            }
-            deploymentsService.updateDeployment(deploymentData).then(function (data) {
+            vm.deployment.server_id = vm.deployment.server.id;
+            vm.deployment.repository_id = vm.deployment.repository.id;
+            vm.deployment.branch = vm.deployment.branchObj.id;
+            deploymentsService.updateDeployment(vm.deployment).then(function (data) {
                 alertsService.pushAlert('Deployment successfully updated.', 'success');
             }, function (reason) {
+                alertsService.pushAlert(reason, 'warning');
+            });
+        }
+
+        /**
+         * Refresh branches list if repository is changed.
+         */
+        function refreshBranches() {
+            deploymentsService.getRepositoryBranches(vm.deployment.repository.id).then(function (data) {
+                vm.branches = data;
+            }, function(reason) {
                 alertsService.pushAlert(reason, 'warning');
             });
         }
@@ -215,7 +229,7 @@
         /*jshint validthis: true */
         var vm = this;
 
-        vm.deployment = [];
+        vm.deployment = {};
 
         vm.triggerDeploy = triggerDeploy;
 
