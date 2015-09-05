@@ -17,10 +17,10 @@
                 <div class="box-body">
                     <dl class="dl-horizontal">
                         <dt>Repository</dt>
-                        <dd>{{vm.deployment.repository_id.name}}</dd>
+                        <dd>{{vm.deployment.repository.name}}</dd>
 
                         <dt>Branch</dt>
-                        <dd> ({{vm.deployment.branch}})</dd>
+                        <dd>{{vm.deployment.branch}}</dd>
                     </dl>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                 <div class="box-body">
                     <dl class="dl-horizontal">
                         <dt>Server</dt>
-                        <dd>{{vm.deployment.server_id.name}}</dd>
+                        <dd>{{vm.deployment.server.name}}</dd>
 
                         <dt>Path</dt>
                         <dd>{{vm.deployment.target_path}}</dd>
@@ -57,4 +57,5 @@
             <div data-ng-include="'/js/app/partials/console.html'"></div>
         </div>
     </div>
+    <pre>{{ vm.deployment }}</pre>
 </section>
