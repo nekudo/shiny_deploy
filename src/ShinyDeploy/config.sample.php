@@ -42,24 +42,5 @@ return [
         'user' => '',
         'pass' => '',
         'db' => 'my_database',
-    ],
-    'sources' => [
-        'source1' => [
-            'title' => 'Source 1',
-            'type' => 'git',
-            'url' => 'https://github.com/foo/bar.git',
-        ],
-    ],
-    'targets' => [
-        'target1' => [
-            'title' => 'Target 1',
-            'type' => 'sftp',
-            'credentials' => [
-                'host' => 'host',
-                'port' => 22,
-                'user' => 'user',
-                'pass' => 'pass'
-            ],
-        ],
-    ],
+    ]
 ];
