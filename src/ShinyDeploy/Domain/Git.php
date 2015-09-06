@@ -24,23 +24,23 @@ class Git extends Domain
     /**
      * Clones git repository to local folder.
      *
-     * @param array $repositoryData
+     * @param string $repositoryUrl
      * @param string $targetPath
      * @return string
      */
-    public function gitClone(array $repositoryData, $targetPath)
+    public function gitClone($repositoryUrl, $targetPath)
     {
-        if (empty($repositoryData) || empty($targetPath)) {
+        if (empty($repositoryUrl) || empty($targetPath)) {
             throw new \RuntimeException('Required argument missing.');
         }
         $oldDir = getcwd();
         if (chdir($targetPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
-        if (empty($repositoryData['url'])) {
+        if (empty($repositoryUrl)) {
             throw new \RuntimeException('Repository url can not be empty.');
         }
-        $response = $this->exec('clone --progress ' . $repositoryData['url'] . ' .');
+        $response = $this->exec('clone --progress ' . $repositoryUrl . ' .');
         chdir($oldDir);
         return $response;
     }
@@ -48,23 +48,23 @@ class Git extends Domain
     /**
      * Updates local git repository.
      *
-     * @param array $repositoryData
+     * @param string $repositoryUrl
      * @param string $targetPath
      * @return string
      */
-    public function gitPull(array $repositoryData, $targetPath)
+    public function gitPull($repositoryUrl, $targetPath)
     {
-        if (empty($repositoryData) || empty($targetPath)) {
+        if (empty($repositoryUrl) || empty($targetPath)) {
             throw new \RuntimeException('Required parameter missing.');
         }
         $oldDir = getcwd();
         if (chdir($targetPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
-        if (empty($repositoryData['url'])) {
+        if (empty($repositoryUrl)) {
             throw new \RuntimeException('Repository URL can not be empty.');
         }
-        $response = $this->exec('pull --progress ' . $repositoryData['url']);
+        $response = $this->exec('pull --progress ' . $repositoryUrl);
         chdir($oldDir);
         return $response;
     }

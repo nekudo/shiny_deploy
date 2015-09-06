@@ -28,6 +28,11 @@ class CloneRepository extends Action
             if (empty($repositoryData)) {
                 $notificationResponder->send('Could not clone repository. Repository not found in database.', 'danger');
             }
+
+            if ($repositoriesDomain->checkUrl($repositoryData) === false) {
+                $notificationResponder->send('Could not clone repository. URL not reachable.', 'warning');
+            }
+
             $repoPath = $repositoryDomain->createLocalPath($repositoryData['url']);
             if ($repositoryDomain->exists($repoPath) === true) {
                 $notificationResponder->send(
@@ -36,7 +41,8 @@ class CloneRepository extends Action
                 );
                 return true;
             } else {
-                $response = $gitDomain->gitClone($repositoryData, $repoPath);
+                $repositoryUrl = $repositoriesDomain->getCredentialsUrl($repositoryData);
+                $response = $gitDomain->gitClone($repositoryUrl, $repoPath);
                 if (strpos($response, 'done.') !== false) {
                     $notificationResponder->send(
                         'Git clone of repository ' . $repositoryData['name'] . ' successfully completed.',
