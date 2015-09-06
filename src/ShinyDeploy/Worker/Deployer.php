@@ -10,12 +10,9 @@ class Deployer extends Worker
     /**
      * Calls all "init methods" and waits for jobs from gearman server.
      */
-    protected function startup()
+    protected function registerCallbacks()
     {
         $this->GearmanWorker->addFunction('deploy', [$this, 'deploy']);
-        while ($this->GearmanWorker->work()) {
-            // wait for jobs
-        }
     }
 
     /**

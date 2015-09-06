@@ -47,10 +47,8 @@ PHP Extensions
   
 * Start cli scripts
 
-  ```php cli/ws_gateway.php```
+  ```php cli/cli.wss.php```
   
-  ```php cli/worker.deployer.php --name deploy1```
-  
-  ```php cli/worker.repo_actions.php --name repo1```
+  ```php cli/cli.worker.php start```
 
 * Happy hacking...
