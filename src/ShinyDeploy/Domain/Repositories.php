@@ -60,12 +60,14 @@ class Repositories extends DatabaseDomain
     {
         $result = $this->db->prepare(
             "INSERT INTO repositories
-              (`name`, `type`, `url`)
+              (`name`, `type`, `url`, `username`, `password`)
               VALUES
-                (%s, %s, %s)",
+                (%s, %s, %s, %s, %s)",
             $repositoryData['name'],
             $repositoryData['type'],
-            $repositoryData['url']
+            $repositoryData['url'],
+            $repositoryData['username'],
+            $repositoryData['password']
         )->execute();
         if ($result === false) {
             return false;
@@ -88,11 +90,15 @@ class Repositories extends DatabaseDomain
             "UPDATE repositories
             SET `name` = %s,
               `type` = %s,
-              `url` = %s
+              `url` = %s,
+              `username` = %s,
+              `password` = %s
             WHERE id = %d",
             $repositoryData['name'],
             $repositoryData['type'],
             $repositoryData['url'],
+            $repositoryData['username'],
+            $repositoryData['password'],
             $repositoryData['id']
         )->execute();
     }
@@ -128,6 +134,60 @@ class Repositories extends DatabaseDomain
         if (empty($repositoryData)) {
             return [];
         }
+        if (!isset($repositoryData['username'])) {
+            $repositoryData['username'] = '';
+        }
+        if (!isset($repositoryData['password'])) {
+            $repositoryData['password'] = '';
+        }
         return $repositoryData;
+    }
+
+    /**
+     * Checks if URL responses with status 200.
+     *
+     * @param array $repositoryData
+     * @return bool
+     */
+    public function checkUrl(array $repositoryData)
+    {
+        if (!isset($repositoryData['password'])) {
+            $repositoryData['password'] = '';
+        }
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $repositoryData['url']);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        if (!empty($repositoryData['username'])) {
+            curl_setopt($ch, CURLOPT_USERPWD, $repositoryData['username'].':'.$repositoryData['password']);
+        }
+        $headers = curl_exec($ch);
+        curl_close($ch);
+        if (stripos($headers, 'HTTP/1.1 200') !== false) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns repository url after adding login credentials (if available).
+     *
+     * @param array $repositoryData
+     * @return string
+     */
+    public function getCredentialsUrl(array $repositoryData)
+    {
+        $credentials = '';
+        if (!empty($repositoryData['username'])) {
+            $credentials .= $repositoryData['username'];
+        }
+        if (!empty($repositoryData['password'])) {
+            $credentials .= ':' . $repositoryData['password'];
+        }
+        $url = str_replace('://', '://' . $credentials . '@', $repositoryData['url']);
+        return $url;
     }
 }

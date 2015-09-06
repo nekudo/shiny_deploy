@@ -26,6 +26,11 @@ class GetRepositoryBranches extends WsDataAction
             return false;
         }
 
+        if ($repositoriesDomain->checkUrl($repositoryData) === false) {
+            $this->responder->setError('Repository not reachable. Check URL and credentials.');
+            return false;
+        }
+
         // get repository branches:
         try {
             $repositoryDomain = new Repository($this->config, $this->logger);

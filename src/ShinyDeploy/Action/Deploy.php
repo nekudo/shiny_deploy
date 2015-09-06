@@ -69,6 +69,11 @@ class Deploy extends Action
                 throw new \RuntimeException('Could not load server data.');
             }
 
+            // check if repository is reachable:
+            if ($this->repositoriesDomain->checkUrl($repositoryData) === false) {
+                throw new \RuntimeException('Could not reach repository. Check url and credentials.');
+            }
+
             // check if git executable is available:
             if ($this->checkGitExecutable() === false) {
                 return false;
@@ -124,16 +129,17 @@ class Deploy extends Action
     protected function prepareRepository(array $repositoryData)
     {
         $repoPath = $this->repositoryDomain->createLocalPath($repositoryData['url']);
+        $repoUrl = $this->repositoriesDomain->getCredentialsUrl($repositoryData);
         if ($this->repositoryDomain->exists($repoPath) === false) {
             $this->logResponder->log('Local repository not found. Starting git clone...', 'default', 'DeployAction');
-            $response = $this->gitDomain->gitClone($repositoryData, $repoPath);
+            $response = $this->gitDomain->gitClone($repoUrl, $repoPath);
             if (strpos($response, 'done.') !== false) {
                 $this->logResponder->log('Repository successfully cloned.', 'success', 'DeployAction');
                 return true;
             }
         } else {
             $this->logResponder->log('Local repository found. Starting update...', 'default', 'DeployAction');
-            $response = $this->gitDomain->gitPull($repositoryData, $repoPath);
+            $response = $this->gitDomain->gitPull($repoUrl, $repoPath);
             if (strpos($response, 'up-to-date') !== false ||
                 (stripos($response, 'updating') !== false && strpos($response, 'done.') !== false)) {
                 $this->logResponder->log('Local repository successfully updated.', 'success', 'DeployAction');

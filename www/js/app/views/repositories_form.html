@@ -59,6 +59,33 @@
                                            required>
                                 </div>
                             </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editRepositoryForm.username.$invalid && editRepositoryForm.username.$dirty}">
+                                    <label for="repository-username">Username</label>
+                                    <input name="username"
+                                           type="text"
+                                           class="form-control"
+                                           id="repository-username"
+                                           placeholder=""
+                                           data-ng-model="vm.repository.username"
+                                           data-ng-minlength="2"
+                                           data-ng-maxlength="100">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group"
+                                     data-ng-class="{ 'has-error': editRepositoryForm.password.$invalid && editRepositoryForm.password.$dirty}">
+                                    <label for="repository-type">Password</label>
+                                    <input name="password"
+                                           type="password"
+                                           class="form-control"
+                                           id="repository-password"
+                                           data-ng-model="vm.repository.password"
+                                           data-ng-minlength="2"
+                                           data-ng-maxlength="100">
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="box-footer">

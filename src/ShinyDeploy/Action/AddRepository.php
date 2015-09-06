@@ -26,6 +26,13 @@ class AddRepository extends WsDataAction
             return false;
         }
 
+        // check if url is okay:
+        $urlCheckResult = $repositoriesDomain->checkUrl($repositoryData);
+        if ($urlCheckResult === false) {
+            $this->responder->setError('Repository check failed. Please check URL, username and password.');
+            return false;
+        }
+
         // add repository:
         $repositoryId = $repositoriesDomain->addRepository($repositoryData);
         if ($repositoryId === false) {
