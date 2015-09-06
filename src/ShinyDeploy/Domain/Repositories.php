@@ -58,6 +58,12 @@ class Repositories extends DatabaseDomain
      */
     public function addRepository(array $repositoryData)
     {
+        if (!isset($repositoryData['username'])) {
+            $repositoryData['username'] = '';
+        }
+        if (!isset($repositoryData['password'])) {
+            $repositoryData['password'] = '';
+        }
         $result = $this->db->prepare(
             "INSERT INTO repositories
               (`name`, `type`, `url`, `username`, `password`)
@@ -85,6 +91,12 @@ class Repositories extends DatabaseDomain
     {
         if (!isset($repositoryData['id'])) {
             return false;
+        }
+        if (!isset($repositoryData['username'])) {
+            $repositoryData['username'] = '';
+        }
+        if (!isset($repositoryData['password'])) {
+            $repositoryData['password'] = '';
         }
         return $this->db->prepare(
             "UPDATE repositories
