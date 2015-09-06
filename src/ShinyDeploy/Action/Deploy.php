@@ -89,8 +89,6 @@ class Deploy extends Action
                 return false;
             }
 
-            // @todo update remote revision file
-
             $this->logResponder->log("\nShiny, everything done. Your project is up to date.", 'success', 'DeployAction');
 
         } catch (\RuntimeException $e) {
@@ -185,7 +183,11 @@ class Deploy extends Action
         $revisionFilePath = $remotePath . 'REVISION';
         $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $revisionFilePath);
         if ($remoteRevision === false) {
-            $this->logResponder->log('Could not estimate revision on remote server.', 'error', 'DeployAction');
+            $this->logResponder->log(
+                'Could not estimate revision on remote server. Check if path is correct!',
+                'error',
+                'DeployAction'
+            );
             return false;
         }
         if ($remoteRevision === '-1') {

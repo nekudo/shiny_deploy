@@ -2,6 +2,7 @@
 
 use Apix\Log\Logger;
 use Noodlehaus\Config;
+use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\WorkerException;
 
 abstract class Worker
@@ -27,7 +28,7 @@ abstract class Worker
     /** @var  \ZMQContext $zmqContext */
     protected $zmqContext;
 
-    abstract protected function startup();
+    abstract protected function registerCallbacks();
 
     public function __construct($workerName, Config $config, Logger $logger)
     {
@@ -47,16 +48,23 @@ abstract class Worker
         // Register methods every worker has:
         $this->GearmanWorker->addFunction('ping_' . $this->workerName, array($this, 'ping'));
         $this->GearmanWorker->addFunction('jobinfo_' . $this->workerName, array($this, 'getJobInfo'));
+        $this->GearmanWorker->addFunction('pidupdate_' . $this->workerName, array($this, 'updatePidFile'));
+
+        $this->registerCallbacks();
 
         $this->logger->info('Starting worker. (Name: ' . $workerName . ')');
 
-        // register worker functions and wait for jobs:
+        // Let's roll...
         $this->startup();
     }
 
-    public function __destruct()
+    /**
+     * Startup worker and wait for jobs.
+     */
+    protected function startup()
     {
-
+        $this->updatePidFile();
+        while ($this->GearmanWorker->work());
     }
 
     /**
@@ -94,6 +102,21 @@ abstract class Worker
             'uptime_seconds' => $uptimeSeconds,
         ];
         $Job->sendData(json_encode($response));
+    }
+
+    /**
+     * Updates PID file for the worker.
+     *
+     * @return bool
+     * @throws WebsocketException
+     */
+    public function updatePidFile()
+    {
+        $pidPath = $this->config->get('gearman.pidPath') . $this->workerName . '.pid';
+        if (file_put_contents($pidPath, time()) === false) {
+            throw new WebsocketException('Could not create PID file.');
+        }
+        return true;
     }
 
     /**
