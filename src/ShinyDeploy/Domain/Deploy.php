@@ -137,4 +137,58 @@ class Deploy extends Domain
         }
         return $fileList;
     }
+
+    /**
+     * Generates list with changed,added,deleted files.
+     *
+     * @param string $repoPath
+     * @param string $localRevision
+     * @param string $remoteRevision
+     * @param Git $gitDomain
+     * @return bool|array
+     */
+    public function getChangedFilesForList($repoPath, $localRevision, $remoteRevision, Git $gitDomain)
+    {
+        $fileList = [];
+        if ($remoteRevision === '-1') {
+            $changedFiles = $gitDomain->listFiles($repoPath);
+        } else {
+            $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
+            var_dump($changedFiles);
+        }
+        if (empty($changedFiles)) {
+            return $fileList;
+        }
+
+        // parse diff response:
+        $diffLines = explode("\n", $changedFiles);
+        if (empty($diffLines)) {
+            return $fileList;
+        }
+
+        $fileList = [];
+        foreach ($diffLines as $line) {
+            $line = trim($line);
+            if (empty($line)) {
+                continue;
+            }
+
+            if ($remoteRevision === '-1') {
+                $item = [
+                    'file' => $line,
+                    'type' => 'A',
+                ];
+                array_push($fileList, $item);
+            } else {
+                $status = $line[0];
+                $file = trim(substr($line, 1));
+                $item = [
+                    'file' => $file,
+                    'type' => $status,
+                ];
+                array_push($fileList, $item);
+            }
+        }
+        return $fileList;
+    }
 }

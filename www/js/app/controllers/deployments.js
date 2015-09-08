@@ -224,24 +224,30 @@
         .controller('DeploymentsRunController', DeploymentsRunController);
 
     DeploymentsRunController.$inject = [
-        '$location', '$routeParams', 'deploymentsService', 'serversService', 'repositoriesService'
+        '$location', '$routeParams', '$scope', 'deploymentsService', 'serversService', 'repositoriesService', 'ws'
     ];
 
     function DeploymentsRunController(
         $location,
         $routeParams,
+        $scope,
         deploymentsService,
         serversService,
-        repositoriesService
+        repositoriesService,
+        ws
     ) {
         /*jshint validthis: true */
         var vm = this;
 
         vm.deployment = {};
+        vm.changedFiles = {};
 
         vm.triggerDeploy = triggerDeploy;
+        vm.triggerGetChangedFiles = triggerGetChangedFiles;
+        vm.displayChangedFiles = displayChangedFiles;
 
         init();
+        vm.displayChangedFiles();
 
         /**
          * Loads data required for run deployment view.
@@ -262,8 +268,25 @@
          *
          * @param {number} deploymentId
          */
-        function triggerDeploy(deploymentId) {
-            deploymentsService.triggerDeployAction(deploymentId);
+        function triggerDeploy() {
+            deploymentsService.triggerDeployAction(vm.deployment.id);
+        }
+
+        /**
+         * Fetch list of changed files.
+         *
+         * @param {number} deploymentId
+         */
+        function triggerGetChangedFiles() {
+            deploymentsService.triggerGetChangedFiles(vm.deployment.id);
+        }
+
+        function displayChangedFiles() {
+            ws.addListener('updateChangedFiles', function(data) {
+                $scope.$apply(function() {
+                    vm.changedFiles = data.changedFiles;
+                });
+            });
         }
 
         /**

@@ -116,12 +116,30 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
         return deferred.promise;
     };
 
+    /**
+     * Triggers the deployment action in backend.
+     *
+     * @param deploymentId
+     * @returns {boolean}
+     */
     this.triggerDeployAction = function(deploymentId) {
         if (deploymentId === 0) {
             return false;
         }
         ws.sendTriggerRequest('startDeploy', {
             deploymentId: deploymentId
-        })
+        });
+    };
+
+    /**
+     * Fetches a list of changed files between local and remote revision.
+     *
+     * @param {number} deploymentId
+     * @returns {promise}
+     */
+    this.triggerGetChangedFiles = function(deploymentId) {
+        ws.sendTriggerRequest('startGetChangedFiles', {
+            deploymentId: deploymentId
+        });
     }
 }]);
