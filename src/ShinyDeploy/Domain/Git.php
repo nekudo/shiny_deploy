@@ -120,6 +120,29 @@ class Git extends Domain
     }
 
     /**
+     * Returns detailed diff for given file.
+     *
+     * @param string $repoPath
+     * @param string $targetRevision
+     * @param string $currentRevision
+     * @param string $file
+     * @return string
+     */
+    public function diffFile($repoPath, $targetRevision, $currentRevision, $file)
+    {
+        if (empty($repoPath) || empty($targetRevision) || empty($currentRevision) || empty($file)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $diff = $this->exec('diff ' . $currentRevision . ' ' .  $targetRevision . ' ' . $file);
+        chdir($oldDir);
+        return $diff;
+    }
+
+    /**
      * Lists files in repository.
      *
      * @param string $repoPath

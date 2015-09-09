@@ -224,13 +224,21 @@
         .controller('DeploymentsRunController', DeploymentsRunController);
 
     DeploymentsRunController.$inject = [
-        '$location', '$routeParams', '$scope', 'deploymentsService', 'serversService', 'repositoriesService', 'ws'
+        '$location',
+        '$routeParams',
+        '$scope',
+        '$sce',
+        'deploymentsService',
+        'serversService',
+        'repositoriesService',
+        'ws'
     ];
 
     function DeploymentsRunController(
         $location,
         $routeParams,
         $scope,
+        $sce,
         deploymentsService,
         serversService,
         repositoriesService,
@@ -239,13 +247,18 @@
         /*jshint validthis: true */
         var vm = this;
 
+        // Properties
         vm.deployment = {};
         vm.changedFiles = {};
+        vm.diff = '';
 
+        // Methods
         vm.triggerDeploy = triggerDeploy;
         vm.triggerGetChangedFiles = triggerGetChangedFiles;
         vm.displayChangedFiles = displayChangedFiles;
+        vm.showDiff = showDiff;
 
+        // Init
         init();
         vm.displayChangedFiles();
 
@@ -299,6 +312,15 @@
             repositoriesService.getRepositoryData(vm.deployment.repository_id).then(function(repository) {
                 vm.deployment.repository = repository;
             });
+        }
+
+        /**
+         * Renders git diff output as html.
+         *
+         * @param {number} fileKey
+         */
+        function showDiff(fileKey) {
+            vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(vm.changedFiles[fileKey].diff));
         }
     }
 }());

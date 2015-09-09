@@ -17,6 +17,7 @@ gulp.task('vendor_css', function() {
         'www/css/vendor/font-awesome.min.css',
         'www/css/vendor/AdminLTE.min.css',
         'www/css/vendor/skin-blue.min.css',
+        'www/css/vendor/diff2html.min.css',
         'www/fonts/source-code-pro.css',
         'www/fonts/source-sans-pro.css'
     ])
@@ -44,7 +45,8 @@ gulp.task('vendor_js', function() {
         'www/js/vendor/jquery.nanoscroller.min.js',
         'www/js/vendor/bootstrap.min.js',
         'www/js/vendor/template.min.js',
-        'www/js/vendor/autobahn.min.js'
+        'www/js/vendor/autobahn.min.js',
+        'www/js/vendor/diff2html.min.js'
     ])
         .pipe(concat('vendor.min.js'))
         .pipe(gulp.dest('www/js/'))
