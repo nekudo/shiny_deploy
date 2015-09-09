@@ -38,6 +38,7 @@
                                     <select name="repository_id"
                                             id="repository-id"
                                             class="form-control"
+                                            data-ng-disabled="vm.isEdit"
                                             data-ng-change="vm.refreshBranches()"
                                             data-ng-model="vm.deployment.repository"
                                             data-ng-options="repo.name for repo in vm.repositories track by repo.id"
@@ -65,6 +66,7 @@
                                     <select name="branch"
                                             id="repository-branch"
                                             class="form-control"
+                                            data-ng-disabled="vm.isEdit"
                                             data-ng-model="vm.deployment.branchObj"
                                             data-ng-options="branch.name for branch in vm.branches track by branch.id"
                                             required>
