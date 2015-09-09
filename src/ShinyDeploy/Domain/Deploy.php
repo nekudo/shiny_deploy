@@ -154,7 +154,6 @@ class Deploy extends Domain
             $changedFiles = $gitDomain->listFiles($repoPath);
         } else {
             $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
-            var_dump($changedFiles);
         }
         if (empty($changedFiles)) {
             return $fileList;
@@ -177,6 +176,7 @@ class Deploy extends Domain
                 $item = [
                     'file' => $line,
                     'type' => 'A',
+                    'diff' => $gitDomain->diffFile($repoPath, $localRevision, $remoteRevision, $line),
                 ];
                 array_push($fileList, $item);
             } else {
@@ -185,6 +185,7 @@ class Deploy extends Domain
                 $item = [
                     'file' => $file,
                     'type' => $status,
+                    'diff' => $gitDomain->diffFile($repoPath, $localRevision, $remoteRevision, $file),
                 ];
                 array_push($fileList, $item);
             }

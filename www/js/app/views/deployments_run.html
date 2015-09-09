@@ -62,13 +62,24 @@
                         <tr>
                             <th>File</th>
                             <th>Type</th>
+                            <th></th>
                         </tr>
                         <tr data-ng-repeat="fileItem in vm.changedFiles">
                             <td>{{ fileItem.file }}</td>
                             <td><span data-changed-file-status="" data-type="fileItem.type"></span></td>
+                            <td><a href="" data-ng-click="vm.showDiff($index)">Diff</a></td>
                         </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12" data-ng-if="vm.diff">
+            <div class="box box-solid">
+                <div class="box-header"><h3 class="box-title">File Diff</h3></div>
+                <div class="box-body">
+                    <div data-ng-bind-html="vm.diff"></div>
                 </div>
             </div>
         </div>
