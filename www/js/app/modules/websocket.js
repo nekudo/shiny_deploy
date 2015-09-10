@@ -40,6 +40,7 @@ function wsProvider() {
         ws.listeners = [];
         ws.callbacks = [];
         ws.clientId = null;
+        ws.status = 'disconnected';
 
         ws.connect = connect;
         ws.onClose = onClose;
@@ -49,6 +50,8 @@ function wsProvider() {
         ws.addListener = addListener;
         ws.getCallbackId = getCallbackId;
         ws.getUuid = getUuid;
+        ws.setStatus = setStatus;
+        ws.getStatus = getStatus;
 
         /**
          * Connect the WebSocket.
@@ -63,6 +66,7 @@ function wsProvider() {
                 provider.config.url,
                 function() {
                     console.log('Websocket connection established.');
+                    ws.setStatus('connected');
                     ws.conn.subscribe(ws.clientId, function(topic, data) {
                         ws.onMessage(topic, data);
                     });
@@ -79,6 +83,7 @@ function wsProvider() {
          * @param {number} reason
          */
         function onClose(reason) {
+            ws.setStatus('disconnected');
             switch (reason) {
                 case ab.CONNECTION_CLOSED:
                     console.log("Connection was closed properly.");
@@ -234,6 +239,25 @@ function wsProvider() {
             } else {
                 console.log('Could not find any listener for event: ' + eventName);
             }
+        }
+
+        /**
+         * Sets websocket connection status and broadcasts change event.
+         *
+         * @param {string} status
+         */
+        function setStatus(status) {
+            ws.status = status;
+            $rootScope.$broadcast('wsStatusChange', ws.status);
+        }
+
+        /**
+         * Returns websocket connection status.
+         *
+         * @returns {string}
+         */
+        function getStatus() {
+            return ws.status;
         }
 
         return ws;
