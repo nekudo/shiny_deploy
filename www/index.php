@@ -54,6 +54,7 @@
 
     <footer class="main-footer">
         <small>another shiny project by <a href="https://nekudo.com">nekudo.com</a></small>
+        <div class="pull-right"><span data-wsc-status=""></span></div>
     </footer>
 
 </div><!-- /wrapper -->
