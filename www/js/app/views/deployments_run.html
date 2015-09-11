@@ -60,14 +60,20 @@
                     <table class="table table-condensed">
                         <tbody>
                         <tr>
-                            <th>File</th>
+                            <td>#</td>
                             <th>Type</th>
+                            <th>File</th>
                             <th></th>
                         </tr>
                         <tr data-ng-repeat="fileItem in vm.changedFiles">
-                            <td>{{ fileItem.file }}</td>
+                            <td>{{ $index + 1 }}</td>
                             <td><span data-changed-file-status="" data-type="fileItem.type"></span></td>
-                            <td><a href="" data-ng-click="vm.showDiff($index)">Diff</a></td>
+                            <td>{{ fileItem.file }}</td>
+                            <td>
+                                <button class="btn btn-xs btn-default" data-ng-click="vm.showDiff($index)">
+                                    <span class="fa fa-columns"></span> Diff
+                                </button>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
