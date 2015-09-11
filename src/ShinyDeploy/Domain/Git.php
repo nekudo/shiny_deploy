@@ -64,7 +64,7 @@ class Git extends Domain
         if (empty($repositoryUrl)) {
             throw new \RuntimeException('Repository URL can not be empty.');
         }
-        $response = $this->exec('pull --progress ' . $repositoryUrl);
+        $response = $this->exec('pull --progress');
         chdir($oldDir);
         return $response;
     }
@@ -257,13 +257,22 @@ class Git extends Domain
         if (@chdir($repoPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
+
+        // check if already on correct branch
+        $output = $this->exec('branch');
+        if (strpos($output, '* ' . $branch) !== false) {
+            chdir($oldDir);
+            return true;
+        }
+
+        // switch branch
         $output = $this->exec('checkout ' . $branch);
         chdir($oldDir);
         $output = trim($output);
         if (strpos($output, 'Switched to a new branch') !== false) {
             return true;
         }
-        if (strpos($output, 'branch is up-to-date') !== false) {
+        if (strpos($output, 'Already on') !== false) {
             return true;
         }
         return false;
