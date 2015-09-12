@@ -4,11 +4,12 @@ namespace ShinyDeploy\Domain;
 use ShinyDeploy\Core\Domain;
 use ShinyDeploy\Core\Server\Server;
 use ShinyDeploy\Core\Server\SftpServer;
+use ShinyDeploy\Core\Server\SshServer;
 
 class Deploy extends Domain
 {
     /** @var array $supportedServerTypes */
-    protected $supportedServerTypes = ['sftp'];
+    protected $supportedServerTypes = ['ssh', 'sftp'];
 
     /**
      * Creates server object.
@@ -22,6 +23,9 @@ class Deploy extends Domain
             throw new \RuntimeException('Unknown server-type.');
         }
         switch ($type) {
+            case 'ssh':
+                return new SshServer;
+                break;
             case 'sftp':
                 return new SftpServer;
                 break;
