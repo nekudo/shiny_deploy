@@ -1,7 +1,7 @@
 <?php
-namespace ShinyDeploy\Core;
+namespace ShinyDeploy\Core\Connections;
 
-class Sftp
+class Ssh
 {
     /** @var string $errorMsg */
     private $errorMsg =  null;
@@ -10,10 +10,10 @@ class Sftp
     private $sshConnection = null;
 
     /** @var resource $sftpConnection */
-    private $sftpConnection = null;
+    protected $sftpConnection = null;
 
     /** @var array $existingFolders */
-    private $existingFolders = [];
+    protected $existingFolders = [];
 
     // TODO: Auto connect if server data is passed.
     public function __construct()
@@ -104,21 +104,15 @@ class Sftp
         if (!isset($this->existingFolders[$remoteDir])) {
             $this->mkdir($remoteDir, 0755, true);
         }
-        $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'w');
-        if ($sftpStream === false) {
+        if (file_exists($localFile) === false) {
             $this->setError(7);
             return false;
         }
-        $dataToSend = file_get_contents($localFile);
-        if ($dataToSend === false) {
+        if (ssh2_scp_send($this->sshConnection, $localFile, $remoteFile, $mode) === false) {
             $this->setError(7);
             return false;
         }
-        if (fwrite($sftpStream, $dataToSend) === false) {
-            $this->setError(7);
-            return false;
-        }
-        fclose($sftpStream);
+
         return true;
     }
 
@@ -239,7 +233,7 @@ class Sftp
      * @param int $errorCode Numeric value representing an error message.
      * @return bool True if massage was set falseCn error.
      */
-    private function setError($errorCode)
+    protected function setError($errorCode)
     {
         switch($errorCode) {
             case 1:
