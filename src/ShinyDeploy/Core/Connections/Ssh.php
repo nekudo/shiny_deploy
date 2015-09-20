@@ -228,6 +228,37 @@ class Ssh
     }
 
     /**
+     * Executes a custom ssh command.
+     *
+     * @param string $cmd
+     * @param string $pty
+     * @param array $env
+     * @param int $width
+     * @param int $height
+     * @param int $width_height_type
+     * @return bool|string
+     */
+    public function exec(
+        $cmd,
+        $pty = null,
+        array $env = [],
+        $width = 80,
+        $height = 25,
+        $width_height_type = SSH2_TERM_UNIT_CHARS
+    ) {
+        $stdout = ssh2_exec($this->sshConnection, $cmd, $pty, $env, $width, $height, $width_height_type);
+        $stderr = ssh2_fetch_stream($stdout, SSH2_STREAM_STDERR);
+        stream_set_blocking($stderr, true);
+        stream_set_blocking($stdout, true);
+        $error = stream_get_contents($stderr);
+        if ($error !== '') {
+            $this->setError(11);
+            return false;
+        }
+        return stream_get_contents($stdout);
+    }
+
+    /**
      * Sets an error message by passing an error code.
      *
      * @param int $errorCode Numeric value representing an error message.
@@ -272,6 +303,9 @@ class Ssh
                 break;
             case 10:
                 $this->errorMsg = 'Could not rename file.';
+                break;
+            case 11:
+                $this->errorMsg = 'Could not execute ssh command.';
                 break;
             default:
                 return false;

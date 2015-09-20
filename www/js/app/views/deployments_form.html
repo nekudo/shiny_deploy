@@ -90,13 +90,137 @@
                             </div>
                         </div>
                     </div>
-                    <div class="box-footer">
+                </div>
+
+                <div class="box" data-ng-class="{'box-primary': vm.isEdit, 'box-success': vm.isAdd}">
+                    <div class="box-header">
+                        <h3 class="box-title">Deployment Tasks</h3>
+                        <div class="box-tools">
+                            <button class="btn btn-sm btn-success pull-right"
+                                    data-ng-click="vm.showAddTask()">
+                                Add Task
+                            </button>
+                        </div>
+                    </div>
+                    <div class="box-body table-responsive no-padding">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr data-ng-if="vm.deployment.tasks">
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr data-ng-repeat="task in vm.deployment.tasks">
+                                <td>{{$index+1}}</td>
+                                <td>{{task.name}}</td>
+                                <td>{{task.type}}</td>
+                                <td>
+                                    <button class="btn btn-xs btn-danger"
+                                            data-ng-click="vm.deleteTask($index)">
+                                        Delete
+                                    </button>
+                                    <button class="btn btn-xs btn-info"
+                                            data-ng-click="vm.showEditTask($index)">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="box box-solid">
+                    <div class="box-body">
                         <button data-ng-if="vm.isAdd" data-ng-disabled="editDeploymentForm.$invalid" data-ng-click="vm.addDeployment()" class="btn btn-success">Save</button>
                         <button data-ng-if="vm.isEdit" data-ng-disabled="editDeploymentForm.$invalid" data-ng-click="vm.updateDeployment()" class="btn btn-primary">Update</button>
                         <a href="/deployments" class="btn btn-default">Cancel</a>
                     </div>
                 </div>
+
             </form>
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLavel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="editTaskModalLabel">
+                    <span data-ng-if="vm.taskFormMode === 'add'">Add Task</span>
+                    <span data-ng-if="vm.taskFormMode === 'edit'">Edit Task</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="editTaskForm" novalidate>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group"
+                                 data-ng-class="{ 'has-error': editTaskForm.task_name.$invalid && editTaskForm.task_name.$dirty}">
+                                <label for="deployment-task_name">Name</label>
+                                <input name="task_name"
+                                       type="text"
+                                       class="form-control"
+                                       id="deployment-task_name"
+                                       placeholder="My task"
+                                       data-ng-model="vm.task.name"
+                                       data-ng-minlength="3"
+                                       data-ng-maxlength="100"
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-group"
+                                 data-ng-class="{ 'has-error': editTaskForm.task_type.$invalid && editTaskForm.task_type.$dirty}">
+                                <label for="deployment-task_type">Type</label>
+                                <select name="task_type"
+                                        id="deployment-task_type"
+                                        class="form-control"
+                                        data-ng-model="vm.task.type"
+                                        required>
+                                    <option value="before">Before deploy</option>
+                                    <option value="after">After deploy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="form-group"
+                                 data-ng-class="{ 'has-error': editTaskForm.task_command.$invalid && editTaskForm.task_command.$dirty}">
+                                <label for="deployment-task_command">Command</label>
+                                <textarea name="task_command"
+                                          id="deployment-task_command"
+                                          class="form-control"
+                                          data-ng-model="vm.task.command"
+                                          data-ng-minlength="3"
+                                          required>
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Cancel</button>
+                <button type="button"
+                        class="btn btn-success btn-sm"
+                        data-ng-if="vm.taskFormMode === 'edit'"
+                        data-ng-click="vm.editTask()">
+                    Update
+                </button>
+                <button type="button"
+                        class="btn btn-success btn-sm"
+                        data-ng-if="vm.taskFormMode === 'add'"
+                        data-ng-click="vm.addTask()">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -16,6 +16,9 @@ class AddDeployment extends WsDataAction
             throw new WebsocketException('Invalid addDeployment request received.');
         }
         $deploymentData = $actionPayload['deploymentData'];
+        if (isset($deploymentData['tasks'])) {
+            $deploymentData['tasks'] = json_encode($deploymentData['tasks']);
+        }
         $deploymentDomain = new Deployments($this->config, $this->logger);
 
         // validate input:

@@ -16,6 +16,9 @@ class UpdateDeployment extends WsDataAction
             throw new WebsocketException('Invalid updateDeployment request received.');
         }
         $deploymentData = $actionPayload['deploymentData'];
+        if (isset($deploymentData['tasks'])) {
+            $deploymentData['tasks'] = json_encode($deploymentData['tasks']);
+        }
         $deploymentsDomain = new Deployments($this->config, $this->logger);
 
         // validate input:

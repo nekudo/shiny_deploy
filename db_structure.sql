@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `deployments` (
   `repository_id` int(10) unsigned NOT NULL DEFAULT '0',
   `branch` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `target_path` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
+  `tasks` text COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `server_id` (`server_id`,`repository_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
