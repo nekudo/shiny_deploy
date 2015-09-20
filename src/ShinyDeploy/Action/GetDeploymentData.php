@@ -21,9 +21,6 @@ class GetDeploymentData extends WsDataAction
             $this->responder->setError('Deployment not found in database.');
             return false;
         }
-        if (!empty($deploymentData['tasks'])) {
-            $deploymentData['tasks'] = json_decode($deploymentData['tasks'], true);
-        }
         $this->responder->setPayload($deploymentData);
         return true;
     }
