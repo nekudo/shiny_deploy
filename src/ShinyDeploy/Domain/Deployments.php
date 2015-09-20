@@ -65,14 +65,15 @@ class Deployments extends DatabaseDomain
     {
         return $this->db->prepare(
             "INSERT INTO deployments
-              (`name`, `repository_id`, `server_id`, `branch`, `target_path`)
+              (`name`, `repository_id`, `server_id`, `branch`, `target_path`, `tasks`)
               VALUES
-                (%s, %d, %d, %s, %s)",
+                (%s, %d, %d, %s, %s, %s)",
             $deploymentData['name'],
             $deploymentData['repository_id'],
             $deploymentData['server_id'],
             $deploymentData['branch'],
-            $deploymentData['target_path']
+            $deploymentData['target_path'],
+            $deploymentData['tasks']
         )->execute();
     }
 
@@ -93,13 +94,15 @@ class Deployments extends DatabaseDomain
               `repository_id` = %d,
               `server_id` = %d,
               `branch` = %s,
-              `target_path` = %s
+              `target_path` = %s,
+              `tasks` = %s
             WHERE id = %d",
             $deploymentData['name'],
             $deploymentData['repository_id'],
             $deploymentData['server_id'],
             $deploymentData['branch'],
             $deploymentData['target_path'],
+            $deploymentData['tasks'],
             $deploymentData['id']
         )->execute();
     }

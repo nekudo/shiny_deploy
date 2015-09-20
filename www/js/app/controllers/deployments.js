@@ -75,15 +75,25 @@
         /*jshint validthis: true */
         var vm = this;
 
+        // Properties
         vm.isAdd = true;
         vm.deployment = {};
         vm.servers = {};
         vm.repositories = {};
         vm.branches = {};
+        vm.task = {};
+        vm.taskFormMode = 'add';
 
+        // Methods
         vm.addDeployment = addDeployment;
         vm.refreshBranches = refreshBranches;
+        vm.showAddTask = showAddTask;
+        vm.showEditTask = showEditTask;
+        vm.addTask = addTask;
+        vm.editTask = editTask;
+        vm.deleteTask = deleteTask;
 
+        // Init
         init();
 
         /**
@@ -130,6 +140,55 @@
                 alertsService.pushAlert(reason, 'warning');
             });
         }
+
+        /**
+         * Shows form to add new task.
+         */
+        function showAddTask() {
+            vm.taskFormMode = 'add';
+            vm.task = {};
+            jQuery('#editTaskModal').modal('show');
+        }
+
+        /**
+         * Shows form to edit a task.
+         *
+         * @param {Number} index
+         */
+        function showEditTask(index) {
+            vm.task = vm.deployment.tasks[index];
+            vm.taskFormMode = 'edit';
+            jQuery('#editTaskModal').modal('show');
+        }
+
+        /**
+         * Adds new task.
+         */
+        function addTask() {
+            if (!vm.deployment.hasOwnProperty('tasks')) {
+                vm.deployment.tasks = [];
+            }
+            vm.deployment.tasks.push(vm.task);
+            vm.task = {};
+            jQuery('#editTaskModal').modal('hide');
+        }
+
+        /**
+         * Updates an existing task.
+         */
+        function editTask() {
+            vm.task = {};
+            jQuery('#editTaskModal').modal('hide');
+        }
+
+        /**
+         * Deletes a task.
+         *
+         * @param {Number} index
+         */
+        function deleteTask(index) {
+            vm.deployment.tasks.splice(index, 1);
+        }
     }
 }());
 
@@ -148,15 +207,25 @@
         /*jshint validthis: true */
         var vm = this;
 
+        // Properties
         vm.isEdit = true;
         vm.servers = {};
         vm.repositories = {};
         vm.branches = {};
         vm.deployment = {};
+        vm.task = {};
+        vm.taskFormMode = 'add';
 
+        // Methods
         vm.updateDeployment = updateDeployment;
         vm.refreshBranches = refreshBranches;
+        vm.showAddTask = showAddTask;
+        vm.showEditTask = showEditTask;
+        vm.addTask = addTask;
+        vm.editTask = editTask;
+        vm.deleteTask = deleteTask;
 
+        // Init
         init();
 
         /**
@@ -210,6 +279,55 @@
             }, function(reason) {
                 alertsService.pushAlert(reason, 'warning');
             });
+        }
+
+        /**
+         * Shows form to add new task.
+         */
+        function showAddTask() {
+            vm.taskFormMode = 'add';
+            vm.task = {};
+            jQuery('#editTaskModal').modal('show');
+        }
+
+        /**
+         * Shows form to edit a task.
+         *
+         * @param {Number} index
+         */
+        function showEditTask(index) {
+            vm.task = vm.deployment.tasks[index];
+            vm.taskFormMode = 'edit';
+            jQuery('#editTaskModal').modal('show');
+        }
+
+        /**
+         * Adds new task.
+         */
+        function addTask() {
+            if (!vm.deployment.hasOwnProperty('tasks')) {
+                vm.deployment.tasks = [];
+            }
+            vm.deployment.tasks.push(vm.task);
+            vm.task = {};
+            jQuery('#editTaskModal').modal('hide');
+        }
+
+        /**
+         * Updates an existing task.
+         */
+        function editTask() {
+            vm.task = {};
+            jQuery('#editTaskModal').modal('hide');
+        }
+
+        /**
+         * Deletes a task.
+         *
+         * @param {Number} index
+         */
+        function deleteTask(index) {
+            vm.deployment.tasks.splice(index, 1);
         }
     }
 }());

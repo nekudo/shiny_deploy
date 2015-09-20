@@ -95,6 +95,9 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
         };
 
         ws.sendDataRequest('getDeploymentData', requestParams).then(function(data) {
+            if (data.hasOwnProperty('tasks') && data.tasks === '') {
+                data.tasks = [];
+            }
             data.server = {};
             if (data.hasOwnProperty('server_id')) {
                 data.server = { id: data.server_id };
