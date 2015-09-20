@@ -63,6 +63,9 @@ class Deployments extends DatabaseDomain
      */
     public function addDeployment(array $deploymentData)
     {
+        if (!isset($deploymentData['tasks'])) {
+            $deploymentData['tasks'] = '';
+        }
         return $this->db->prepare(
             "INSERT INTO deployments
               (`name`, `repository_id`, `server_id`, `branch`, `target_path`, `tasks`)
@@ -138,6 +141,9 @@ class Deployments extends DatabaseDomain
             ->getResult(true);
         if (empty($deploymentData)) {
             return [];
+        }
+        if (!empty($deploymentData['tasks'])) {
+            $deploymentData['tasks'] = json_decode($deploymentData['tasks'], true);
         }
         return $deploymentData;
     }

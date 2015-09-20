@@ -229,6 +229,8 @@ class Ssh
 
     /**
      * Executes a custom ssh command.
+     * HINT: Returns all possible responses from stdout and stderr as some applications (e.g. composer)
+     * use stderr for outputs.
      *
      * @param string $cmd
      * @param string $pty
@@ -251,11 +253,8 @@ class Ssh
         stream_set_blocking($stderr, true);
         stream_set_blocking($stdout, true);
         $error = stream_get_contents($stderr);
-        if ($error !== '') {
-            $this->setError(11);
-            return false;
-        }
-        return stream_get_contents($stdout);
+        $output = stream_get_contents($stdout);
+        return $output . $error;
     }
 
     /**

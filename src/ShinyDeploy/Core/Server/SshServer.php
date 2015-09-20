@@ -107,4 +107,18 @@ class SshServer extends Server
         }
         return $this->connection->listdir($remotePath);
     }
+
+    /**
+     * Executes ssh command on server.
+     *
+     * @param string $command
+     * @return bool|string
+     */
+    public function executeCommand($command)
+    {
+        if (empty($command)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        return $this->connection->exec($command);
+    }
 }

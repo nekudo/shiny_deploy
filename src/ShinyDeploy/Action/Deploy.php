@@ -100,10 +100,21 @@ class Deploy extends Action
                 return false;
             }
 
+            // run before deploy tasks:
+            if ($this->listOnly === false) {
+                $this->runTasks($deploymentData, $serverData, 'before');
+            }
+
             // deploy changes:
             if ($this->deploy($repositoryData, $serverData, $deploymentData) === false) {
                 return false;
             }
+
+            // run after deploy tasks:
+            if ($this->listOnly === false) {
+                $this->runTasks($deploymentData, $serverData, 'after');
+            }
+
             if ($this->listOnly === false) {
                 $this->logResponder->log(
                     "\nShiny, everything done. Your project is up to date.",
@@ -317,6 +328,54 @@ class Deploy extends Action
             return false;
         } else {
             $this->logResponder->log('Revision file successfully updated.', 'default', 'DeployWorker');
+        }
+
+        return true;
+    }
+
+    protected function runTasks(array $deploymentData, array $serverData, $type)
+    {
+        // Skip if no tasks defined
+        if (empty($deploymentData['tasks'])) {
+            return true;
+        }
+
+        // Skip if no tasks of given type defined:
+        $typeTasks = [];
+        foreach ($deploymentData['tasks'] as $task) {
+            if ($task['type'] === $type) {
+                array_push($typeTasks, $task);
+            }
+        }
+        if (empty($typeTasks)) {
+            return true;
+        }
+
+        // Skip if server is not ssh capable:
+        if ($serverData['type'] !== 'ssh') {
+            $this->logResponder->log('Server not of type SSH. Skipping tasks.', 'error', 'DeployWorker');
+            return false;
+        }
+
+        // Skip if no connection to server available:
+        if (empty($this->server)) {
+            throw new \RuntimeException('No instance of target server.');
+        }
+
+        // Execute tasks on server:
+        $remotePath = trim($serverData['root_path']);
+        $deplymentPath = trim($deploymentData['target_path']);
+        $remotePath = rtrim($remotePath, '/');
+        $remotePath .= '/' . trim($deplymentPath, '/') . '/';
+        foreach ($typeTasks as $task) {
+            $command = 'cd ' . $remotePath . ' && ' . $task['command'];
+            $this->logResponder->log('Executing task: ' . $task['name'], 'default', 'DeployWorker');
+            $response = $this->server->executeCommand($command);
+            if ($response === false) {
+                $this->logResponder->log('Task failed.', 'error', 'DeployWorker');
+            } else {
+                $this->logResponder->log($response, 'default', 'DeployWorker');
+            }
         }
 
         return true;
