@@ -40,7 +40,7 @@ PHP Extensions
 * Create MySQL tables (db_structure.sql)
 * Adjust config files
   * /src/ShinyDeploy/config.sample.php -> /src/ShinyDeploy/config.php
-  * /www/js/app/app.config.sample.js -> /www/js/app.config.js
+  * /www/js/app/app.config.js.sample -> /www/js/app.config.js
 * Build css/js files
 
   ```gulp build```
