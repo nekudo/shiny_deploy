@@ -396,19 +396,19 @@
 
         /**
          * Start new deployment job.
-         *
-         * @param {number} deploymentId
          */
         function triggerDeploy() {
+            vm.changedFiles = {};
+            vm.diff = '';
             deploymentsService.triggerDeployAction(vm.deployment.id);
         }
 
         /**
          * Fetch list of changed files.
-         *
-         * @param {number} deploymentId
          */
         function triggerGetChangedFiles() {
+            vm.changedFiles = {};
+            vm.diff = '';
             deploymentsService.triggerGetChangedFiles(vm.deployment.id);
         }
 
