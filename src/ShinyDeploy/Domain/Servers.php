@@ -157,7 +157,7 @@ class Servers extends DatabaseDomain
         if (empty($serverId)) {
             throw  new \InvalidArgumentException('serverId can not be empty.');
         }
-        $cnt = $this->db->prepare("SELECT COUNT(id) FROM deployments WHERE server_id = %d", $serverId)->getValue();
+        $cnt = $this->db->prepare("SELECT COUNT(id) FROM deployments WHERE `server_id` = %d", $serverId)->getValue();
         return ($cnt > 0);
     }
 }

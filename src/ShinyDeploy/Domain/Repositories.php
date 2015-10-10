@@ -212,7 +212,7 @@ class Repositories extends DatabaseDomain
             throw new \RuntimeException('repositoryId can not be empty.');
         }
         $cnt = $this->db
-            ->prepare("SELECT COUNT(id) FROM deployments WHERE repository_id = %d", $repositoryId)
+            ->prepare("SELECT COUNT(id) FROM deployments WHERE `repository_id` = %d", $repositoryId)
             ->getValue();
         return ($cnt > 0);
     }
