@@ -147,4 +147,18 @@ class Deployments extends DatabaseDomain
         }
         return $deploymentData;
     }
+
+    /**
+     * Checks if another deployment with same server-id and target path exists.
+     *
+     * @param array $deploymentData
+     * @return bool
+     */
+    public function targetExists(array $deploymentData)
+    {
+        $statement = "SELECT COUNT(id) FROM deployments WHERE `server_id` = %d AND `target_path` = %s";
+        $cnt = $this->db->prepare($statement, $deploymentData['server_id'],$deploymentData['target_path'])
+            ->getValue();
+        return ($cnt > 0);
+    }
 }
