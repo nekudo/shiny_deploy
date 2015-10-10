@@ -21,6 +21,12 @@ class DeleteRepository extends WsDataAction
         $repositoryData = $repositoriesDomain->getRepositoryData($repositoryId);
         $repositoryPath = $repositoryDomain->getLocalPath($repositoryData['url']);
 
+        // check if repository still in use:
+        if ($repositoriesDomain->repositoryInUse($repositoryId) === true) {
+            $this->responder->setError('This repository is still used in a deployment.');
+            return false;
+        }
+
         // remove repository from database:
         $deleteResult = $repositoriesDomain->deleteRepository($repositoryId);
         if ($deleteResult === false) {

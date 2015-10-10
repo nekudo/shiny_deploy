@@ -142,7 +142,9 @@ class Repositories extends DatabaseDomain
         if ($repositoryId === 0) {
             return [];
         }
-        $repositoryData = $this->db->prepare("SELECT * FROM repositories WHERE id = %d", $repositoryId)->getResult(true);
+        $repositoryData = $this->db
+            ->prepare("SELECT * FROM repositories WHERE id = %d", $repositoryId)
+            ->getResult(true);
         if (empty($repositoryData)) {
             return [];
         }
@@ -201,5 +203,17 @@ class Repositories extends DatabaseDomain
         }
         $url = str_replace('://', '://' . $credentials . '@', $repositoryData['url']);
         return $url;
+    }
+
+    public function repositoryInUse($repositoryId)
+    {
+        $repositoryId = (int)$repositoryId;
+        if (empty($repositoryId)) {
+            throw new \RuntimeException('repositoryId can not be empty.');
+        }
+        $cnt = $this->db
+            ->prepare("SELECT COUNT(id) FROM deployments WHERE repository_id = %d", $repositoryId)
+            ->getValue();
+        return ($cnt > 0);
     }
 }
