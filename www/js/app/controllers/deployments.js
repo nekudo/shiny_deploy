@@ -58,7 +58,7 @@
             });
         }
     }
-}());
+})();
 
 
 
@@ -190,7 +190,7 @@
             vm.deployment.tasks.splice(index, 1);
         }
     }
-}());
+})();
 
 
 
@@ -330,7 +330,7 @@
             vm.deployment.tasks.splice(index, 1);
         }
     }
-}());
+})();
 
 
 
@@ -441,4 +441,4 @@
             vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(vm.changedFiles[fileKey].diff));
         }
     }
-}());
+})();

@@ -52,4 +52,4 @@
             vm.notifications.splice(0, 1);
         }
     }
-}());
+})();

@@ -11,4 +11,4 @@
         /*jshint validthis: true */
         var vm = this;
     }
-}());
+})();
