@@ -143,4 +143,21 @@ class Servers extends DatabaseDomain
         }
         return $serverData;
     }
+
+    /**
+     * Checks whether any relations to given server exist.
+     *
+     * @param int $serverId
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public function serverInUse($serverId)
+    {
+        $serverId = (int)$serverId;
+        if (empty($serverId)) {
+            throw  new \InvalidArgumentException('serverId can not be empty.');
+        }
+        $cnt = $this->db->prepare("SELECT COUNT(id) FROM deployments WHERE server_id = %d", $serverId)->getValue();
+        return ($cnt > 0);
+    }
 }
