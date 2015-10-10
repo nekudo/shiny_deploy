@@ -40,7 +40,14 @@ class Git extends Domain
         if (empty($repositoryUrl)) {
             throw new \RuntimeException('Repository url can not be empty.');
         }
+
+        // clone the repo:
         $response = $this->exec('clone --progress ' . $repositoryUrl . ' .');
+
+        // set git user and email to avoid error messages:
+        $this->exec(sprintf('config user.name "%s"', $this->config->get('git.name')));
+        $this->exec(sprintf('config user.email "%s"', $this->config->get('git.email')));
+
         chdir($oldDir);
         return $response;
     }

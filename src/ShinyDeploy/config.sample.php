@@ -42,5 +42,9 @@ return [
         'user' => '',
         'pass' => '',
         'db' => 'my_database',
+    ],
+    'git' => [
+        'name' => 'John Doe',
+        'email' => 'john@needsnomail.com',
     ]
 ];
