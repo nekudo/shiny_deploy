@@ -17,6 +17,12 @@ class DeleteServer extends WsDataAction
         $serverId = (int)$actionPayload['serverId'];
         $serversDomain = new Servers($this->config, $this->logger);
 
+        // check if server still in use:
+        if ($serversDomain->serverInUse($serverId) === true) {
+            $this->responder->setError('This server is still used in a deployment.');
+            return false;
+        }
+
         // remove server:
         $addResult = $serversDomain->deleteServer($serverId);
         if ($addResult === false) {
