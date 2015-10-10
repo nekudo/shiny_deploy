@@ -61,4 +61,4 @@
                 + ((currentdate.getSeconds() < 10)?"0":"") + currentdate.getSeconds();
         }
     }
-}());
+})();
