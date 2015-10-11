@@ -1,7 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
-use ShinyDeploy\Domain\Deployments;
+use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Exceptions\WebsocketException;
 
 class DeleteDeployment extends WsDataAction

@@ -1,5 +1,5 @@
 <?php
-namespace ShinyDeploy\Core\Server;
+namespace ShinyDeploy\Domain\Server;
 
 use ShinyDeploy\Core\Connections\Ssh;
 

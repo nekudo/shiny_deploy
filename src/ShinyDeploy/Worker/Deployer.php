@@ -1,7 +1,6 @@
 <?php namespace ShinyDeploy\Worker;
 
 use ShinyDeploy\Action\Deploy;
-use ShinyDeploy\Action\GetChangedFiles;
 use ShinyDeploy\Core\Worker;
 use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\WorkerException;

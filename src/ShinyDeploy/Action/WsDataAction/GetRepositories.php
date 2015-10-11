@@ -1,7 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
-use ShinyDeploy\Domain\Repositories;
+use ShinyDeploy\Domain\Database\Repositories;
 
 class GetRepositories extends WsDataAction
 {
