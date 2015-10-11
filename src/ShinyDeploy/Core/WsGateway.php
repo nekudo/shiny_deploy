@@ -1,5 +1,5 @@
 <?php
-namespace ShinyDeploy\Websockets;
+namespace ShinyDeploy\Core;
 
 use Apix\Log\Logger;
 use Noodlehaus\Config;

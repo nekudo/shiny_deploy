@@ -1,5 +1,5 @@
 <?php
-namespace ShinyDeploy\Domain;
+namespace ShinyDeploy\Domain\Database;
 
 class Servers extends DatabaseDomain
 {

@@ -3,7 +3,7 @@ namespace ShinyDeploy\Action;
 
 use ShinyDeploy\Core\Action;
 use ShinyDeploy\Domain\Git;
-use ShinyDeploy\Domain\Repositories;
+use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Responder\WsNotificationResponder;
 

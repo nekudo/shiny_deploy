@@ -1,9 +1,8 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
-use ShinyDeploy\Domain\Deployments;
+use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Responder\WsDataResponder;
 
 class GetDeploymentData extends WsDataAction
 {

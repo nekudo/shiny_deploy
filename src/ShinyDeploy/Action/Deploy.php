@@ -2,13 +2,13 @@
 namespace ShinyDeploy\Action;
 
 use ShinyDeploy\Core\Action;
-use ShinyDeploy\Core\Server\Server;
-use ShinyDeploy\Domain\Deployments;
+use ShinyDeploy\Domain\Server\Server;
+use ShinyDeploy\Domain\Database\Deployments;
+use ShinyDeploy\Domain\Database\Repositories;
+use ShinyDeploy\Domain\Database\Servers;
 use ShinyDeploy\Domain\Git;
-use ShinyDeploy\Domain\Repositories;
 use ShinyDeploy\Domain\Repository;
-use ShinyDeploy\Domain\Deploy as DeployDomain;
-use ShinyDeploy\Domain\Servers;
+use ShinyDeploy\Domain\Deployment;
 use ShinyDeploy\Responder\WsChangedFilesResponder;
 use ShinyDeploy\Responder\WsLogResponder;
 
@@ -21,7 +21,7 @@ class Deploy extends Action
     protected $changedFilesResponder;
 
     /** @var  DeployDomain $deployDomain */
-    protected $deployDomain;
+    protected $deploymentDomain;
 
     /** @var  Git $gitDomain */
     protected $gitDomain;
@@ -46,8 +46,17 @@ class Deploy extends Action
     public function __invoke($deploymentId, $clientId, $listOnly = false)
     {
         try {
+            // check required arguments:
+            $deploymentId = (int)$deploymentId;
+            if (empty($deploymentId)) {
+                throw new \RuntimeException('Deployment-ID can not be empty');
+            }
+            if (empty($clientId)) {
+                throw new \RuntimeException('clientId can not be empty.');
+            }
+
             $this->listOnly = $listOnly;
-            $this->deployDomain = new DeployDomain($this->config, $this->logger);
+            $this->deploymentDomain = new Deployment($this->config, $this->logger);
             $this->deploymentsDomain = new Deployments($this->config, $this->logger);
             $this->repositoryDomain = new Repository($this->config, $this->logger);
             $this->repositoriesDomain = new Repositories($this->config, $this->logger);
@@ -58,12 +67,6 @@ class Deploy extends Action
             if ($listOnly === true) {
                 $this->changedFilesResponder = new WsChangedFilesResponder($this->config, $this->logger);
                 $this->changedFilesResponder->setClientId($clientId);
-            }
-
-            // check required arguments:
-            $deploymentId = (int)$deploymentId;
-            if (empty($deploymentId)) {
-                throw new \RuntimeException('Deployment-ID can not be empty');
             }
 
             // collect required data:
@@ -184,8 +187,8 @@ class Deploy extends Action
     protected function checkRemoteServer(array $serverData)
     {
         $this->logResponder->log('Checking remote server...', 'default', 'DeployWorker');
-        $this->server = $this->deployDomain->getServer($serverData['type']);
-        $connectivity = $this->deployDomain->checkConnectivity($this->server, $serverData);
+        $this->server = $this->deploymentDomain->getServer($serverData['type']);
+        $connectivity = $this->deploymentDomain->checkConnectivity($this->server, $serverData);
         if ($connectivity === true) {
             $this->logResponder->log('Successfully connected to remote server.', 'success', 'DeployWorker');
             return true;
@@ -212,7 +215,7 @@ class Deploy extends Action
         $remotePath = rtrim($serverData['root_path']);
         $remotePath .= '/' . trim($deploymentData['target_path']) . '/';
         $revisionFilePath = $remotePath . 'REVISION';
-        $remoteRevision = $this->deployDomain->getRemoteRevision($this->server, $revisionFilePath);
+        $remoteRevision = $this->deploymentDomain->getRemoteRevision($this->server, $revisionFilePath);
         if ($remoteRevision === false) {
             $this->logResponder->log(
                 'Could not estimate revision on remote server. Check if path is correct!',
@@ -237,7 +240,7 @@ class Deploy extends Action
         }
 
         // get revision of local repository:
-        $localRevision = $this->deployDomain->getLocalRevision($repoPath, $deploymentData['branch'], $this->gitDomain);
+        $localRevision = $this->deploymentDomain->getLocalRevision($repoPath, $deploymentData['branch'], $this->gitDomain);
         if (empty($localRevision)) {
             $this->logResponder->log('Could not estimate revision of local repository.', 'error', 'DeployWorker');
             return false;
@@ -253,7 +256,7 @@ class Deploy extends Action
         // collect file changes:
         $this->logResponder->log('Collecting file changes...', 'default', 'DeployWorker');
         if ($this->listOnly === false) {
-            $changedFiles = $this->deployDomain->getChangedFiles(
+            $changedFiles = $this->deploymentDomain->getChangedFiles(
                 $repoPath,
                 $localRevision,
                 $remoteRevision,
@@ -265,7 +268,7 @@ class Deploy extends Action
             }
         } else {
             // if in list-only mode return list of changed files:
-            $changedFiles = $this->deployDomain->getChangedFilesForList(
+            $changedFiles = $this->deploymentDomain->getChangedFilesForList(
                 $repoPath,
                 $localRevision,
                 $remoteRevision,

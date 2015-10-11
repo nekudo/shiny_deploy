@@ -2,7 +2,7 @@
 namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Git;
-use ShinyDeploy\Domain\Repositories;
+use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Exceptions\WebsocketException;
 

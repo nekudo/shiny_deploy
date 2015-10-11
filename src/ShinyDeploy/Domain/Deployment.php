@@ -2,11 +2,11 @@
 namespace ShinyDeploy\Domain;
 
 use ShinyDeploy\Core\Domain;
-use ShinyDeploy\Core\Server\Server;
-use ShinyDeploy\Core\Server\SftpServer;
-use ShinyDeploy\Core\Server\SshServer;
+use ShinyDeploy\Domain\Server\Server;
+use ShinyDeploy\Domain\Server\SftpServer;
+use ShinyDeploy\Domain\Server\SshServer;
 
-class Deploy extends Domain
+class Deployment extends Domain
 {
     /** @var array $supportedServerTypes */
     protected $supportedServerTypes = ['ssh', 'sftp'];

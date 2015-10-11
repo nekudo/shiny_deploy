@@ -1,7 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
-use ShinyDeploy\Domain\Servers;
+use ShinyDeploy\Domain\Database\Servers;
 
 class GetServers extends WsDataAction
 {

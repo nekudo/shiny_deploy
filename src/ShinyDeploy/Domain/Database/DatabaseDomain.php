@@ -1,8 +1,7 @@
 <?php
-namespace ShinyDeploy\Domain;
+namespace ShinyDeploy\Domain\Database;
 
 use Apix\Log\Logger;
-use GG\Hostname;
 use Noodlehaus\Config;
 use ShinyDeploy\Core\Db;
 use ShinyDeploy\Core\Domain;
@@ -14,6 +13,8 @@ class DatabaseDomain extends Domain
 
     public function __construct(Config $config, Logger $logger)
     {
+        parent::__construct($config, $logger);
+
         // connect to database:
         $dbConfig = $config->get('db');
         if (empty($dbConfig)) {
