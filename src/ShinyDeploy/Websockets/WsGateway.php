@@ -106,7 +106,7 @@ class WsGateway implements WampServerInterface
      */
     protected function handleDataRequest($clientId, $callbackId, $actionName, array $actionPayload)
     {
-        $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
+        $actionClassName = 'ShinyDeploy\Action\WsDataAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
             throw new WebsocketException('Invalid action passed to worker gateway.');
         }
@@ -132,7 +132,7 @@ class WsGateway implements WampServerInterface
      */
     protected function handleTriggerRequest($clientId, $actionName, $actionPayload)
     {
-        $actionClassName = 'ShinyDeploy\Action\\' . ucfirst($actionName);
+        $actionClassName = 'ShinyDeploy\Action\WsTriggerAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
             throw new WebsocketException('Invalid action passed to worker gateway.');
         }

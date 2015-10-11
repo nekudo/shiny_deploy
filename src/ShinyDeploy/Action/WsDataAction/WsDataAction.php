@@ -1,6 +1,8 @@
 <?php
-namespace ShinyDeploy\Action;
+namespace ShinyDeploy\Action\WsDataAction;
 
+use Apix\Log\Logger;
+use Noodlehaus\Config;
 use ShinyDeploy\Core\Action;
 use ShinyDeploy\Responder\WsDataResponder;
 
@@ -13,7 +15,10 @@ abstract class WsDataAction extends Action
 
     abstract public function __invoke($actionPayload);
 
-    abstract public function setResponse(WsDataResponder $responder);
+    public function __construct(Config $config, Logger $logger) {
+        parent::__construct($config, $logger);
+        $this->responder = new WsDataResponder($this->config, $this->logger);
+    }
 
     public function getResponse($callbackId)
     {

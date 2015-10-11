@@ -1,17 +1,14 @@
 <?php
-namespace ShinyDeploy\Action;
+namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Repositories;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Responder\WsDataResponder;
 
 class DeleteRepository extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
-        $responder = new WsDataResponder($this->config, $this->logger);
-        $this->setResponse($responder);
         if (!isset($actionPayload['repositoryId'])) {
             throw new WebsocketException('Invalid deleteRepository request received.');
         }
@@ -42,10 +39,5 @@ class DeleteRepository extends WsDataAction
         $payload = json_encode($actionPayload);
         $client->doBackground('deleteRepository', $payload);
         return true;
-    }
-
-    public function setResponse(WsDataResponder $responder)
-    {
-        $this->responder = $responder;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace ShinyDeploy\Action;
+namespace ShinyDeploy\Action\WsTriggerAction;
 
 class StartDeploy extends WsTriggerAction
 {
