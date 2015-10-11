@@ -1,5 +1,5 @@
 <?php
-namespace ShinyDeploy\Action;
+namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Deployments;
 use ShinyDeploy\Exceptions\WebsocketException;
@@ -9,8 +9,6 @@ class GetDeploymentData extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
-        $responder = new WsDataResponder($this->config, $this->logger);
-        $this->setResponse($responder);
         if (!isset($actionPayload['deploymentId'])) {
             throw new WebsocketException('Invalid getDeploymentData request received.');
         }
@@ -23,10 +21,5 @@ class GetDeploymentData extends WsDataAction
         }
         $this->responder->setPayload($deploymentData);
         return true;
-    }
-
-    public function setResponse(WsDataResponder $responder)
-    {
-        $this->responder = $responder;
     }
 }

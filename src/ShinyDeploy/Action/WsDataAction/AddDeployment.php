@@ -1,17 +1,14 @@
 <?php
-namespace ShinyDeploy\Action;
+namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Deployments;
 use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Responder\WsDataResponder;
 use Valitron\Validator;
 
 class AddDeployment extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
-        $responder = new WsDataResponder($this->config, $this->logger);
-        $this->setResponse($responder);
         if (!isset($actionPayload['deploymentData'])) {
             throw new WebsocketException('Invalid addDeployment request received.');
         }
@@ -42,10 +39,5 @@ class AddDeployment extends WsDataAction
             return false;
         }
         return true;
-    }
-
-    public function setResponse(WsDataResponder $responder)
-    {
-        $this->responder = $responder;
     }
 }

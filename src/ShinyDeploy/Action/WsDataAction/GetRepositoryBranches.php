@@ -1,18 +1,15 @@
 <?php
-namespace ShinyDeploy\Action;
+namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Git;
 use ShinyDeploy\Domain\Repositories;
 use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Responder\WsDataResponder;
 
 class GetRepositoryBranches extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
-        $responder = new WsDataResponder($this->config, $this->logger);
-        $this->setResponse($responder);
         if (!isset($actionPayload['repositoryId'])) {
             throw new WebsocketException('Invalid getRepositoryBranches request received.');
         }
@@ -43,10 +40,5 @@ class GetRepositoryBranches extends WsDataAction
             $this->responder->setError('Could not load branches.');
             return false;
         }
-    }
-
-    public function setResponse(WsDataResponder $responder)
-    {
-        $this->responder = $responder;
     }
 }
