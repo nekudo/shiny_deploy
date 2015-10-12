@@ -59,6 +59,7 @@ class WorkerManager
      */
     public function start($typeFilter = '')
     {
+        $this->pidCleanup();
         foreach ($this->startupConfig as $workerType => $workerConfig) {
             // don't start workers of different type if filter is set
             if (!empty($typeFilter) && $typeFilter !== $workerType) {
@@ -103,6 +104,7 @@ class WorkerManager
             }
         }
         $this->reloadPids();
+        $this->pidCleanup();
         return true;
     }
 
