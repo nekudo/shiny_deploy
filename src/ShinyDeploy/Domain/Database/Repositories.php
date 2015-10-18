@@ -1,6 +1,9 @@
 <?php
 namespace ShinyDeploy\Domain\Database;
 
+use RuntimeException;
+use ShinyDeploy\Domain\Repository;
+
 class Repositories extends DatabaseDomain
 {
     /** @var array $rules Validation rules */
@@ -39,6 +42,26 @@ class Repositories extends DatabaseDomain
         $rules['required'][] = ['id'];
         return $this->rules;
     }
+
+    /**
+     * Creates and returns a repository object.
+     *
+     * @param int $repositoryId
+     * @return Repository
+     * @throws RuntimeException
+     */
+    public function getRepository($repositoryId)
+    {
+        $data = $this->getRepositoryData($repositoryId);
+        if (empty($data)) {
+            throw new RuntimeException('Repository not found in database.');
+        }
+        $repository = new Repository($this->config, $this->logger);
+        $repository->init($data);
+        return $repository;
+    }
+
+
     /**
      * Fetches list of repositories from database.
      *
@@ -157,59 +180,11 @@ class Repositories extends DatabaseDomain
         return $repositoryData;
     }
 
-    /**
-     * Checks if URL responses with status 200.
-     *
-     * @param array $repositoryData
-     * @return bool
-     */
-    public function checkUrl(array $repositoryData)
-    {
-        if (!isset($repositoryData['password'])) {
-            $repositoryData['password'] = '';
-        }
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $repositoryData['url']);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-        if (!empty($repositoryData['username'])) {
-            curl_setopt($ch, CURLOPT_USERPWD, $repositoryData['username'].':'.$repositoryData['password']);
-        }
-        $headers = curl_exec($ch);
-        curl_close($ch);
-        if (stripos($headers, 'HTTP/1.1 200') !== false) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns repository url after adding login credentials (if available).
-     *
-     * @param array $repositoryData
-     * @return string
-     */
-    public function getCredentialsUrl(array $repositoryData)
-    {
-        $credentials = '';
-        if (!empty($repositoryData['username'])) {
-            $credentials .= $repositoryData['username'];
-        }
-        if (!empty($repositoryData['password'])) {
-            $credentials .= ':' . $repositoryData['password'];
-        }
-        $url = str_replace('://', '://' . $credentials . '@', $repositoryData['url']);
-        return $url;
-    }
-
     public function repositoryInUse($repositoryId)
     {
         $repositoryId = (int)$repositoryId;
         if (empty($repositoryId)) {
-            throw new \RuntimeException('repositoryId can not be empty.');
+            throw new RuntimeException('repositoryId can not be empty.');
         }
         $cnt = $this->db
             ->prepare("SELECT COUNT(id) FROM deployments WHERE `repository_id` = %d", $repositoryId)

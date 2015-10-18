@@ -2,7 +2,6 @@
 namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Repositories;
-use ShinyDeploy\Domain\Repository;
 use ShinyDeploy\Exceptions\WebsocketException;
 
 class DeleteRepository extends WsDataAction
@@ -13,19 +12,18 @@ class DeleteRepository extends WsDataAction
             throw new WebsocketException('Invalid deleteRepository request received.');
         }
         $repositoryId = (int)$actionPayload['repositoryId'];
-        $repositoriesDomain = new Repositories($this->config, $this->logger);
-        $repositoryDomain = new Repository($this->config, $this->logger);
-        $repositoryData = $repositoriesDomain->getRepositoryData($repositoryId);
-        $repositoryPath = $repositoryDomain->getLocalPath($repositoryData['url']);
+        $repositories = new Repositories($this->config, $this->logger);
+        $repository = $repositories->getRepository($repositoryId);
+        $repositoryPath = $repository->getLocalPath();
 
         // check if repository still in use:
-        if ($repositoriesDomain->repositoryInUse($repositoryId) === true) {
+        if ($repositories->repositoryInUse($repositoryId) === true) {
             $this->responder->setError('This repository is still used in a deployment.');
             return false;
         }
 
         // remove repository from database:
-        $deleteResult = $repositoriesDomain->deleteRepository($repositoryId);
+        $deleteResult = $repositories->deleteRepository($repositoryId);
         if ($deleteResult === false) {
             $this->responder->setError('Could not remove repository from database.');
             return false;

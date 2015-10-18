@@ -13,18 +13,18 @@ class AddServer extends WsDataAction
             throw new WebsocketException('Invalid addServer request received.');
         }
         $serverData = $actionPayload['serverData'];
-        $serversDomain = new Servers($this->config, $this->logger);
+        $servers = new Servers($this->config, $this->logger);
 
         // validate input:
         $validator = new Validator($serverData);
-        $validator->rules($serversDomain->getCreateRules());
+        $validator->rules($servers->getCreateRules());
         if (!$validator->validate()) {
             $this->responder->setError('Input validation failed. Please check your data.');
             return false;
         }
 
         // add server:
-        $addResult = $serversDomain->addServer($serverData);
+        $addResult = $servers->addServer($serverData);
         if ($addResult === false) {
             $this->responder->setError('Could not add server to database.');
             return false;

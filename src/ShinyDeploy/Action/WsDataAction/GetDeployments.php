@@ -13,8 +13,8 @@ class GetDeployments extends WsDataAction
      */
     public function __invoke($actionPayload)
     {
-        $deploymentsDomain = new Deployments($this->config, $this->logger);
-        $deployments = $deploymentsDomain->getDeployments();
+        $deployments = new Deployments($this->config, $this->logger);
+        $deployments = $deployments->getDeployments();
         $this->responder->setPayload($deployments);
         return true;
     }

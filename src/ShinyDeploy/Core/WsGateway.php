@@ -140,7 +140,7 @@ class WsGateway implements WampServerInterface
         $action = new $actionClassName($this->config, $this->logger);
         $action->setClientId($clientId);
         $action->__invoke($actionPayload);
-        $this->wsLog($clientId, 'I successfully triggered the requested action.', 'success');
+        $this->wsLog($clientId, 'Requested action: ' . $actionName);
     }
 
     /**

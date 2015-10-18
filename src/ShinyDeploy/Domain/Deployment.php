@@ -1,79 +1,281 @@
 <?php
 namespace ShinyDeploy\Domain;
 
+use RuntimeException;
 use ShinyDeploy\Core\Domain;
+use ShinyDeploy\Domain\Database\Repositories;
+use ShinyDeploy\Domain\Database\Servers;
 use ShinyDeploy\Domain\Server\Server;
-use ShinyDeploy\Domain\Server\SftpServer;
-use ShinyDeploy\Domain\Server\SshServer;
+use ShinyDeploy\Responder\WsLogResponder;
 
 class Deployment extends Domain
 {
-    /** @var array $supportedServerTypes */
-    protected $supportedServerTypes = ['ssh', 'sftp'];
+    /** @var Server $server */
+    protected $server;
 
-    /**
-     * Creates server object.
-     *
-     * @param string $type
-     * @return mixed
-     */
-    public function getServer($type)
+    /** @var Repository $repository */
+    protected $repository;
+
+    /** @var LogResponder $logResponder */
+    protected $logResponder;
+
+    /** @var array $changedFiles */
+    protected $changedFiles = [];
+
+    public function init(array $data)
     {
-        if (!in_array($type, $this->supportedServerTypes)) {
-            throw new \RuntimeException('Unknown server-type.');
-        }
-        switch ($type) {
-            case 'ssh':
-                return new SshServer;
-                break;
-            case 'sftp':
-                return new SftpServer;
-                break;
-        }
-        return false;
+        $this->data = $data;
+        $servers = new Servers($this->config, $this->logger);
+        $repositories = new Repositories($this->config, $this->logger);
+        $this->server = $servers->getServer($data['server_id']);
+        $this->repository = $repositories->getRepository($data['repository_id']);
     }
 
     /**
-     * Checks if connection to server is possible.
+     * Setter for the websocket log repsonder.
      *
-     * @param Server $server
-     * @param array $serverData
+     * @param WsLogResponder $logResponder
+     */
+    public function setLogResponder(WsLogResponder $logResponder)
+    {
+        $this->logResponder = $logResponder;
+    }
+
+    /**
+     * Returns list of changed files.
+     *
+     * @return array
+     */
+    public function getChangedFiles()
+    {
+        return $this->changedFiles;
+    }
+
+    /**
+     * Executes an actual deployment.
+     *
+     * @param bool $listMode If true changed files are only listed but not acutually deployed.
+     * @throws RuntimeException
      * @return bool
      */
-    public function checkConnectivity(Server $server, array $serverData)
+    public function deploy($listMode = false)
     {
-        $connectionResult = $server->connect(
-            $serverData['hostname'],
-            $serverData['username'],
-            $serverData['password'],
-            $serverData['port']
-        );
-        return $connectionResult;
+        if (empty($this->data)) {
+            throw new RuntimeException('Deployment data not found. Initialization missing?');
+        }
+        if (empty($this->server)) {
+            throw new RuntimeException('Server object not found.');
+        }
+        if (empty($this->repository)) {
+            throw new RuntimeException('Repository object not found');
+        }
+
+        $this->logResponder->log('Checking prerequisites...', 'default', 'DeployService');
+        if ($this->checkPrerequisites() === false) {
+            $this->logResponder->log('Prerequisites check failed. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Preparing local repository...', 'default', 'DeployService');
+        if ($this->prepareRepository() === false) {
+            $this->logResponder->log('Preparation of local repository failed. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Running tasks...', 'default', 'DeployService');
+        if ($listMode === false && $this->runTasks('before') === false) {
+            $this->logResponder->log('Running tasks failed. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Estimating remote revision...', 'default', 'DeployService');
+        $remoteRevision = $this->getRemoteRevision();
+        if ($remoteRevision === false) {
+            $this->logResponder->log('Could not estimate remote revision. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Switching branch...', 'default', 'DeployService');
+        if ($this->switchBranch() === false) {
+            $this->logResponder->log('Could not swtich to selected branch. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Estimating local revision...', 'default', 'DeployService');
+        $localRevision = $this->getLocalRevision();
+        if ($localRevision === false) {
+            $this->logResponder->log('Could not estimate local revision. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        // If remote server is up to date we can stop right here:
+        if ($localRevision === $remoteRevision) {
+            $this->logResponder->log('Remote server is aleady up to date.', 'info', 'DeployService');
+            return true;
+        }
+
+        $this->logResponder->log('Collecting changed files...', 'default', 'DeployService');
+        $changedFiles = $this->getChangedFilesList($localRevision, $remoteRevision, $listMode);
+        if (empty($changedFiles)) {
+            $this->logResponder->log('Could not estimate changed files.', 'error', 'DeployService');
+            return false;
+        }
+
+        // If we are in list mode we can now respond with the list of changed files:
+        if ($listMode === true) {
+            $this->changedFiles = $changedFiles;
+            return true;
+        }
+
+        $this->logResponder->log('Sorting changed files...', 'default', 'DeployService');
+        $sortedChangedFiles = $this->sortFilesByOperation($changedFiles);
+
+        $this->logResponder->log('Processing changed files...', 'default', 'DeployService');
+        if ($this->processChangedFiles($sortedChangedFiles) === false) {
+            $this->logResponder->log('Could not process files. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Updating revision file...', 'default', 'DeployService');
+        if ($this->updateRemoteRevisionFile($localRevision) === false) {
+            $this->logResponder->log('Could not update remove revision file. Aborting job.', 'error', 'DeployService');
+            return false;
+        }
+
+        $this->logResponder->log('Running tasks...', 'default', 'DeployService');
+        if ($listMode === false && $this->runTasks('after') === false) {
+            $this->logResponder->log('Running tasks failed. Aborting job.', 'error', 'Deployment');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks various requirements to be fulfilled before stating a deployment.
+     *
+     * @return boolean
+     */
+    protected function checkPrerequisites()
+    {
+        if ($this->repository->checkGit() === false) {
+            $this->logResponder->log('Git executable not found. Aborting job.', 'danger', 'checkPrerequisites');
+            return false;
+        }
+        if ($this->repository->checkConnectivity() === false) {
+            $this->logResponder->log('Connection to repository failed.', 'danger', 'checkPrerequisites');
+            return false;
+        }
+        if ($this->server->checkConnectivity() === false) {
+            $this->logResponder->log('Connection to remote server failed.', 'danger', 'checkPrerequisites');
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * If local repository does not exist it will be pulled from git. It it exists it will be updated.
+     *
+     * @return bool
+     */
+    protected function prepareRepository()
+    {
+        if ($this->repository->exists() === true) {
+            $result = $this->repository->doPull();
+            if ($result === false) {
+                $this->logResponder->log('Error while updating repository.', 'danger', 'prepareRepository');
+            }
+        } else {
+            $result = $this->repository->doClone();
+            if ($result === false) {
+                $this->logResponder->log('Error while cloning repository.', 'danger', 'prepareRepository');
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Runs user defined tasks on target server.
+     *
+     * @param string $type
+     * @return boolean
+     */
+    protected function runTasks($type)
+    {
+        // Skip if no tasks defined
+        if (empty($this->data['tasks'])) {
+            return true;
+        }
+
+        // Skip if no tasks of given type defined:
+        $typeTasks = [];
+        foreach ($this->data['tasks'] as $task) {
+            if ($task['type'] === $type) {
+                array_push($typeTasks, $task);
+            }
+        }
+        if (empty($typeTasks)) {
+            return true;
+        }
+
+        // Skip if server is not ssh capable:
+        if ($this->server->getType() !== 'ssh') {
+            $this->logResponder->log('Server not of type SSH. Skipping tasks.', 'danger', 'runTasks');
+            return false;
+        }
+
+        // Execute tasks on server:
+        $remotePath = $this->getRemotePath();
+        foreach ($typeTasks as $task) {
+            $command = 'cd ' . $remotePath . ' && ' . $task['command'];
+            $this->logResponder->log('Executing task: ' . $task['name'], 'info', 'runTasks');
+            $response = $this->server->executeCommand($command);
+            if ($response === false) {
+                $this->logResponder->log('Task failed.', 'danger', 'runTasks');
+            } else {
+                $this->logResponder->log($response, 'default', 'runTasks');
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get the deployment path on target server.
+     *
+     * @return string
+     */
+    protected function getRemotePath()
+    {
+        $serverRoot = $this->server->getRootPath();
+        $serverRoot = rtrim($serverRoot, '/');
+        $targetPath = trim($this->data['target_path']);
+        $targetPath = trim($targetPath, '/');
+        $remotePath = $serverRoot . '/' . $targetPath . '/';
+        return $remotePath;
     }
 
     /**
      * Fetches remote revision from REVISION file in project root.
      *
-     * @param Server $server
-     * @param string $targetPath
      * @return string|bool
      */
-    public function getRemoteRevision(Server $server, $targetPath)
+    protected function getRemoteRevision()
     {
-        if (empty($targetPath)) {
-            throw new \RuntimeException('No target path for remote server provided');
-        }
-        $revision = $server->getFileContent($targetPath);
+        $targetPath = $this->getRemotePath();
+        $targetPath .= 'REVISION';
+        $revision = $this->server->getFileContent($targetPath);
         $revision = trim($revision);
         if (!empty($revision) && preg_match('#[0-9a-f]{40}#', $revision) === 1) {
+            $this->logResponder->log('Remote server is at revision: ' . $revision, 'info', 'getRemoteRevision');
             return $revision;
         }
         $targetDir = dirname($targetPath);
-        $targetDirContent = $server->listDir($targetDir);
+        $targetDirContent = $this->server->listDir($targetDir);
         if ($targetDirContent === false) {
             return false;
         }
         if (is_array($targetDirContent) && empty($targetDirContent)) {
+             $this->logResponder->log('Remote revision not found - deploying all files.', 'info', 'getRemoteRevision');
             return '-1';
         }
         return false;
@@ -82,118 +284,154 @@ class Deployment extends Domain
     /**
      * Fetches revision of local repository.
      *
-     * @param string $repoPath
-     * @param string $branch
-     * @param Git $gitDomain
      * @return bool|string
      */
-    public function getLocalRevision($repoPath, $branch, Git $gitDomain)
+    protected function getLocalRevision()
     {
-        $revision = $gitDomain->getLocalRepositoryRevision($repoPath, $branch);
+        $revision = $this->repository->getRevision($this->data['branch']);
+        if ($revision !== false) {
+            $this->logResponder->log('Local repository is at revision: ' . $revision, 'info', 'getLocalRevision');
+        } else {
+            $this->logResponder->log('Local revision not found.', 'info', 'getLocalRevision');
+        }
         return $revision;
     }
 
     /**
-     * Generates list with changed,added,deleted files.
+     * Switch repository to deployment branch.
      *
-     * @param string $repoPath
-     * @param string $localRevision
-     * @param string $remoteRevision
-     * @param Git $gitDomain
-     * @return bool|array
+     * @return bool
      */
-    public function getChangedFiles($repoPath, $localRevision, $remoteRevision, Git $gitDomain)
+    protected function switchBranch()
     {
-        if ($remoteRevision === '-1') {
-            $changedFiles = $gitDomain->listFiles($repoPath);
-        } else {
-            $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
-        }
-        if (empty($changedFiles)) {
-            return false;
-        }
-
-        // parse diff response:
-        $fileList = [
-            'upload' => [],
-            'delete' => [],
-        ];
-        $diffLines = explode("\n", $changedFiles);
-        if (empty($diffLines)) {
-            return false;
-        }
-        foreach ($diffLines as $line) {
-            $line = trim($line);
-            if (empty($line)) {
-                continue;
-            }
-            if ($remoteRevision === '-1') {
-                $fileList['upload'][] = $line;
-            } else {
-                $status = $line[0];
-                $file = trim(substr($line, 1));
-                if (in_array($status, ['A', 'C', 'M', 'R'])) {
-                    $fileList['upload'][] = $file;
-                } elseif ($status === 'D') {
-                    $fileList['delete'][] = $file;
-                }
-            }
-        }
-        return $fileList;
+        return $this->repository->switchBranch($this->data['branch']);
     }
 
     /**
      * Generates list with changed,added,deleted files.
      *
-     * @param string $repoPath
      * @param string $localRevision
      * @param string $remoteRevision
-     * @param Git $gitDomain
+     * @param bool $includeFileDiff
      * @return bool|array
      */
-    public function getChangedFilesForList($repoPath, $localRevision, $remoteRevision, Git $gitDomain)
+    protected function getChangedFilesList($localRevision, $remoteRevision, $includeFileDiff)
     {
-        $fileList = [];
         if ($remoteRevision === '-1') {
-            $changedFiles = $gitDomain->listFiles($repoPath);
+            $changedFiles = $this->repository->listFiles();
         } else {
-            $changedFiles = $gitDomain->diff($repoPath, $localRevision, $remoteRevision);
+            $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision, $includeFileDiff);
         }
         if (empty($changedFiles)) {
-            return $fileList;
+            return false;
         }
 
-        // parse diff response:
-        $diffLines = explode("\n", $changedFiles);
-        if (empty($diffLines)) {
-            return $fileList;
-        }
-
-        $fileList = [];
-        foreach ($diffLines as $line) {
-            $line = trim($line);
-            if (empty($line)) {
-                continue;
-            }
-
-            if ($remoteRevision === '-1') {
+        $files = [];
+        if ($remoteRevision === '-1') {
+            foreach ($changedFiles as $file) {
                 $item = [
-                    'file' => $line,
                     'type' => 'A',
-                    'diff' => $gitDomain->diffFile($repoPath, $localRevision, $remoteRevision, $line),
-                ];
-                array_push($fileList, $item);
-            } else {
-                $status = $line[0];
-                $file = trim(substr($line, 1));
-                $item = [
                     'file' => $file,
-                    'type' => $status,
-                    'diff' => $gitDomain->diffFile($repoPath, $localRevision, $remoteRevision, $file),
+                    'diff' => '',
                 ];
-                array_push($fileList, $item);
+                array_push($files, $item);
+            }
+        } else {
+            $files = $changedFiles;
+        }
+
+        return $files;
+    }
+
+    /**
+     * Sort files by opration to do (e.g. upload, delete, ...)
+     * @param array $files
+     * @return array
+     */
+    protected function sortFilesByOperation($files)
+    {
+        $sortedFiles = [
+            'upload' => [],
+            'delete' => [],
+        ];
+        foreach ($files as $item) {
+            if (in_array($item['type'], ['A', 'C', 'M', 'R'])) {
+                $sortedFiles['upload'][] = $item['file'];
+            } elseif ($item['type'] === 'D') {
+                $sortedFiles['delete'][] = $item['file'];
             }
         }
-        return $fileList;
+        return $sortedFiles;
+    }
+
+    /**
+     * Deploys changes to target server by uploading/deleting files.
+     *
+     * @param array $changedFiles
+     */
+    protected function processChangedFiles($changedFiles)
+    {
+        $repoPath = $this->repository->getLocalPath();
+        $repoPath = rtrim($repoPath, '/') . '/';
+        $remotePath = $this->getRemotePath();
+        $uploadCount = count($changedFiles['upload']);
+        $deleteCount = count($changedFiles['delete']);
+        if ($uploadCount === 0 && $deleteCount === 0) {
+            $this->logResponder->log('Noting to upload or delete.', 'info', 'processChangedFiles');
+            return true;
+        }
+        $this->logResponder->log(
+            'Files to upload: '.$uploadCount.' - Files to delete: ' . $deleteCount . ' - processing...',
+            'info',
+            'processChangedFiles'
+        );
+
+        if ($uploadCount > 0) {
+            foreach ($changedFiles['upload'] as $file) {
+                $uploadStart = microtime(true);
+                $result = $this->server->upload($repoPath.$file, $remotePath.$file);
+                $uploadEnd = microtime(true);
+                $uploadDuration = round($uploadEnd - $uploadStart, 2);
+                if ($result === true) {
+                    $this->logResponder->log(
+                        'Uploading ' . $file . ': success ('.$uploadDuration.'s)',
+                        'info',
+                        'processChangedFiles'
+                    );
+                } else {
+                    $this->logResponder->log('Uploading ' . $file . ': failed', 'danger', 'processChangedFiles');
+                }
+            }
+        }
+        if ($deleteCount > 0) {
+            $this->logResponder->log('Removing files...', 'default', 'Deployment');
+            foreach ($changedFiles['delete'] as $file) {
+                $result = $this->server->delete($remotePath.$file);
+                if ($result === true) {
+                    $this->logResponder->log('Deleting ' . $file . ': success', 'info', 'processChangedFiles');
+                } else {
+                    $this->logResponder->log('Deleting ' . $file . ': failed', 'danger', 'processChangedFiles');
+                }
+            }
+        }
+
+        $this->logResponder->log('Processing files completed.', 'info', 'processChangedFiles');
+
+        return true;
+    }
+
+    /**
+     * Updates revision file on remote server.
+     *
+     * @return boolean
+     */
+    protected function updateRemoteRevisionFile($revision)
+    {
+        $remotePath = $this->getRemotePath();
+        if ($this->server->putContent($revision, $remotePath.'REVISION') === false) {
+            $this->logResponder->log('Could not update remote revision file.', 'error', 'updateRemoteRevisionFile');
+            return false;
+        }
+        return true;
     }
 }

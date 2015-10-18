@@ -1,6 +1,9 @@
 <?php
 namespace ShinyDeploy\Domain\Database;
 
+use RuntimeException;
+use ShinyDeploy\Domain\Deployment;
+
 class Deployments extends DatabaseDomain
 {
     /** @var array $rules Validation rules */
@@ -44,6 +47,25 @@ class Deployments extends DatabaseDomain
         $rules['required'][] = ['id'];
         return $this->rules;
     }
+
+    /**
+     * Creates and returns a deployment object.
+     *
+     * @param int $deploymentId
+     * @throws RuntimeException
+     * @return Deployment
+     */
+    public function getDeployment($deploymentId)
+    {
+        $data = $this->getDeploymentData($deploymentId);
+        if (empty($data)) {
+            throw  new RuntimeException('Deployment not found in database.');
+        }
+        $deployment = new Deployment($this->config, $this->logger);
+        $deployment->init($data);
+        return $deployment;
+    }
+
     /**
      * Fetches list of deployments from database.
      *

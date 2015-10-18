@@ -1,6 +1,12 @@
 <?php
 namespace ShinyDeploy\Domain\Database;
 
+use InvalidArgumentException;
+use RuntimeException;
+use ShinyDeploy\Domain\Server\Server;
+use ShinyDeploy\Domain\Server\SftpServer;
+use ShinyDeploy\Domain\Server\SshServer;
+
 class Servers extends DatabaseDomain
 {
     /** @var array $rules Validation rules */
@@ -44,6 +50,34 @@ class Servers extends DatabaseDomain
         $rules['required'][] = ['id'];
         return $this->rules;
     }
+
+    /**
+     * Creates and returns a server object.
+     *
+     * @param type $serverId
+     * @return Server
+     * @throws RuntimeException
+     */
+    public function getServer($serverId)
+    {
+        $data = $this->getServerData($serverId);
+        if (empty($data)) {
+            throw new RuntimeException('Server not found in database.');
+        }
+        switch ($data['type']) {
+            case 'ssh':
+                $server = new SshServer($this->config, $this->logger);
+                break;
+            case 'sftp':
+                $server = new SftpServer($this->config, $this->logger);
+                break;
+            default:
+                throw new \RuntimeException('Invalid server type.');
+        }
+        $server->init($data);
+        return $server;
+    }
+
     /**
      * Fetches list of servers from database.
      *
@@ -149,13 +183,13 @@ class Servers extends DatabaseDomain
      *
      * @param int $serverId
      * @return bool
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function serverInUse($serverId)
     {
         $serverId = (int)$serverId;
         if (empty($serverId)) {
-            throw  new \InvalidArgumentException('serverId can not be empty.');
+            throw  new InvalidArgumentException('serverId can not be empty.');
         }
         $cnt = $this->db->prepare("SELECT COUNT(id) FROM deployments WHERE `server_id` = %d", $serverId)->getValue();
         return ($cnt > 0);

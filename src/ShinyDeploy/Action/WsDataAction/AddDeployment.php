@@ -16,24 +16,24 @@ class AddDeployment extends WsDataAction
         if (isset($deploymentData['tasks'])) {
             $deploymentData['tasks'] = json_encode($deploymentData['tasks']);
         }
-        $deploymentsDomain = new Deployments($this->config, $this->logger);
+        $deployments = new Deployments($this->config, $this->logger);
 
         // validate input:
         $validator = new Validator($deploymentData);
-        $validator->rules($deploymentsDomain->getCreateRules());
+        $validator->rules($deployments->getCreateRules());
         if (!$validator->validate()) {
             $this->responder->setError('Input validation failed. Please check your data.');
             return false;
         }
 
         // check for other deployment with same target:
-        if ($deploymentsDomain->targetExists($deploymentData) === true) {
+        if ($deployments->targetExists($deploymentData) === true) {
             $this->responder->setError('Another deployment is already deploying to this target.');
             return false;
         }
 
         // add deployments:
-        $addResult = $deploymentsDomain->addDeployment($deploymentData);
+        $addResult = $deployments->addDeployment($deploymentData);
         if ($addResult === false) {
             $this->responder->setError('Could not add deployment to database.');
             return false;

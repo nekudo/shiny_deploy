@@ -12,10 +12,10 @@ class DeleteDeployment extends WsDataAction
             throw new WebsocketException('Invalid deleteDeployment request received.');
         }
         $deploymentId = (int)$actionPayload['deploymentId'];
-        $deploymentsDomain = new Deployments($this->config, $this->logger);
+        $deployments = new Deployments($this->config, $this->logger);
 
         // remove server:
-        $addResult = $deploymentsDomain->deleteDeployment($deploymentId);
+        $addResult = $deployments->deleteDeployment($deploymentId);
         if ($addResult === false) {
             $this->responder->setError('Could not remove deployment from database.');
             return false;
