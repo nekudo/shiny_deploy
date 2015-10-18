@@ -68,6 +68,12 @@ class Deploy extends Action
             // return changed files:
             if ($listOnly === true && $result === true) {
                 $changedFiles = $deployment->getChangedFiles();
+                $changedFilesCount = count($changedFiles);
+                $logResponder->log(
+                    $changedFilesCount . ' changed files found. Sending list...',
+                    'default',
+                    'DeployService'
+                );
                 $this->changedFilesResponder = new WsChangedFilesResponder($this->config, $this->logger);
                 $this->changedFilesResponder->setClientId($clientId);
                 $this->changedFilesResponder->respond($changedFiles);
