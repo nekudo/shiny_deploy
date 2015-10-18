@@ -82,10 +82,13 @@ class Deployment extends Domain
             return false;
         }
 
-        $this->logResponder->log('Running tasks...', 'default', 'DeployService');
-        if ($listMode === false && $this->runTasks('before') === false) {
-            $this->logResponder->log('Running tasks failed. Aborting job.', 'error', 'DeployService');
-            return false;
+
+        if ($listMode === false) {
+            $this->logResponder->log('Running tasks...', 'default', 'DeployService');
+            if ($this->runTasks('before') === false) {
+                $this->logResponder->log('Running tasks failed. Aborting job.', 'error', 'DeployService');
+                return false;
+            }
         }
 
         $this->logResponder->log('Estimating remote revision...', 'default', 'DeployService');
