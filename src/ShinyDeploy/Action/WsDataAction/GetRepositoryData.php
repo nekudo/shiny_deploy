@@ -12,8 +12,8 @@ class GetRepositoryData extends WsDataAction
             throw new WebsocketException('Invalid getRepositoryData request received.');
         }
         $repositoryId = (int)$actionPayload['repositoryId'];
-        $repositoriesDomain = new Repositories($this->config, $this->logger);
-        $repositoryData = $repositoriesDomain->getRepositoryData($repositoryId);
+        $repositories = new Repositories($this->config, $this->logger);
+        $repositoryData = $repositories->getRepositoryData($repositoryId);
         if (empty($repositoryData)) {
             $this->responder->setError('Repository not found in database.');
             return false;

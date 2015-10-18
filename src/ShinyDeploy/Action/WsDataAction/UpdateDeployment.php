@@ -16,18 +16,18 @@ class UpdateDeployment extends WsDataAction
         if (isset($deploymentData['tasks'])) {
             $deploymentData['tasks'] = json_encode($deploymentData['tasks']);
         }
-        $deploymentsDomain = new Deployments($this->config, $this->logger);
+        $deployments = new Deployments($this->config, $this->logger);
 
         // validate input:
         $validator = new Validator($deploymentData);
-        $validator->rules($deploymentsDomain->getUpdateRules());
+        $validator->rules($deployments->getUpdateRules());
         if (!$validator->validate()) {
             $this->responder->setError('Input validation failed. Please check your data.');
             return false;
         }
 
         // update deployment:
-        $updateResult = $deploymentsDomain->updateDeployment($deploymentData);
+        $updateResult = $deployments->updateDeployment($deploymentData);
         if ($updateResult === false) {
             $this->responder->setError('Could not update deployment.');
             return false;

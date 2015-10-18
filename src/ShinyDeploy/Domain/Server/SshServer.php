@@ -1,6 +1,9 @@
 <?php
 namespace ShinyDeploy\Domain\Server;
 
+use Apix\Log\Logger;
+use Noodlehaus\Config;
+use RuntimeException;
 use ShinyDeploy\Core\Connections\Ssh;
 
 class SshServer extends Server
@@ -8,9 +11,20 @@ class SshServer extends Server
     /** @var Ssh $connection */
     protected $connection;
 
-    public function __construct()
+    public function __construct(Config $config, Logger $logger)
     {
+        parent::__construct($config, $logger);
         $this->connection = new Ssh;
+    }
+
+    /**
+     * Returns server type.
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return 'ssh';
     }
 
     /**
@@ -36,7 +50,7 @@ class SshServer extends Server
     public function getFileContent($path)
     {
         if (empty($path)) {
-            throw new \RuntimeException('Path can not be empty.');
+            throw new RuntimeException('Path can not be empty.');
         }
         $fileContent = $this->connection->get($path);
         if ($fileContent === false) {
@@ -56,7 +70,7 @@ class SshServer extends Server
     public function upload($localFile, $remoteFile, $mode = 0644)
     {
         if (empty($localFile) || empty($remoteFile)) {
-            throw new \RuntimeException('Required parameter missing.');
+            throw new RuntimeException('Required parameter missing.');
         }
         if (!file_exists($localFile)) {
             return false;
@@ -75,7 +89,7 @@ class SshServer extends Server
     public function putContent($content, $remoteFile, $mode = 0644)
     {
         if (empty($remoteFile)) {
-            throw new \RuntimeException('Required parameter missing.');
+            throw new RuntimeException('Required parameter missing.');
         }
         return $this->connection->putContent($content, $remoteFile, $mode);
     }
@@ -89,7 +103,7 @@ class SshServer extends Server
     public function delete($remoteFile)
     {
         if (empty($remoteFile)) {
-            throw new \RuntimeException('Required parameter missing.');
+            throw new RuntimeException('Required parameter missing.');
         }
         return $this->connection->unlink($remoteFile);
     }
@@ -103,7 +117,7 @@ class SshServer extends Server
     public function listDir($remotePath)
     {
         if (empty($remotePath)) {
-            throw new \RuntimeException('Required parameter missing.');
+            throw new RuntimeException('Required parameter missing.');
         }
         return $this->connection->listdir($remotePath);
     }
@@ -117,8 +131,26 @@ class SshServer extends Server
     public function executeCommand($command)
     {
         if (empty($command)) {
-            throw new \RuntimeException('Required parameter missing.');
+            throw new RuntimeException('Required parameter missing.');
         }
         return $this->connection->exec($command);
+    }
+
+    /**
+     * Checks if connection to server is possible.
+     *
+     * @return bool
+     */
+    public function checkConnectivity()
+    {
+        if (empty($this->data)) {
+            throw new \RuntimeException('Server data empty. Initialization missing?');
+        }
+        return $this->connect(
+            $this->data['hostname'],
+            $this->data['username'],
+            $this->data['password'],
+            $this->data['port']
+        );
     }
 }

@@ -12,8 +12,8 @@ class GetDeploymentData extends WsDataAction
             throw new WebsocketException('Invalid getDeploymentData request received.');
         }
         $deploymentId = (int)$actionPayload['deploymentId'];
-        $deploymentsDomain = new Deployments($this->config, $this->logger);
-        $deploymentData = $deploymentsDomain->getDeploymentData($deploymentId);
+        $deployments = new Deployments($this->config, $this->logger);
+        $deploymentData = $deployments->getDeploymentData($deploymentId);
         if (empty($deploymentData)) {
             $this->responder->setError('Deployment not found in database.');
             return false;

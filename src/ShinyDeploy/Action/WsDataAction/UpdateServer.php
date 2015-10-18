@@ -13,18 +13,18 @@ class UpdateServer extends WsDataAction
             throw new WebsocketException('Invalid updateServer request received.');
         }
         $serverData = $actionPayload['serverData'];
-        $serversDomain = new Servers($this->config, $this->logger);
+        $servers = new Servers($this->config, $this->logger);
 
         // validate input:
         $validator = new Validator($serverData);
-        $validator->rules($serversDomain->getUpdateRules());
+        $validator->rules($servers->getUpdateRules());
         if (!$validator->validate()) {
             $this->responder->setError('Input validation failed. Please check your data.');
             return false;
         }
 
         // update server:
-        $addResult = $serversDomain->updateServer($serverData);
+        $addResult = $servers->updateServer($serverData);
         if ($addResult === false) {
             $this->responder->setError('Could not update server.');
             return false;

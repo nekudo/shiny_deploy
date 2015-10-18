@@ -14,26 +14,28 @@ class GetRepositoryBranches extends WsDataAction
             throw new WebsocketException('Invalid getRepositoryBranches request received.');
         }
 
-        // get repository data:
-        $repositoryId = (int)$actionPayload['repositoryId'];
-        $repositoriesDomain = new Repositories($this->config, $this->logger);
-        $repositoryData = $repositoriesDomain->getRepositoryData($repositoryId);
-        if (empty($repositoryData)) {
-            $this->responder->setError('Repository not found in database.');
-            return false;
-        }
-
-        if ($repositoriesDomain->checkUrl($repositoryData) === false) {
-            $this->responder->setError('Repository not reachable. Check URL and credentials.');
-            return false;
-        }
-
-        // get repository branches:
         try {
-            $repositoryDomain = new Repository($this->config, $this->logger);
-            $gitDomain = new Git($this->config, $this->logger);
-            $repoPath = $repositoryDomain->getLocalPath($repositoryData['url']);
-            $branches = $gitDomain->getRemoteBranches($repoPath);
+            // get repository data:
+            $repositoryId = (int)$actionPayload['repositoryId'];
+            $repositories = new Repositories($this->config, $this->logger);
+            $repository = $repositories->getRepository($repositoryId);
+            if (empty($repository)) {
+                $this->responder->setError('Repository not found in database.');
+                return false;
+            }
+
+            if ($repository->checkConnectivity() === false) {
+                $this->responder->setError('Repository not reachable. Check URL and credentials.');
+                return false;
+            }
+
+            // get repository branches:
+            $branches = $repository->getBranches();
+            if (empty($branches)) {
+                $this->responder->setError('Could not load branches.');
+                return false;
+            }
+
             $this->responder->setPayload($branches);
             return true;
         } catch (\RuntimeException $e) {
