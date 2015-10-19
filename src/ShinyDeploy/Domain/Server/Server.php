@@ -21,6 +21,16 @@ abstract class Server extends Domain
 
     abstract public function checkConnectivity();
 
+    public function init(array $data) {
+        parent::init($data);
+        $this->connect(
+            $this->data['hostname'],
+            $this->data['username'],
+            $this->data['password'],
+            $this->data['port']
+        );
+    }
+
     /**
      * Returns servers root path.
      *
