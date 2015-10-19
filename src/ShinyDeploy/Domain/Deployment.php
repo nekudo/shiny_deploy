@@ -262,7 +262,7 @@ class Deployment extends Domain
      *
      * @return string|bool
      */
-    protected function getRemoteRevision()
+    public function getRemoteRevision()
     {
         $targetPath = $this->getRemotePath();
         $targetPath .= 'REVISION';
@@ -289,7 +289,7 @@ class Deployment extends Domain
      *
      * @return bool|string
      */
-    protected function getLocalRevision()
+    public function getLocalRevision()
     {
         $revision = $this->repository->getRevision($this->data['branch']);
         if ($revision !== false) {

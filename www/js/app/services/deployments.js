@@ -145,4 +145,28 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
             deploymentId: deploymentId
         });
     }
+
+    /**
+     * Fetches revision of repository used in a deployment.
+     *
+     * @returns {promise}
+     */
+    this.getRemoteRevision = function(deploymentId) {
+        var requestParams = {
+            deploymentId: deploymentId
+        };
+        return ws.sendDataRequest('getRemoteRevision', requestParams);
+    };
+
+    /**
+     * Fetches local revision of repository used in deployment.
+     *
+     * @returns {promise}
+     */
+    this.getLocalRevision = function(deploymentId) {
+        var requestParams = {
+            deploymentId: deploymentId
+        };
+        return ws.sendDataRequest('getLocalRevision', requestParams);
+    };
 }]);

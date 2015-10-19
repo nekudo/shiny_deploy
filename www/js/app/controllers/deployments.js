@@ -369,6 +369,8 @@
         vm.deployment = {};
         vm.changedFiles = {};
         vm.diff = '';
+        vm.remoteRevision = '';
+        vm.localRevision = '';
 
         // Methods
         vm.triggerDeploy = triggerDeploy;
@@ -389,6 +391,9 @@
             deploymentsService.getDeploymentData(deploymentId).then(function (data) {
                 vm.deployment = data;
                 resolveRelations();
+                getLocalRevision();
+                getRemoteRevision();
+
             }, function(reason) {
                 $location.path('/deployments');
             });
@@ -439,6 +444,25 @@
          */
         function showDiff(fileKey) {
             vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(vm.changedFiles[fileKey].diff));
+        }
+
+        /**
+         * Fetches current revision of remote repository.
+         *
+         */
+        function getRemoteRevision() {
+            deploymentsService.getRemoteRevision(vm.deployment.id).then(function(revision) {
+                vm.remoteRevision = revision;
+            });
+        }
+
+        /**
+         * Fetches local repository revision.
+         */
+        function getLocalRevision() {
+            deploymentsService.getLocalRevision(vm.deployment.id).then(function(revision) {
+                vm.localRevision = revision;
+            });
         }
     }
 })();
