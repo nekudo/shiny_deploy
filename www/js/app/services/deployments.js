@@ -147,6 +147,16 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
     }
 
     /**
+     * Trigger request for a file-diff.
+     *
+     * @param {Array} deploymentId
+     * @returns {promise}
+     */
+    this.triggerGetFileDiff = function(params) {
+        ws.sendTriggerRequest('startGetDiff', params);
+    }
+
+    /**
      * Fetches revision of repository used in a deployment.
      *
      * @returns {promise}
