@@ -459,6 +459,12 @@
          */
         function listenShowDiff() {
             ws.addListener('showDiff', function(data) {
+                if (!data.hasOwnProperty('diff')) {
+                    return;
+                }
+                if (data.diff === null) {
+                    return;
+                }
                 $scope.$apply(function() {
                     vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(data.diff));
                 });
