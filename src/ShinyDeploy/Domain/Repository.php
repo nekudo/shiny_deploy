@@ -148,10 +148,9 @@ class Repository extends Domain
      *
      * @param string $revisionA
      * @param string $revisionB
-     * @param bool $includeFileDiff
      * @return array
      */
-    public function getDiff($revisionA, $revisionB, $includeFileDiff = false)
+    public function getDiff($revisionA, $revisionB)
     {
         $diff = [];
         $repoPath = $this->getLocalPath();
@@ -173,11 +172,23 @@ class Repository extends Domain
                 'file' => $file,
                 'type' => $status,
             ];
-            if ($includeFileDiff === true) {
-                $item['diff'] = $this->git->diffFile($repoPath, $revisionA, $revisionB, $file);
-            }
             array_push($diff, $item);
         }
+        return $diff;
+    }
+
+    /**
+     * Gets a git diff for given file.
+     *
+     * @param string $file
+     * @param string $revisionA
+     * @param string $revisionB
+     * @return string
+     */
+    public function getFileDiff($file, $revisionA, $revisionB)
+    {
+        $repoPath = $this->getLocalPath();
+        $diff = $this->git->diffFile($repoPath, $revisionA, $revisionB, $file);
         return $diff;
     }
 

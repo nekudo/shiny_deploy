@@ -118,7 +118,7 @@ class Deployment extends Domain
         }
 
         $this->logResponder->log('Collecting changed files...', 'default', 'DeployService');
-        $changedFiles = $this->getChangedFilesList($localRevision, $remoteRevision, $listMode);
+        $changedFiles = $this->getChangedFilesList($localRevision, $remoteRevision);
         if (empty($changedFiles)) {
             $this->logResponder->log('Could not estimate changed files.', 'error', 'DeployService');
             return false;
@@ -315,15 +315,14 @@ class Deployment extends Domain
      *
      * @param string $localRevision
      * @param string $remoteRevision
-     * @param bool $includeFileDiff
      * @return bool|array
      */
-    protected function getChangedFilesList($localRevision, $remoteRevision, $includeFileDiff)
+    protected function getChangedFilesList($localRevision, $remoteRevision)
     {
         if ($remoteRevision === '-1') {
             $changedFiles = $this->repository->listFiles();
         } else {
-            $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision, $includeFileDiff);
+            $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision);
         }
         if (empty($changedFiles)) {
             return false;

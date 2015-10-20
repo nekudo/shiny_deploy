@@ -376,11 +376,13 @@
         vm.triggerDeploy = triggerDeploy;
         vm.triggerGetChangedFiles = triggerGetChangedFiles;
         vm.displayChangedFiles = displayChangedFiles;
-        vm.showDiff = showDiff;
+        vm.triggerShowDiff = triggerShowDiff;
+        vm.listenShowDiff = listenShowDiff;
 
         // Init
         init();
         vm.displayChangedFiles();
+        vm.listenShowDiff();
 
         /**
          * Loads data required for run deployment view.
@@ -438,12 +440,29 @@
         }
 
         /**
-         * Renders git diff output as html.
+         * Triggers request to show file diff.
          *
          * @param {number} fileKey
          */
-        function showDiff(fileKey) {
-            vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(vm.changedFiles[fileKey].diff));
+        function triggerShowDiff(fileKey) {
+            var params = {
+                repositoryId: vm.deployment.repository_id,
+                localRevision: vm.localRevision,
+                remoteRevision: vm.remoteRevision,
+                file: vm.changedFiles[fileKey].file
+            };
+            deploymentsService.triggerGetFileDiff(params);
+        }
+
+        /**
+         * Listens for showDiff events hand handles them.
+         */
+        function listenShowDiff() {
+            ws.addListener('showDiff', function(data) {
+                $scope.$apply(function() {
+                    vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(data.diff));
+                });
+            });
         }
 
         /**
