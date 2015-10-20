@@ -3,7 +3,7 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Responder\WsLogResponder;
+use ShinyDeploy\Responder\NullResponder;
 
 class GetRemoteRevision extends WsDataAction
 {
@@ -21,8 +21,7 @@ class GetRemoteRevision extends WsDataAction
         $deploymentId = (int)$actionPayload['deploymentId'];
         $deployments = new Deployments($this->config, $this->logger);
         $deployment = $deployments->getDeployment($deploymentId);
-        $logResponder = new WsLogResponder($this->config, $this->logger);
-        $logResponder->setClientId($this->clientId);
+        $logResponder = new NullResponder($this->config, $this->logger);
         $deployment->setLogResponder($logResponder);
         $revision = $deployment->getRemoteRevision();
         $this->responder->setPayload($revision);

@@ -3,10 +3,10 @@ namespace ShinyDeploy\Domain;
 
 use RuntimeException;
 use ShinyDeploy\Core\Domain;
+use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Domain\Database\Servers;
 use ShinyDeploy\Domain\Server\Server;
-use ShinyDeploy\Responder\WsLogResponder;
 
 class Deployment extends Domain
 {
@@ -34,9 +34,9 @@ class Deployment extends Domain
     /**
      * Setter for the websocket log repsonder.
      *
-     * @param WsLogResponder $logResponder
+     * @param Responder $logResponder
      */
-    public function setLogResponder(WsLogResponder $logResponder)
+    public function setLogResponder(Responder $logResponder)
     {
         $this->logResponder = $logResponder;
     }
