@@ -2,6 +2,8 @@
 
 use ShinyDeploy\Action\Deploy;
 use ShinyDeploy\Action\GetFileDiff;
+use ShinyDeploy\Action\SetLocalRevision;
+use ShinyDeploy\Action\SetRemoteRevision;
 use ShinyDeploy\Core\Worker;
 use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\WorkerException;
@@ -16,6 +18,8 @@ class Deployer extends Worker
         $this->GearmanWorker->addFunction('deploy', [$this, 'deploy']);
         $this->GearmanWorker->addFunction('getChangedFiles', [$this, 'getChangedFiles']);
         $this->GearmanWorker->addFunction('getFileDiff', [$this, 'getFileDiff']);
+        $this->GearmanWorker->addFunction('setLocalRevision', [$this, 'setLocalRevision']);
+        $this->GearmanWorker->addFunction('setRemoteRevision', [$this, 'setRemoteRevision']);
     }
 
     /**
@@ -91,6 +95,58 @@ class Deployer extends Worker
             }
 
             $action = new GetFileDiff($this->config, $this->logger);
+            $action->__invoke($params);
+        } catch (WorkerException $e) {
+            $this->logger->alert(
+                'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Fetches local revision of a repository sends it to WSS.
+     *
+     * @param \GearmanJob $Job
+     * @throws \Exception
+     * @return bool
+     */
+    public function setLocalRevision(\GearmanJob $Job)
+    {
+        try {
+            $this->countJob();
+            $params = json_decode($Job->workload(), true);
+            if (empty($params['clientId'])) {
+                throw new WebsocketException('Can not handle job. No client-id provided.');
+            }
+
+            $action = new SetLocalRevision($this->config, $this->logger);
+            $action->__invoke($params);
+        } catch (WorkerException $e) {
+            $this->logger->alert(
+                'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Fetches remote revision of a repository sends it to WSS.
+     *
+     * @param \GearmanJob $Job
+     * @throws \Exception
+     * @return bool
+     */
+    public function setRemoteRevision(\GearmanJob $Job)
+    {
+        try {
+            $this->countJob();
+            $params = json_decode($Job->workload(), true);
+            if (empty($params['clientId'])) {
+                throw new WebsocketException('Can not handle job. No client-id provided.');
+            }
+
+            $action = new SetRemoteRevision($this->config, $this->logger);
             $action->__invoke($params);
         } catch (WorkerException $e) {
             $this->logger->alert(

@@ -375,14 +375,16 @@
         // Methods
         vm.triggerDeploy = triggerDeploy;
         vm.triggerGetChangedFiles = triggerGetChangedFiles;
-        vm.displayChangedFiles = displayChangedFiles;
         vm.triggerShowDiff = triggerShowDiff;
+        vm.triggerSetLocalRevision = triggerSetLocalRevision;
+        vm.triggerSetRemoteRevision = triggerSetRemoteRevision;
+        vm.listenUpdateChangedFiles = listenUpdateChangedFiles;
         vm.listenShowDiff = listenShowDiff;
+        vm.listenSetLocalRevision = listenSetLocalRevision;
+        vm.listenSetRemoteRevision = listenSetRemoteRevision;
 
         // Init
         init();
-        vm.displayChangedFiles();
-        vm.listenShowDiff();
 
         /**
          * Loads data required for run deployment view.
@@ -393,11 +395,30 @@
             deploymentsService.getDeploymentData(deploymentId).then(function (data) {
                 vm.deployment = data;
                 resolveRelations();
-                getLocalRevision();
-                getRemoteRevision();
-
             }, function(reason) {
                 $location.path('/deployments');
+            });
+
+            // Add listener:
+            vm.listenUpdateChangedFiles();
+            vm.listenShowDiff();
+            vm.listenSetLocalRevision();
+            vm.listenSetRemoteRevision();
+
+            // Trigger actions:
+            vm.triggerSetLocalRevision(deploymentId);
+            vm.triggerSetRemoteRevision(deploymentId);
+        }
+
+        /**
+         * Fetches data not directly stored within deployments table and stores it into deployment object.
+         */
+        function resolveRelations() {
+            serversService.getServerData(vm.deployment.server_id).then(function(server) {
+                vm.deployment.server = server;
+            });
+            repositoriesService.getRepositoryData(vm.deployment.repository_id).then(function(repository) {
+                vm.deployment.repository = repository;
             });
         }
 
@@ -419,26 +440,6 @@
             deploymentsService.triggerGetChangedFiles(vm.deployment.id);
         }
 
-        function displayChangedFiles() {
-            ws.addListener('updateChangedFiles', function(data) {
-                $scope.$apply(function() {
-                    vm.changedFiles = data.changedFiles;
-                });
-            });
-        }
-
-        /**
-         * Fetches data not directly stored within deployments table and stores it into deployment object.
-         */
-        function resolveRelations() {
-            serversService.getServerData(vm.deployment.server_id).then(function(server) {
-                vm.deployment.server = server;
-            });
-            repositoriesService.getRepositoryData(vm.deployment.repository_id).then(function(repository) {
-                vm.deployment.repository = repository;
-            });
-        }
-
         /**
          * Triggers request to show file diff.
          *
@@ -455,7 +456,36 @@
         }
 
         /**
-         * Listens for showDiff events hand handles them.
+         * Fetches current revision of remote repository.
+         *
+         * @param {Number} deploymentId
+         */
+        function triggerSetRemoteRevision(deploymentId) {
+            deploymentsService.triggerSetRemoteRevision(deploymentId);
+        }
+
+        /**
+         * Fetches local repository revision.
+         *
+         * @param {Number} deploymentId
+         */
+        function triggerSetLocalRevision(deploymentId) {
+            deploymentsService.triggerSetLocalRevision(deploymentId);
+        }
+
+        /**
+         * Updates changed files list.
+         */
+        function listenUpdateChangedFiles() {
+            ws.addListener('updateChangedFiles', function(data) {
+                $scope.$apply(function() {
+                    vm.changedFiles = data.changedFiles;
+                });
+            });
+        }
+
+        /**
+         * Displays a file diff.
          */
         function listenShowDiff() {
             ws.addListener('showDiff', function(data) {
@@ -472,21 +502,24 @@
         }
 
         /**
-         * Fetches current revision of remote repository.
-         *
+         * Sets remote revision value.
          */
-        function getRemoteRevision() {
-            deploymentsService.getRemoteRevision(vm.deployment.id).then(function(revision) {
-                vm.remoteRevision = revision;
+        function listenSetRemoteRevision() {
+            ws.addListener('setRemoteRevision', function(data) {
+                $scope.$apply(function() {
+                    vm.remoteRevision = data.revision;
+                });
             });
         }
 
         /**
-         * Fetches local repository revision.
+         * Sets local revision value.
          */
-        function getLocalRevision() {
-            deploymentsService.getLocalRevision(vm.deployment.id).then(function(revision) {
-                vm.localRevision = revision;
+        function listenSetLocalRevision() {
+            ws.addListener('setLocalRevision', function(data) {
+                $scope.$apply(function() {
+                    vm.localRevision = data.revision;
+                });
             });
         }
     }

@@ -30,6 +30,7 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
     /**
      * Fetches list of repository branches.
      *
+     * @param {Number} repositoryId
      * @returns {promise}
      */
     this.getRepositoryBranches = function(repositoryId) {
@@ -144,39 +145,41 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
         ws.sendTriggerRequest('startGetChangedFiles', {
             deploymentId: deploymentId
         });
-    }
+    };
 
     /**
      * Trigger request for a file-diff.
      *
-     * @param {Array} deploymentId
+     * @param {Array} params
      * @returns {promise}
      */
     this.triggerGetFileDiff = function(params) {
         ws.sendTriggerRequest('startGetDiff', params);
-    }
-
-    /**
-     * Fetches revision of repository used in a deployment.
-     *
-     * @returns {promise}
-     */
-    this.getRemoteRevision = function(deploymentId) {
-        var requestParams = {
-            deploymentId: deploymentId
-        };
-        return ws.sendDataRequest('getRemoteRevision', requestParams);
     };
 
     /**
-     * Fetches local revision of repository used in deployment.
+     * Triggers event to set remote revision value.
      *
+     * @param {Number} deploymentId
      * @returns {promise}
      */
-    this.getLocalRevision = function(deploymentId) {
-        var requestParams = {
+    this.triggerSetRemoteRevision = function(deploymentId) {
+        var params = {
             deploymentId: deploymentId
         };
-        return ws.sendDataRequest('getLocalRevision', requestParams);
+         ws.sendTriggerRequest('setRemoteRevision', params);
+    };
+
+    /**
+     * Triggers event to set local revision value.
+     *
+     * @param {Number} deploymentId
+     * @returns {promise}
+     */
+    this.triggerSetLocalRevision = function(deploymentId) {
+        var params = {
+            deploymentId: deploymentId
+        };
+        ws.sendTriggerRequest('setLocalRevision', params);
     };
 }]);
