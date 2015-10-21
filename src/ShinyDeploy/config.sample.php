@@ -19,7 +19,7 @@ return [
         'workerScripts' => [
             'deployer' => [
                 'filename' => 'worker.deployer.php',
-                'instances' => 3,
+                'instances' => 5,
             ],
             'repoactions' => [
                 'filename' => 'worker.repo_actions.php',

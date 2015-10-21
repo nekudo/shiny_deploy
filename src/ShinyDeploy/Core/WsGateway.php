@@ -108,7 +108,7 @@ class WsGateway implements WampServerInterface
     {
         $actionClassName = 'ShinyDeploy\Action\WsDataAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
-            throw new WebsocketException('Invalid action passed to worker gateway.');
+            throw new WebsocketException('Invalid data action passed to worker gateway. ('.$actionName.')');
         }
         /** @var \ShinyDeploy\Action\WsDataAction $action */
         $action = new $actionClassName($this->config, $this->logger);
@@ -134,7 +134,7 @@ class WsGateway implements WampServerInterface
     {
         $actionClassName = 'ShinyDeploy\Action\WsTriggerAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
-            throw new WebsocketException('Invalid action passed to worker gateway.');
+            throw new WebsocketException('Invalid trigger action passed to worker gateway. ('.$actionName.')');
         }
         /** @var \ShinyDeploy\Action\WsTriggerAction $action */
         $action = new $actionClassName($this->config, $this->logger);
