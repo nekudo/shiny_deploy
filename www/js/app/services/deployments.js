@@ -121,65 +121,22 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
     };
 
     /**
-     * Triggers the deployment action in backend.
+     * Registers an event listener at websocket module.
      *
-     * @param deploymentId
-     * @returns {boolean}
+     * @param {string} eventName
+     * @param {callback} callback
      */
-    this.triggerDeployAction = function(deploymentId) {
-        if (deploymentId === 0) {
-            return false;
-        }
-        ws.sendTriggerRequest('startDeploy', {
-            deploymentId: deploymentId
-        });
+    this.addEventListener = function(eventName, callback) {
+        ws.addListener(eventName, callback);
     };
 
     /**
-     * Fetches a list of changed files between local and remote revision.
+     * Triggers a gearman job through websocket server.
      *
-     * @param {number} deploymentId
-     * @returns {promise}
+     * @param {string} jobName
+     * @param {object} jobPayload
      */
-    this.triggerGetChangedFiles = function(deploymentId) {
-        ws.sendTriggerRequest('startGetChangedFiles', {
-            deploymentId: deploymentId
-        });
-    };
-
-    /**
-     * Trigger request for a file-diff.
-     *
-     * @param {Array} params
-     * @returns {promise}
-     */
-    this.triggerGetFileDiff = function(params) {
-        ws.sendTriggerRequest('startGetDiff', params);
-    };
-
-    /**
-     * Triggers event to set remote revision value.
-     *
-     * @param {Number} deploymentId
-     * @returns {promise}
-     */
-    this.triggerSetRemoteRevision = function(deploymentId) {
-        var params = {
-            deploymentId: deploymentId
-        };
-         ws.sendTriggerRequest('setRemoteRevision', params);
-    };
-
-    /**
-     * Triggers event to set local revision value.
-     *
-     * @param {Number} deploymentId
-     * @returns {promise}
-     */
-    this.triggerSetLocalRevision = function(deploymentId) {
-        var params = {
-            deploymentId: deploymentId
-        };
-        ws.sendTriggerRequest('setLocalRevision', params);
+    this.triggerJob = function(jobName, jobPayload) {
+        ws.sendTriggerRequest(jobName, jobPayload);
     };
 }]);
