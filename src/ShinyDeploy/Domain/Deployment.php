@@ -291,7 +291,11 @@ class Deployment extends Domain
      */
     public function getLocalRevision()
     {
-        $revision = $this->repository->getRevision($this->data['branch']);
+        if ($this->repository->checkConnectivity() === false) {
+            $this->logResponder->log('Could not connect to remote repository.', 'info', 'getLocalRevision');
+            return false;
+        }
+        $revision = $this->repository->getRemoteRevision($this->data['branch']);
         if ($revision !== false) {
             $this->logResponder->log('Local repository is at revision: ' . $revision, 'info', 'getLocalRevision');
         } else {
