@@ -120,6 +120,20 @@ class Repository extends Domain
     }
 
     /**
+     * Retuns remote repository revision for given branch.
+     *
+     * @param string $branch
+     * @return string|bool
+     */
+    public function getRemoteRevision($branch)
+    {
+        $repoPath = $this->getLocalPath();
+        $repoUrl = $this->getCredentialsUrl();
+        $revision = $this->git->getRemoteRepositoryRevision($repoPath, $repoUrl, $branch);
+        return $revision;
+    }
+
+    /**
      * Get list of files in repositroy.
      *
      * @return array

@@ -104,6 +104,37 @@ class Git extends Domain
         return $revision;
     }
 
+     /**
+     * Gets revision (latest commit hash) of remote repository.
+     *
+     * @param string $repoPath
+     * @param string $repoUrl
+     * @param string $branch
+     * @return bool|string
+     */
+    public function getRemoteRepositoryRevision($repoPath, $repoUrl, $branch)
+    {
+        if (empty($repoPath) || empty($repoUrl) || empty($branch)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        if (strpos($branch, 'origin/') !== false) {
+            $branch = str_replace('origin/', '', $branch);
+        }
+        $revision = $this->exec('ls-remote ' . $repoUrl . ' ' . $branch);
+        chdir($oldDir);
+        $revision = substr($revision, 0, 40);
+        $revision = trim($revision);
+        $revision = preg_replace('#[^0-9a-f]#', '', $revision);
+        if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
+            return false;
+        }
+        return $revision;
+    }
+
     /**
      * Estimates diff between two revisions.
      *
