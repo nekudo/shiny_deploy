@@ -132,14 +132,8 @@ class WsGateway implements WampServerInterface
      */
     protected function handleTriggerRequest($clientId, $actionName, $actionPayload)
     {
-        $actionClassName = 'ShinyDeploy\Action\WsTriggerAction\\' . ucfirst($actionName);
-        if (!class_exists($actionClassName)) {
-            throw new WebsocketException('Invalid trigger action passed to worker gateway. ('.$actionName.')');
-        }
-        /** @var \ShinyDeploy\Action\WsTriggerAction $action */
-        $action = new $actionClassName($this->config, $this->logger);
-        $action->setClientId($clientId);
-        $action->__invoke($actionPayload);
+        $action = new \ShinyDeploy\Action\StartGearmanJob($this->config, $this->logger);
+        $action->__invoke($actionName, $clientId, $actionPayload);
         $this->wsLog($clientId, 'Requested action: ' . $actionName);
     }
 

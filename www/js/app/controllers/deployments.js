@@ -378,10 +378,11 @@
         vm.triggerShowDiff = triggerShowDiff;
         vm.triggerSetLocalRevision = triggerSetLocalRevision;
         vm.triggerSetRemoteRevision = triggerSetRemoteRevision;
-        vm.listenUpdateChangedFiles = listenUpdateChangedFiles;
-        vm.listenShowDiff = listenShowDiff;
-        vm.listenSetLocalRevision = listenSetLocalRevision;
-        vm.listenSetRemoteRevision = listenSetRemoteRevision;
+
+        vm.updateChangedFiles = updateChangedFiles;
+        vm.showDiff = showDiff;
+        vm.setLocalRevision = setLocalRevision;
+        vm.setRemoteRevision = setRemoteRevision;
 
         // Init
         init();
@@ -400,10 +401,10 @@
             });
 
             // Add listener:
-            vm.listenUpdateChangedFiles();
-            vm.listenShowDiff();
-            vm.listenSetLocalRevision();
-            vm.listenSetRemoteRevision();
+            deploymentsService.addEventListener('setLocalRevision', vm.setLocalRevision);
+            deploymentsService.addEventListener('setRemoteRevision', vm.setRemoteRevision);
+            deploymentsService.addEventListener('updateChangedFiles', vm.updateChangedFiles);
+            deploymentsService.addEventListener('showDiff', vm.showDiff);
 
             // Trigger actions:
             vm.triggerSetLocalRevision(deploymentId);
@@ -428,7 +429,9 @@
         function triggerDeploy() {
             vm.changedFiles = {};
             vm.diff = '';
-            deploymentsService.triggerDeployAction(vm.deployment.id);
+            deploymentsService.triggerJob('deploy', {
+                deploymentId: vm.deployment.id
+            });
         }
 
         /**
@@ -437,7 +440,9 @@
         function triggerGetChangedFiles() {
             vm.changedFiles = {};
             vm.diff = '';
-            deploymentsService.triggerGetChangedFiles(vm.deployment.id);
+            deploymentsService.triggerJob('getChangedFiles', {
+                deploymentId: vm.deployment.id
+            });
         }
 
         /**
@@ -446,13 +451,12 @@
          * @param {number} fileKey
          */
         function triggerShowDiff(fileKey) {
-            var params = {
+            deploymentsService.triggerJob('getFileDiff', {
                 repositoryId: vm.deployment.repository_id,
                 localRevision: vm.localRevision,
                 remoteRevision: vm.remoteRevision,
                 file: vm.changedFiles[fileKey].file
-            };
-            deploymentsService.triggerGetFileDiff(params);
+            });
         }
 
         /**
@@ -461,7 +465,9 @@
          * @param {Number} deploymentId
          */
         function triggerSetRemoteRevision(deploymentId) {
-            deploymentsService.triggerSetRemoteRevision(deploymentId);
+            deploymentsService.triggerJob('setRemoteRevision', {
+               deploymentId: deploymentId
+            });
         }
 
         /**
@@ -470,56 +476,58 @@
          * @param {Number} deploymentId
          */
         function triggerSetLocalRevision(deploymentId) {
-            deploymentsService.triggerSetLocalRevision(deploymentId);
+            deploymentsService.triggerJob('setLocalRevision', {
+               deploymentId: deploymentId
+            });
         }
 
         /**
          * Updates changed files list.
+         *
+         * @param {Object} data
          */
-        function listenUpdateChangedFiles() {
-            ws.addListener('updateChangedFiles', function(data) {
-                $scope.$apply(function() {
-                    vm.changedFiles = data.changedFiles;
-                });
+        function updateChangedFiles(data) {
+            $scope.$apply(function() {
+                vm.changedFiles = data.changedFiles;
             });
         }
 
         /**
          * Displays a file diff.
+         *
+         * @param {Object} data
          */
-        function listenShowDiff() {
-            ws.addListener('showDiff', function(data) {
-                if (!data.hasOwnProperty('diff')) {
-                    return;
-                }
-                if (data.diff === null) {
-                    return;
-                }
-                $scope.$apply(function() {
-                    vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(data.diff));
-                });
+        function showDiff(data) {
+            if (!data.hasOwnProperty('diff')) {
+                return;
+            }
+            if (data.diff === null) {
+                return;
+            }
+            $scope.$apply(function() {
+                vm.diff = $sce.trustAsHtml(Diff2Html.getPrettyHtmlFromDiff(data.diff));
             });
         }
 
         /**
          * Sets remote revision value.
+         *
+         * @param {Object} data
          */
-        function listenSetRemoteRevision() {
-            ws.addListener('setRemoteRevision', function(data) {
-                $scope.$apply(function() {
-                    vm.remoteRevision = data.revision;
-                });
+        function setRemoteRevision(data) {
+            $scope.$apply(function() {
+                vm.remoteRevision = data.revision;
             });
         }
 
         /**
          * Sets local revision value.
+         *
+         * @param {Object} data
          */
-        function listenSetLocalRevision() {
-            ws.addListener('setLocalRevision', function(data) {
-                $scope.$apply(function() {
-                    vm.localRevision = data.revision;
-                });
+        function setLocalRevision(data) {
+            $scope.$apply(function() {
+                vm.localRevision = data.revision;
             });
         }
     }
