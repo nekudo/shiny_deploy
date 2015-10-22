@@ -276,6 +276,9 @@ class Git extends Domain
         $output = $this->exec('checkout ' . $branch);
         chdir($oldDir);
         $output = trim($output);
+        if (strpos($output, 'Switched to branch') !== false) {
+            return true;
+        }
         if (strpos($output, 'Switched to a new branch') !== false) {
             return true;
         }
