@@ -14,6 +14,12 @@ class GetFileDiff extends Action
             if (empty($params['file']) || empty($params['remoteRevision']) || empty($params['repositoryId'])) {
                 throw new RuntimeException('Required parameter missing.');
             }
+            if (preg_match('#[0-9a-f]{40}#', $params['remoteRevision']) !== 1) {
+                throw new RuntimeException('Invalid remote revision');
+            }
+            if (preg_match('#[0-9a-f]{40}#', $params['localRevision']) !== 1) {
+                throw new RuntimeException('Invalid local revision');
+            }
 
             $repositories = new Repositories($this->config, $this->logger);
             $repository = $repositories->getRepository($params['repositoryId']);
