@@ -383,6 +383,8 @@
         vm.showDiff = showDiff;
         vm.setLocalRevision = setLocalRevision;
         vm.setRemoteRevision = setRemoteRevision;
+        vm.closeChangedFiles = closeChangedFiles;
+        vm.closeDiff = closeDiff;
 
         // Init
         init();
@@ -529,6 +531,20 @@
             $scope.$apply(function() {
                 vm.localRevision = data.revision;
             });
+        }
+
+        /**
+         * Closes changed files.
+         */
+        function closeChangedFiles() {
+            vm.changedFiles = {};
+        }
+
+        /**
+         * Closes file diff box.
+         */
+        function closeDiff() {
+            vm.diff = '';
         }
     }
 })();

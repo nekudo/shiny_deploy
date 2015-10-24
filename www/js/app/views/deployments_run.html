@@ -67,7 +67,14 @@
 
         <div class="col-xs-12" data-ng-if="vm.changedFiles.length">
             <div class="box box-solid">
-                <div class="box-header"><h3 class="box-title">Changed files since last deploy</h3></div>
+                <div class="box-header">
+                    <h3 class="box-title">Changed files since last deploy</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool">
+                            <span class="fa fa-times" data-ng-click="vm.closeChangedFiles()"></span>
+                        </button>
+                    </div>
+                </div>
                 <div class="box-body no-padding">
                     <table class="table table-condensed">
                         <tbody>
@@ -95,7 +102,14 @@
 
         <div class="col-xs-12" data-ng-if="vm.diff">
             <div class="box box-solid">
-                <div class="box-header"><h3 class="box-title">File Diff</h3></div>
+                <div class="box-header">
+                    <h3 class="box-title">File Diff</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool">
+                            <span class="fa fa-times" data-ng-click="vm.closeDiff()"></span>
+                        </button>
+                    </div>
+                </div>
                 <div class="box-body">
                     <div data-ng-bind-html="vm.diff"></div>
                 </div>
