@@ -23,7 +23,10 @@
                         <dd>{{vm.deployment.branch}}</dd>
 
                         <dt>Revision</dt>
-                        <dd>{{vm.localRevision}}</dd>
+                        <dd>
+                            <span class="fa fa-spinner fa-pulse" ng-show="!vm.localRevision"></span>
+                            {{vm.localRevision}}
+                        </dd>
                     </dl>
                 </div>
             </div>
@@ -43,7 +46,10 @@
                         <dd>{{vm.deployment.target_path}}</dd>
 
                         <dt>Revision</dt>
-                        <dd>{{vm.remoteRevision}}</dd>
+                        <dd>
+                            <span class="fa fa-spinner fa-pulse" ng-show="!vm.remoteRevision"></span>
+                            {{vm.remoteRevision}}
+                        </dd>
                     </dl>
                 </div>
             </div>
