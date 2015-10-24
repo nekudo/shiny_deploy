@@ -17,7 +17,7 @@ if (!isset($options['name'])) {
 }
 
 // startup worker:
-require_once 'bootstrap.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $deployer = new \ShinyDeploy\Worker\Deployer(
     $options['name'],
