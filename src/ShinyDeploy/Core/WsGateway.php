@@ -132,9 +132,9 @@ class WsGateway implements WampServerInterface
      */
     protected function handleTriggerRequest($clientId, $actionName, $actionPayload)
     {
+        $this->wsLog($clientId, 'Passing job request ' . $actionName . ' to StartGearmanJob action.');
         $action = new \ShinyDeploy\Action\StartGearmanJob($this->config, $this->logger);
         $action->__invoke($actionName, $clientId, $actionPayload);
-        $this->wsLog($clientId, 'Requested action: ' . $actionName);
     }
 
     /**

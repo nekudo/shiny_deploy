@@ -1,7 +1,9 @@
 <?php
 namespace ShinyDeploy\Action;
 
+use RuntimeException;
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Responder\WsLogResponder;
 
 class StartGearmanJob extends Action
 {
@@ -12,14 +14,23 @@ class StartGearmanJob extends Action
      * @param string $clientId
      * @param array $jobPayload
      * @return boolean
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function __invoke($jobName, $clientId, array $jobPayload = [])
     {
         try {
             if (empty($jobName) || empty($clientId)) {
-                throw new \RuntimeException('Required argument missing.');
+                throw new RuntimeException('Required argument missing.');
             }
+
+            $logResponder = new WsLogResponder($this->config, $this->logger);
+            $logResponder->setClientId($clientId);
+            $logResponder->log(
+                'Received job request. Triggering job '.$jobName.'.',
+                'info',
+                'StartGearmanJobAction'
+            );
+
             $client = new \GearmanClient;
             $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
             $jobPayload['clientId'] = $clientId;
@@ -27,7 +38,7 @@ class StartGearmanJob extends Action
             $client->doBackground($jobName, $payload);
             return true;
 
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );

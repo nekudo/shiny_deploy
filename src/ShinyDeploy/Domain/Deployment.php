@@ -161,16 +161,19 @@ class Deployment extends Domain
      */
     protected function checkPrerequisites()
     {
+        $this->logResponder->log('Checking git binary...', 'default', 'PrerequisitesCheck');
         if ($this->repository->checkGit() === false) {
-            $this->logResponder->log('Git executable not found. Aborting job.', 'danger', 'checkPrerequisites');
+            $this->logResponder->log('Git executable not found. Aborting job.', 'danger', 'PrerequisitesCheck');
             return false;
         }
+        $this->logResponder->log('Checking connection to repository...', 'default', 'PrerequisitesCheck');
         if ($this->repository->checkConnectivity() === false) {
-            $this->logResponder->log('Connection to repository failed.', 'danger', 'checkPrerequisites');
+            $this->logResponder->log('Connection to repository failed.', 'danger', 'PrerequisitesCheck');
             return false;
         }
+        $this->logResponder->log('Checking connection target server...', 'default', 'PrerequisitesCheck');
         if ($this->server->checkConnectivity() === false) {
-            $this->logResponder->log('Connection to remote server failed.', 'danger', 'checkPrerequisites');
+            $this->logResponder->log('Connection to remote server failed.', 'danger', 'PrerequisitesCheck');
             return false;
         }
         return true;
