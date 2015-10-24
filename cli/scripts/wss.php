@@ -1,5 +1,5 @@
 <?php
-require_once 'bootstrap.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $logger->info('Starting websocket gateway.');
 $WorkerGateway = new ShinyDeploy\Core\WsGateway($config, $logger);

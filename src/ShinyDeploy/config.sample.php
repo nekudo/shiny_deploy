@@ -8,11 +8,11 @@ return [
         'host' => '127.0.0.1',
         'port' => 4730,
 
-        'workerPath' => __DIR__ . '/../../cli/',
+        'workerPath' => __DIR__ . '/../../cli/scripts/',
         'pidPath' => __DIR__ . '/../../cli/run/',
         'logPath' => __DIR__ . '/../../logs/',
 
-        'processIdentifier' => 'cli/worker',
+        'processIdentifier' => 'scripts/worker',
         'timeTillGhost' => 1200,
 
         // Worker startup configuration:
@@ -33,6 +33,10 @@ return [
     'wss' => [
         'host' => '0.0.0.0',
         'port' => 8090,
+
+        'wssPath' => __DIR__ . '/../../cli/scripts/',
+        'logPath' => __DIR__ . '/../../logs/',
+        'processIdentifier' => 'scripts/wss',
     ],
     'repositories' => [
         'path' => __DIR__ . '/../../repositories',

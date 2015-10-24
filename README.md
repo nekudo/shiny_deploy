@@ -30,11 +30,11 @@ PHP Extensions
 * Clone repository.
 
   ```git clone https://github.com/nekudo/shiny_deploy.git```
-  
+
 * Install dependencies
 
   ```composer install```
-  
+
   ```npm install```
 
 * Create MySQL tables (db_structure.sql)
@@ -44,11 +44,9 @@ PHP Extensions
 * Build css/js files
 
   ```gulp build```
-  
-* Start cli scripts
 
-  ```php cli/cli.wss.php```
-  
-  ```php cli/cli.worker.php start```
+* Start websocket server and gearman worker.
+
+  ```php cli/app.php start```
 
 * Happy hacking...

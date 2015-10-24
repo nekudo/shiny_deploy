@@ -9,31 +9,43 @@ if (empty($argv[1])) {
 require_once 'bootstrap.php';
 
 $action = $argv[1];
-$workerType = (!empty($argv[2])) ? trim($argv[2]) : '';
 
-
-$WorkerManager = new \ShinyDeploy\Core\WorkerManager($config);
+$workerManager = new \ShinyDeploy\Core\WorkerManager($config);
+$wssManager = new \ShinyDeploy\Core\WssManager($config);
 switch ($action) {
     case 'start':
+        echo "Starting websocket server...\t";
+        echo (($wssManager->start() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+
         echo "Starting workers...\t";
-        $response = $WorkerManager->start($workerType);
-        echo (($response === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+        echo (($workerManager->start() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
         break;
     case 'stop':
+        echo "Stopping websocket server...\t";
+        echo (($wssManager->stop() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+
         echo "Stopping workers...\t";
-        $response = $WorkerManager->stop($workerType);
-        echo (($response === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+        echo (($workerManager->stop() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
         break;
     case 'restart':
+        echo "Restarting websocket server...";
+        echo (($wssManager->restart() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+
         echo "Restarting workers...\t";
-        $response = $WorkerManager->restart($workerType);
-        echo (($response === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+        echo (($workerManager->restart() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
         break;
     case 'keepalive':
-        $response = $WorkerManager->keepalive();
+        $wssManager->keepalive();
+        $workerManager->keepalive();
         break;
     case 'status':
-        $response = $WorkerManager->status();
+        if ($wssManager->status() === true) {
+            echo "Websocker server is up.\n\n";
+        } else {
+            echo "Websocker server is down.\n\n";
+        }
+
+        $response = $workerManager->status();
         if (empty($response)) {
             echo "No workers running." . PHP_EOL;
             exit;
