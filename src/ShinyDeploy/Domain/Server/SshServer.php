@@ -11,6 +11,8 @@ class SshServer extends Server
     /** @var Ssh $connection */
     protected $connection;
 
+    protected $connectionHash = '';
+
     public function __construct(Config $config, Logger $logger)
     {
         parent::__construct($config, $logger);
@@ -38,7 +40,28 @@ class SshServer extends Server
      */
     public function connect($host, $user, $pass, $port = 22)
     {
-        return $this->connection->connect($host, $user, $pass, $port);
+        $hash = md5($host . $user . $pass . $port);
+        if ($hash === $this->connectionHash) {
+            return true;
+        }
+        $connectionResult =  $this->connection->connect($host, $user, $pass, $port);
+        if ($connectionResult === false) {
+            return false;
+        }
+        $this->connectionHash = $hash;
+        return true;
+    }
+
+    /**
+     * Closes connection to remote server.
+     *
+     * @return boolean
+     */
+    public function disconnect()
+    {
+        $this->connection->disconnect();
+        $this->connectionHash = '';
+        return true;
     }
 
     /**
