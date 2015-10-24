@@ -2,10 +2,11 @@
 namespace ShinyDeploy\Action;
 
 use RuntimeException;
+use ShinyDeploy\Core\Action;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Responder\WsChangedFilesResponder;
 use ShinyDeploy\Responder\WsLogResponder;
-use ShinyDeploy\Core\Action;
+use ShinyDeploy\Responder\WsSetRemoteRevisionResponder;
 
 class Deploy extends Action
 {
@@ -42,6 +43,14 @@ class Deploy extends Action
                 $changedFilesResponder = new WsChangedFilesResponder($this->config, $this->logger);
                 $changedFilesResponder->setClientId($clientId);
                 $changedFilesResponder->respond($changedFiles);
+            }
+
+            // update revision in browser:
+            if ($result === true) {
+                $revision = $deployment->getRemoteRevision();
+                $responder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
+                $responder->setClientId($clientId);
+                $responder->respond($revision);
             }
 
             $logResponder->log("Shiny, everything done.", 'success', 'DeployService');
