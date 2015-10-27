@@ -55,9 +55,11 @@ class Repository extends Domain
         $repoPath = $this->getLocalPath();
         $response = $this->git->gitPull($repoUrl, $repoPath);
         if (strpos($response, 'up-to-date') !== false ||
-            (stripos($response, 'updating') !== false && strpos($response, 'done.') !== false)) {
+            strpos($response, 'done.') !== false ||
+            stripos($response, 'Fast-forward') !== false) {
             return true;
         }
+        $this->logger->error('Git pull failed. Git response was: ' . $response);
         return false;
     }
 
