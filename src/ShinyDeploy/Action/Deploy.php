@@ -46,7 +46,7 @@ class Deploy extends Action
             }
 
             // update revision in browser:
-            if ($result === true) {
+            if ($listOnly === false && $result === true) {
                 $revision = $deployment->getRemoteRevision();
                 $responder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
                 $responder->setClientId($clientId);
