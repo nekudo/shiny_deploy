@@ -4,62 +4,51 @@ namespace ShinyDeploy\Action;
 use RuntimeException;
 use ShinyDeploy\Core\Action;
 use ShinyDeploy\Domain\Database\Deployments;
-use ShinyDeploy\Responder\WsChangedFilesResponder;
 use ShinyDeploy\Responder\WsLogResponder;
+use ShinyDeploy\Responder\WsNotificationResponder;
 use ShinyDeploy\Responder\WsSetRemoteRevisionResponder;
 
 class Deploy extends Action
 {
-    public function __invoke($deploymentId, $clientId, $listOnly = false)
+    public function __invoke($id, $clientId)
     {
-        $logResponder = new WsLogResponder($this->config, $this->logger);
-        $logResponder->setClientId($clientId);
-
         try {
-            // check required arguments:
-            $deploymentId = (int)$deploymentId;
+            $deploymentId = (int)$id;
             if (empty($deploymentId)) {
                 throw new RuntimeException('Deployment-ID can not be empty');
             }
 
-            // init deployment:
+            // Init stuff
+            $logResponder = new WsLogResponder($this->config, $this->logger);
+            $logResponder->setClientId($clientId);
+            $remoteRevisionResponder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
+            $remoteRevisionResponder->setClientId($clientId);
+            $notificationResponder = new WsNotificationResponder($this->config, $this->logger);
+            $notificationResponder->setClientId($clientId);
             $deployments = new Deployments($this->config, $this->logger);
             $deployment = $deployments->getDeployment($deploymentId);
             $deployment->setLogResponder($logResponder);
 
-            // start deployment:
+            // Start deployment
             $logResponder->log('Starting deployment...', 'default', 'DeployService');
-            $result = $deployment->deploy($listOnly);
-
-            // return changed files:
-            if ($listOnly === true && $result === true) {
-                $changedFiles = $deployment->getChangedFiles();
-                $changedFilesCount = count($changedFiles);
-                $logResponder->log(
-                    $changedFilesCount . ' changed files found. Sending list...',
-                    'default',
-                    'DeployService'
-                );
-                $changedFilesResponder = new WsChangedFilesResponder($this->config, $this->logger);
-                $changedFilesResponder->setClientId($clientId);
-                $changedFilesResponder->respond($changedFiles);
+            $result = $deployment->deploy(false);
+            if ($result === false) {
+                $notificationResponder->send('Deployment failed. Check log for details.', 'danger');
+                return false;
             }
 
-            // update revision in browser:
-            if ($listOnly === false && $result === true) {
-                $revision = $deployment->getRemoteRevision();
-                $responder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
-                $responder->setClientId($clientId);
-                $responder->respond($revision);
-            }
+            // Send updated revision to client:
+            $revision = $deployment->getRemoteRevision();
+            $remoteRevisionResponder->respond($revision);
+            $logResponder->log("Deployment successfully completed.", 'success', 'DeployService');
 
-            $logResponder->log("Shiny, everything done.", 'success', 'DeployService');
+            // Send success notfication
+            $notificationResponder->send('Deployment successfully completed.', 'success');
 
         } catch (RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
-            $logResponder->log('Exception: ' . $e->getMessage() . ' Aborting.', 'error', 'DeployService');
             return false;
         }
     }
