@@ -1,6 +1,7 @@
 <?php namespace ShinyDeploy\Worker;
 
 use ShinyDeploy\Action\Deploy;
+use ShinyDeploy\Action\GetChangedFiles;
 use ShinyDeploy\Action\GetFileDiff;
 use ShinyDeploy\Action\SetLocalRevision;
 use ShinyDeploy\Action\SetRemoteRevision;
@@ -40,8 +41,8 @@ class Deployer extends Worker
             if (empty($params['deploymentId'])) {
                 throw new WebsocketException('Can not handle job. No deployment-id provided.');
             }
-            $deployAction = new Deploy($this->config, $this->logger);
-            $deployAction->__invoke($params['deploymentId'], $params['clientId'], false);
+            $action = new Deploy($this->config, $this->logger);
+            $action->__invoke($params['deploymentId'], $params['clientId']);
         } catch (WorkerException $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -68,8 +69,8 @@ class Deployer extends Worker
             if (empty($params['deploymentId'])) {
                 throw new WebsocketException('Can not handle job. No deployment-id provided.');
             }
-            $deployAction = new Deploy($this->config, $this->logger);
-            $deployAction->__invoke($params['deploymentId'], $params['clientId'], true);
+            $action = new GetChangedFiles($this->config, $this->logger);
+            $action->__invoke($params['deploymentId'], $params['clientId']);
         } catch (WorkerException $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
