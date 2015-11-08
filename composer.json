@@ -4,11 +4,14 @@
         "react/zmq": "0.2.*|0.3.*",
         "apix/log": "1.0.*",
         "vlucas/valitron": "~1.2",
-        "hassankhan/config": "0.8.*"
+        "hassankhan/config": "0.8.*",
+        "nekudo/angela": "dev-master"
     },
     "autoload": {
         "psr-4": {
             "ShinyDeploy\\": "src/ShinyDeploy"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

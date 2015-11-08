@@ -1,5 +1,7 @@
 <?php namespace ShinyDeploy\Worker;
 
+require __DIR__ . '/../../../vendor/autoload.php';
+
 use ShinyDeploy\Action\CloneRepository;
 use ShinyDeploy\Action\DeleteRepositoryFiles;
 use ShinyDeploy\Core\Worker;

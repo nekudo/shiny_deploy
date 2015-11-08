@@ -1,5 +1,7 @@
 <?php namespace ShinyDeploy\Worker;
 
+require __DIR__ . '/../../../vendor/autoload.php';
+
 use ShinyDeploy\Action\Deploy;
 use ShinyDeploy\Action\GetChangedFiles;
 use ShinyDeploy\Action\GetFileDiff;

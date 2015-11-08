@@ -8,22 +8,23 @@ return [
         'host' => '127.0.0.1',
         'port' => 4730,
 
-        'workerPath' => __DIR__ . '/../../cli/scripts/',
+        'workerPath' => __DIR__ . '/Worker/',
         'pidPath' => __DIR__ . '/../../cli/run/',
         'logPath' => __DIR__ . '/../../logs/',
 
-        'processIdentifier' => 'scripts/worker',
         'timeTillGhost' => 1200,
 
         // Worker startup configuration:
         'workerScripts' => [
             'deployer' => [
-                'filename' => 'worker.deployer.php',
+                'classname' => 'ShinyDeploy\Worker\Deployer',
+                'filename' => 'Deployer.php',
                 'instances' => 5,
             ],
             'repoactions' => [
-                'filename' => 'worker.repo_actions.php',
-                'instances' => 3,
+                'classname' => 'ShinyDeploy\Worker\RepositoryActions',
+                'filename' => 'RepositoryActions.php',
+                'instances' => 5,
             ],
         ]
     ],

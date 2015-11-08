@@ -10,7 +10,12 @@ require_once 'bootstrap.php';
 
 $action = $argv[1];
 
-$workerManager = new \ShinyDeploy\Core\WorkerManager($config);
+$angela = new Nekudo\Angela\Angela;
+$angela->setGearmanCredentials($config['gearman.host'], $config['gearman.port']);
+$angela->setWorkerPath($config['gearman.workerPath']);
+$angela->setLogPath($config['gearman.logPath']);
+$angela->setRunPath($config['gearman.pidPath']);
+$angela->setWorkerConfig($config['gearman.workerScripts']);
 $wssManager = new \ShinyDeploy\Core\WssManager($config);
 switch ($action) {
     case 'start':
@@ -18,25 +23,25 @@ switch ($action) {
         echo (($wssManager->start() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
 
         echo "Starting workers...\t";
-        echo (($workerManager->start() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+        echo (($angela->start() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
         break;
     case 'stop':
         echo "Stopping websocket server...\t";
         echo (($wssManager->stop() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
 
         echo "Stopping workers...\t";
-        echo (($workerManager->stop() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+        echo (($angela->stop() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
         break;
     case 'restart':
         echo "Restarting websocket server...";
         echo (($wssManager->restart() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
 
         echo "Restarting workers...\t";
-        echo (($workerManager->restart() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
+        echo (($angela->restart() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
         break;
     case 'keepalive':
         $wssManager->keepalive();
-        $workerManager->keepalive();
+        $angela->keepalive();
         break;
     case 'status':
         if ($wssManager->status() === true) {
@@ -45,7 +50,7 @@ switch ($action) {
             echo "Websocker server is down.\n\n";
         }
 
-        $response = $workerManager->status();
+        $response = $angela->status();
         if (empty($response)) {
             echo "No workers running." . PHP_EOL;
             exit;
