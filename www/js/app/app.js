@@ -1,4 +1,4 @@
-var app = angular.module('shinyDeploy', ['ngRoute', 'ws', 'shinyDeploy.config']);
+var app = angular.module('shinyDeploy', ['ngRoute', 'ws', 'angular-jwt', 'shinyDeploy.config']);
 
 app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployConfig',
     function ($routeProvider, $locationProvider, wsProvider, shinyDeployConfig) {
@@ -11,6 +11,11 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
                 controller: 'HomeController',
                 controllerAs: 'vm',
                 templateUrl: '/js/app/views/home.html'
+            })
+            .when('/login', {
+                controller: 'LoginController',
+                controllerAs: 'vm',
+                templateUrl: '/js/app/views/login.html'
             })
             .when('/servers', {
                 controller: 'ServersController',
@@ -62,11 +67,12 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
                 controllerAs: 'vm',
                 templateUrl: '/js/app/views/deployments_run.html'
             })
-            .otherwise({ redirectTo: '/' });
+            .otherwise({ redirectTo: '/login' });
     }
 ]);
 
-app.run(['ws', function(ws) {
+app.run(['ws', 'auth', function(ws, auth) {
     // connect to websocket server:
     ws.connect();
+    auth.init();
 }]);

@@ -1,5 +1,9 @@
 <?php
 return [
+    'auth' => [
+        'secret' => 'Np5IjAAgx7jOyIUdoEMf',
+        'check' => '',
+    ],
     'logging' => [
         'file' => __DIR__ . '/../../logs/general.log',
         'level' => 'debug',
