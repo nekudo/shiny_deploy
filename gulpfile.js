@@ -47,8 +47,7 @@ gulp.task('vendor_js', function() {
         'www/js/vendor/bootstrap.min.js',
         'www/js/vendor/template.min.js',
         'www/js/vendor/autobahn.min.js',
-        'www/js/vendor/diff2html.min.js',
-        'www/js/vendor/jws-3.3.min.js'
+        'www/js/vendor/diff2html.min.js'
     ])
         .pipe(concat('vendor.min.js'))
         .pipe(gulp.dest('www/js/'))
