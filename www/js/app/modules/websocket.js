@@ -39,7 +39,7 @@ function wsProvider() {
         var currentCallbackId = 0;
         ws.listeners = [];
         ws.callbacks = [];
-        ws.clientId = null;
+        ws.clientId = '';
         ws.status = 'disconnected';
 
         ws.connect = connect;

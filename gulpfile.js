@@ -41,12 +41,14 @@ gulp.task('vendor_js', function() {
     gulp.src([
         'www/js/vendor/angular.min.js',
         'www/js/vendor/angular-route.min.js',
+        'www/js/vendor/angular-jwt.min.js',
         'www/js/vendor/jquery.min.js',
         'www/js/vendor/jquery.nanoscroller.min.js',
         'www/js/vendor/bootstrap.min.js',
         'www/js/vendor/template.min.js',
         'www/js/vendor/autobahn.min.js',
-        'www/js/vendor/diff2html.min.js'
+        'www/js/vendor/diff2html.min.js',
+        'www/js/vendor/jws-3.3.min.js'
     ])
         .pipe(concat('vendor.min.js'))
         .pipe(gulp.dest('www/js/'))
