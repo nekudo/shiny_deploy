@@ -1,8 +1,9 @@
 <?php
 return [
     'auth' => [
-        'secret' => 'Np5IjAAgx7jOyIUdoEMf',
-        'check' => '',
+        'secret' => '', // set a random string to use as encryption password
+
+        'check' => '', // @todo Move to databse (Just for testing)
     ],
     'logging' => [
         'file' => __DIR__ . '/../../logs/general.log',
