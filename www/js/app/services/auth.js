@@ -5,10 +5,10 @@
         .module('shinyDeploy')
         .factory('auth', auth);
 
-    auth.$inject = ['ws', '$location', 'jwtHelper'];
+    auth.$inject = ['ws', '$rootScope', '$location', 'jwtHelper'];
 
     /* @ngInject */
-    function auth(ws, $location, jwtHelper) {
+    function auth(ws, $rootScope, $location, jwtHelper) {
 
         var service = {
             init: init,
@@ -21,7 +21,9 @@
         var isAuthenticated = false;
 
         function init() {
-            checkAuth();
+            $rootScope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
+                checkAuth();
+            });
         }
 
         function checkAuth() {
@@ -75,6 +77,7 @@
 
         function setToken(token) {
             sessionStorage.setItem('token', token);
+            ws.setToken(token);
         }
 
         function getToken() {
