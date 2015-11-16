@@ -40,6 +40,7 @@ function wsProvider() {
         ws.listeners = [];
         ws.callbacks = [];
         ws.clientId = '';
+        ws.token = '';
         ws.status = 'disconnected';
 
         ws.connect = connect;
@@ -52,6 +53,7 @@ function wsProvider() {
         ws.getUuid = getUuid;
         ws.setStatus = setStatus;
         ws.getStatus = getStatus;
+        ws.setToken = setToken;
 
         /**
          * Connect the WebSocket.
@@ -129,7 +131,8 @@ function wsProvider() {
          */
         function sendTriggerRequest(actionName, params) {
             var requestParams = {
-                clientId: this.clientId,
+                clientId: ws.clientId,
+                token: ws.token,
                 actionPayload: params
             };
             ws.conn.call(actionName, requestParams);
@@ -145,6 +148,7 @@ function wsProvider() {
         function sendDataRequest(actionName, params) {
             var requestParams = {
                 clientId: ws.clientId,
+                token: ws.token,
                 callbackId: ws.getCallbackId(),
                 actionPayload: params
             };
@@ -258,6 +262,15 @@ function wsProvider() {
          */
         function getStatus() {
             return ws.status;
+        }
+
+        /**
+         * Sets JWT.
+         *
+         * @param {String} token
+         */
+        function setToken(token) {
+            ws.token = token;
         }
 
         return ws;
