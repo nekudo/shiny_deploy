@@ -9,6 +9,8 @@ class UpdateDeployment extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['deploymentData'])) {
             throw new WebsocketException('Invalid updateDeployment request received.');
         }

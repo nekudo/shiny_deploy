@@ -24,6 +24,10 @@
             $rootScope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
                 checkAuth();
             });
+
+            ws.addListener('unauthorized', function(eventData) {
+                handleUnauthorized(eventData);
+            });
         }
 
         function checkAuth() {
@@ -33,6 +37,12 @@
             }
             isAuthenticated = true;
             return true;
+        }
+
+        function handleUnauthorized(eventData) {
+            sessionStorage.removeItem('token');
+            $location.path('/login');
+            return false;
         }
 
         /**

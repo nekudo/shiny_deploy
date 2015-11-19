@@ -6,6 +6,7 @@ use Noodlehaus\Config;
 use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\WampServerInterface;
 use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidTokenException;
 
 class WsGateway implements WampServerInterface
 {
@@ -81,13 +82,16 @@ class WsGateway implements WampServerInterface
             $this->logger->debug('onCall: ' . json_encode($params));
             $actionName = $topic->getId();
             $clientId = $params['clientId'];
+            $token = (!empty($params['token'])) ? $params['token'] : '';
             $callbackId = (isset($params['callbackId'])) ? $params['callbackId'] : null;
             $actionPayload = (isset($params['actionPayload'])) ? $params['actionPayload'] : [];
             if (!empty($callbackId)) {
-                $this->handleDataRequest($clientId, $callbackId, $actionName, $actionPayload);
+                $this->handleDataRequest($clientId, $token, $callbackId, $actionName, $actionPayload);
             } else {
-                $this->handleTriggerRequest($clientId, $actionName, $actionPayload);
+                $this->handleTriggerRequest($clientId, $token, $actionName, $actionPayload);
             }
+        } catch (InvalidTokenException $e) {
+            $this->onUnauthorized($params['clientId']);
         } catch (WebsocketException $e) {
             $this->logger->alert(
                 'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -99,12 +103,13 @@ class WsGateway implements WampServerInterface
      * Handles requests which directly respond with the requested data.
      *
      * @param string $clientId
+     * @param string $token
      * @param string $callbackId
      * @param string $actionName
      * @param array $actionPayload
      * @throws WebsocketException
      */
-    protected function handleDataRequest($clientId, $callbackId, $actionName, array $actionPayload)
+    protected function handleDataRequest($clientId, $token, $callbackId, $actionName, array $actionPayload)
     {
         $actionClassName = 'ShinyDeploy\Action\WsDataAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
@@ -113,6 +118,7 @@ class WsGateway implements WampServerInterface
         /** @var \ShinyDeploy\Action\WsDataAction $action */
         $action = new $actionClassName($this->config, $this->logger);
         $action->setClientId($clientId);
+        $action->setToken($token);
         $action->__invoke($actionPayload);
         $actionResponse = $action->getResponse($callbackId);
 
@@ -126,14 +132,16 @@ class WsGateway implements WampServerInterface
      * later form within the action itself.
      *
      * @param string $clientId
+     * @param string $token
      * @param string $actionName
      * @param array $actionPayload
      * @throws WebsocketException
      */
-    protected function handleTriggerRequest($clientId, $actionName, $actionPayload)
+    protected function handleTriggerRequest($clientId, $token, $actionName, $actionPayload)
     {
         $this->wsLog($clientId, 'Passing job request ' . $actionName . ' to StartGearmanJob action.');
         $action = new \ShinyDeploy\Action\StartGearmanJob($this->config, $this->logger);
+        $action->setToken($token);
         $action->__invoke($actionName, $clientId, $actionPayload);
     }
 
@@ -192,5 +200,22 @@ class WsGateway implements WampServerInterface
         /** @var \Ratchet\Wamp\Topic $topic */
         $topic = $this->subscriptions[$clientId];
         $topic->broadcast($eventData);
+    }
+
+    /**
+     * Sends "unauthotized" event.
+     *
+     * @param string $clientId
+     */
+    protected function onUnauthorized($clientId)
+    {
+        $eventData = [
+            'clientId' => $clientId,
+            'eventName' => 'unauthorized',
+        ];
+        /** @var \Ratchet\Wamp\Topic $topic */
+        $topic = $this->subscriptions[$clientId];
+        $topic->broadcast($eventData);
+
     }
 }

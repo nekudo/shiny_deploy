@@ -8,6 +8,8 @@ class DeleteDeployment extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['deploymentId'])) {
             throw new WebsocketException('Invalid deleteDeployment request received.');
         }

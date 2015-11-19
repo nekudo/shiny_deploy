@@ -8,6 +8,8 @@ class DeleteServer extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['serverId'])) {
             throw new WebsocketException('Invalid deleteServer request received.');
         }

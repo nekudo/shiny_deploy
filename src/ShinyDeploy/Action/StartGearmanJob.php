@@ -18,6 +18,8 @@ class StartGearmanJob extends Action
      */
     public function __invoke($jobName, $clientId, array $jobPayload = [])
     {
+        $this->authorize($clientId);
+        
         try {
             if (empty($jobName) || empty($clientId)) {
                 throw new RuntimeException('Required argument missing.');

@@ -8,6 +8,8 @@ class DeleteRepository extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['repositoryId'])) {
             throw new WebsocketException('Invalid deleteRepository request received.');
         }

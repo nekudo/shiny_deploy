@@ -9,6 +9,8 @@ class AddRepository extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['repositoryData'])) {
             throw new WebsocketException('Invalid addRepository request received.');
         }

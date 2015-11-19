@@ -13,6 +13,8 @@ class GetRepositories extends WsDataAction
      */
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         $repositories = new Repositories($this->config, $this->logger);
         $repositories = $repositories->getRepositories();
         $this->responder->setPayload($repositories);
