@@ -8,6 +8,8 @@ class GetRepositoryData extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['repositoryId'])) {
             throw new WebsocketException('Invalid getRepositoryData request received.');
         }

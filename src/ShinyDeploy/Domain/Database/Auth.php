@@ -52,7 +52,7 @@ class Auth extends DatabaseDomain
             }
 
             $signer = new Sha256;
-            $verificationResult = $token->verify($signer, $this->config->get('auth.secret'));
+            $verificationResult = $parsedToken->verify($signer, $this->config->get('auth.secret'));
             return $verificationResult;
         } catch (Exception $e) {
             $this->logger->error(

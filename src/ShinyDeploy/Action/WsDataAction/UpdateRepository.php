@@ -9,6 +9,8 @@ class UpdateRepository extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['repositoryData'])) {
             throw new WebsocketException('Invalid updateRepository request received.');
         }

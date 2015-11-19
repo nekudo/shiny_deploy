@@ -9,6 +9,8 @@ class AddServer extends WsDataAction
 {
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         if (!isset($actionPayload['serverData'])) {
             throw new WebsocketException('Invalid addServer request received.');
         }

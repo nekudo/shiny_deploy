@@ -12,6 +12,8 @@ class GetServers extends WsDataAction
      */
     public function __invoke($actionPayload)
     {
+        $this->authorize($this->clientId);
+        
         $serversDomain = new Servers($this->config, $this->logger);
         $servers = $serversDomain->getServers();
         $this->responder->setPayload($servers);
