@@ -13,7 +13,9 @@
         var service = {
             init: init,
             login: login,
-            setToken: setToken
+            setToken: setToken,
+            masterHashExists: masterHashExists,
+            setMasterPasswordHash: setMasterPasswordHash
         };
 
         return service;
@@ -127,6 +129,30 @@
          */
         function getToken() {
             return sessionStorage.getItem('token');
+        }
+
+        /**
+         * Checks if master-password hash was already set.
+         *
+         * @returns {Promise}
+         */
+        function masterHashExists() {
+            return ws.sendDataRequest('masterHashExists', []);
+        }
+
+        /**
+         * Sets a new master password hash.
+         *
+         * @param {String} password
+         * @param {String} password_verify
+         * @returns {Promise}
+         */
+        function setMasterPasswordHash(password, password_verify) {
+            var requestParams = {
+                password: password,
+                password_verify: password_verify
+            };
+            return ws.sendDataRequest('setMasterPasswordHash', requestParams);
         }
     }
 })();

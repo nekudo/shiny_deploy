@@ -15,12 +15,18 @@ class Login extends WsDataAction
             $this->responder->setError('Invalid password.');
             return false;
         }
-        $authHash = hash('sha256', $actionPayload['password']);
-        if ($authHash !== $this->config->get('auth.check')) {
-            $this->responder->setError('Login failed. Check password.');
+        $auth = new Auth($this->config, $this->logger);
+        $inputHash = hash('sha256', $actionPayload['password']);
+        $storedHash = $auth->getMasterHash();
+        if (empty($storedHash)) {
+            $this->responder->setError('No master password set.');
             return false;
         }
-        $auth = new Auth($this->config, $this->logger);
+        if ($inputHash !== $storedHash) {
+            $this->responder->setError('Invalid password.');
+            return false;
+        }
+
         $jwt = $auth->generateToken($actionPayload['password'], $this->clientId);
         if (empty($jwt)) {
             $this->responder->setError('Error during login. Please check logs.');
