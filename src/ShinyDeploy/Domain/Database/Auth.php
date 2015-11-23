@@ -63,6 +63,38 @@ class Auth extends DatabaseDomain
     }
 
     /**
+     * Fetches master-password hash from database.
+     *
+     * @return string|boolean
+     */
+    public function getMasterHash()
+    {
+        $statement = "SELECT `value` FROM kvstore WHERE `key` = %s";
+        $hash = $this->db->prepare($statement, 'mpw_hash')->getValue();
+        if (preg_match('#^[a-f0-9]{64}$#', $hash) === 1) {
+            return $hash;
+        }
+        return false;
+    }
+
+    /**
+     * Saves master-password hash to database.
+     *
+     * @param string $password
+     * @return bool
+     * @throws \InvalidArgumentException
+     */
+    public function setMasterPasswordHash($password)
+    {
+        if (empty($password)) {
+            throw new \InvalidArgumentException('Password can not be empty.');
+        }
+        $passwordHash = hash('sha256', $password);
+        $statement = "INSERT INTO kvstore (`key`,`value`) VALUES (%s,%s)";
+        return $this->db->prepare($statement, 'mpw_hash', $passwordHash)->execute();
+    }
+
+    /**
      * Encrypts a password for storage in JWT.
      *
      * @param string $password

@@ -9,6 +9,7 @@ use Valitron\Validator;
 
 class DatabaseDomain extends Domain
 {
+    /** @var \ShinyDeploy\Core\Db $db */
     protected $db;
 
     public function __construct(Config $config, Logger $logger)

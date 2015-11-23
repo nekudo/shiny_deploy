@@ -47,3 +47,15 @@ CREATE TABLE IF NOT EXISTS `servers` (
   `root_path` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `kvstore`
+--
+
+CREATE TABLE IF NOT EXISTS `kvstore` (
+`id` int(10) unsigned NOT NULL,
+  `key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `value` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
