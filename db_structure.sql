@@ -55,9 +55,9 @@ CREATE TABLE IF NOT EXISTS `servers` (
 --
 
 CREATE TABLE IF NOT EXISTS `kvstore` (
-  `id` int(10) unsigned NOT NULL,
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `value` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `value` blob,
   PRIMARY KEY (`id`),
   UNIQUE KEY `key` (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -22,9 +22,18 @@ class SetMasterPasswordHash extends WsDataAction
         }
 
         $auth = new Auth($this->config, $this->logger);
+
+        // store hash of master password in database:
         $result = $auth->setMasterPasswordHash($actionPayload['password']);
         if ($result === false) {
-            $this->responder->setError('Could not save master-password.');
+            $this->responder->setError('Could not save master-password hash.');
+            return false;
+        }
+
+        // generate encrytion key and sote in database:
+        $result = $auth->generateEncryptionKey($actionPayload['password']);
+        if ($result === false) {
+            $this->responder->setError('Could not save encryption key.');
             return false;
         }
 

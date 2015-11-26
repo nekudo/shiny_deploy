@@ -1,7 +1,9 @@
 <?php
 namespace ShinyDeploy\Domain\Database;
 
+use Defuse\Crypto\Crypto;
 use Exception;
+use InvalidArgumentException;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -82,16 +84,47 @@ class Auth extends DatabaseDomain
      *
      * @param string $password
      * @return bool
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function setMasterPasswordHash($password)
     {
         if (empty($password)) {
-            throw new \InvalidArgumentException('Password can not be empty.');
+            throw new InvalidArgumentException('Password can not be empty.');
         }
         $passwordHash = hash('sha256', $password);
         $statement = "INSERT INTO kvstore (`key`,`value`) VALUES (%s,%s)";
         return $this->db->prepare($statement, 'mpw_hash', $passwordHash)->execute();
+    }
+
+    /**
+     * Generates new encrpytion key and stores it in database.
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function generateEncryptionKey($password)
+    {
+        if (empty($password)) {
+            throw new InvalidArgumentException('Password can not be empty.');
+        }
+
+        // generate key:
+        try {
+            $key = Crypto::createNewRandomKey();
+        } catch (Ex\CryptoTestFailedException $ex) {
+            print_r($ex);
+            return false;
+        } catch (Ex\CannotPerformOperationException $ex) {
+            print_r($ex);
+            return false;
+        }
+
+        // encrypt key:
+        $keyEncryped = $this->encryptString($key, $password);
+
+        // store key in database:
+        $statement = "INSERT INTO kvstore (`key`,`value`) VALUES (%s,%s)";
+        return $this->db->prepare($statement, 'encryption_key', $keyEncryped)->execute();
     }
 
     /**
@@ -102,9 +135,25 @@ class Auth extends DatabaseDomain
      */
     protected function encryptPassword($password)
     {
-        $encryption = new Encryption(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
-        $passwordEncrypted = $encryption->encrypt($password, $this->config->get('auth.secret'));
+        $passwordEncrypted = $this->encryptString($password, $this->config->get('auth.secret'));
         $passwordEncryptedEncoded = base64_encode($passwordEncrypted);
         return $passwordEncryptedEncoded;
+    }
+
+    /**
+     * Encrypts a string using the given password as key.
+     *
+     * @param string $string
+     * @param string $password
+     * @return string
+     */
+    private function encryptString($string, $password)
+    {
+        if (empty($password)) {
+            throw new InvalidArgumentException('Password can not be empty.');
+        }
+        $encryption = new Encryption(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $stringEncrypted = $encryption->encrypt($string, $password);
+        return $stringEncrypted;
     }
 }
