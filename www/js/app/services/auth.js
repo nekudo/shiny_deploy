@@ -81,18 +81,23 @@
                 return false;
             }
 
-            // check if token is expired:
-            if (jwtHelper.isTokenExpired(token)) {
-                return false;
-            }
+            try {
 
-            // check client-id and issuer:
-            var clientId = sessionStorage.getItem('uuid');
-            var tokenDecoded = jwtHelper.decodeToken(token);
-            if (!tokenDecoded.hasOwnProperty('iss') || tokenDecoded.iss !== 'ShinyDeploy') {
-                return false;
-            }
-            if (!tokenDecoded.hasOwnProperty('jti') || tokenDecoded.jti !== clientId) {
+                // check if token is expired:
+                if (jwtHelper.isTokenExpired(token)) {
+                    return false;
+                }
+
+                // check client-id and issuer:
+                var clientId = sessionStorage.getItem('uuid');
+                var tokenDecoded = jwtHelper.decodeToken(token);
+                if (!tokenDecoded.hasOwnProperty('iss') || tokenDecoded.iss !== 'ShinyDeploy') {
+                    return false;
+                }
+                if (!tokenDecoded.hasOwnProperty('jti') || tokenDecoded.jti !== clientId) {
+                    return false;
+                }
+            } catch (ex) {
                 return false;
             }
 
