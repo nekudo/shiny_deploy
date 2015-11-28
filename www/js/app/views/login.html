@@ -3,9 +3,9 @@
 
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <div class="box box-primary" data-ng-if="vm.masterHashSet">
+            <div class="box box-primary" data-ng-if="vm.systemUserExists">
                 <div class="box-header with-border">
-                    <h3 class="box-title">Please enter master password</h3>
+                    <h3 class="box-title">Please login</h3>
                 </div>
 
                 <form role="form">
@@ -22,16 +22,16 @@
                 </form>
             </div>
 
-            <div class="box box-primary" data-ng-if="!vm.masterHashSet">
+            <div class="box box-primary" data-ng-if="!vm.systemUserExists">
                 <div class="box-header with-border">
-                    <h3 class="box-title">Set master password</h3>
+                    <h3 class="box-title">Create system user</h3>
                 </div>
 
                 <form role="form">
                     <div class="box-body">
                         <p>
-                            It seems like you did not set a master password yet.
-                            <em>Insert additional explanation...</em>
+                            It seems like you did not create a system user yet. Please enter a password for the
+                            system user now.
                         </p>
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -44,7 +44,7 @@
                     </div>
 
                     <div class="box-footer">
-                        <button data-ng-click="vm.setMasterPasswordHash()" class="btn btn-primary">Submit</button>
+                        <button data-ng-click="vm.createSystemUser()" class="btn btn-primary">Submit</button>
                     </div>
                 </form>
             </div>

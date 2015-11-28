@@ -14,8 +14,8 @@
             init: init,
             login: login,
             setToken: setToken,
-            masterHashExists: masterHashExists,
-            setMasterPasswordHash: setMasterPasswordHash
+            systemUserExists: systemUserExists,
+            createSystemUser: createSystemUser
         };
 
         return service;
@@ -132,27 +132,31 @@
         }
 
         /**
-         * Checks if master-password hash was already set.
+         * Checks if system user was already created.
          *
          * @returns {Promise}
          */
-        function masterHashExists() {
-            return ws.sendDataRequest('masterHashExists', []);
+        function systemUserExists() {
+            var requestParams = {
+                username: 'system'
+            };
+            return ws.sendDataRequest('userExists', requestParams);
         }
 
         /**
-         * Sets a new master password hash.
+         * Triggers creation of system user.
          *
          * @param {String} password
          * @param {String} password_verify
          * @returns {Promise}
          */
-        function setMasterPasswordHash(password, password_verify) {
+        function createSystemUser(password, password_verify) {
             var requestParams = {
+                username: 'system',
                 password: password,
                 password_verify: password_verify
             };
-            return ws.sendDataRequest('setMasterPasswordHash', requestParams);
+            return ws.sendDataRequest('createUser', requestParams);
         }
     }
 })();
