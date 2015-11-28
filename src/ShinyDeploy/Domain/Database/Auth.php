@@ -40,6 +40,13 @@ class Auth extends DatabaseDomain
         }
     }
 
+    /**
+     * Checks if JWT is valid/not manipulated.
+     *
+     * @param string $token
+     * @param string $clientId
+     * @return boolean
+     */
     public function validateToken($token, $clientId)
     {
         try {
@@ -65,44 +72,88 @@ class Auth extends DatabaseDomain
     }
 
     /**
-     * Fetches master-password hash from database.
+     * Checks whether a user exists in database.
      *
-     * @return string|boolean
+     * @param string $username
+     * @return bool
      */
-    public function getMasterHash()
+    public function userExists($username)
     {
-        $statement = "SELECT `value` FROM kvstore WHERE `key` = %s";
-        $hash = $this->db->prepare($statement, 'mpw_hash')->getValue();
-        if (preg_match('#^[a-f0-9]{64}$#', $hash) === 1) {
-            return $hash;
+        if (empty($username)) {
+            throw new InvalidArgumentException('Username can not be empty.');
         }
-        return false;
+        $statement = "SELECT `id` FROM users WHERE `username` = %s";
+        $userId = (int)$this->db->prepare($statement, $username)->getValue();
+        return ($userId > 0);
     }
 
     /**
-     * Saves master-password hash to database.
+     * Fetches password-hash for username from database.
+     *
+     * @param string $username
+     * @return string
+     * @throws InvalidArgumentException
+     */
+    public function getPasswordHashByUsername($username)
+    {
+        if (empty($username)) {
+            throw new InvalidArgumentException('Username can not be empty.');
+        }
+        $statement = "SELECT `password` FROM users WHERE `username` = %s";
+        $passwordHash = $this->db->prepare($statement, $username)->getValue();
+        return $passwordHash;
+    }
+
+    /**
+     * Saves new user to database.
+     *
+     * @param string $username
+     * @param string $password
+     * @return bool
+     * @throws InvalidArgumentException
+     */
+    public function createUser($username, $password)
+    {
+        if (empty($username)) {
+            throw new InvalidArgumentException('Username can not be emtpy.');
+        }
+        if (empty($password)) {
+            throw new InvalidArgumentException('Password can not be empty.');
+        }
+        $passwordHash = hash('sha256', $password);
+        $statement = "INSERT INTO users (`username`,`password`) VALUES (%s,%s)";
+        return $this->db->prepare($statement, $username, $passwordHash)->execute();
+    }
+
+    /**
+     * Saves new system-user to database.
      *
      * @param string $password
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function setMasterPasswordHash($password)
+    public function createSystemUser($password)
     {
         if (empty($password)) {
             throw new InvalidArgumentException('Password can not be empty.');
         }
         $passwordHash = hash('sha256', $password);
-        $statement = "INSERT INTO kvstore (`key`,`value`) VALUES (%s,%s)";
-        return $this->db->prepare($statement, 'mpw_hash', $passwordHash)->execute();
+        $encryptionKey = $this->generateEncryptionKey($password);
+        if (empty($encryptionKey)) {
+            return false;
+        }
+        $statement = "INSERT INTO users (`username`,`password`,`encryption_key`) VALUES (%s,%s,%s)";
+        $res = $this->db->prepare($statement, 'system', $passwordHash, $encryptionKey)->execute();
+        return $res;
     }
 
     /**
      * Generates new encrpytion key and stores it in database.
      *
      * @param string $password
-     * @return bool
+     * @return string|bool
      */
-    public function generateEncryptionKey($password)
+    protected function generateEncryptionKey($password)
     {
         if (empty($password)) {
             throw new InvalidArgumentException('Password can not be empty.');
@@ -112,19 +163,16 @@ class Auth extends DatabaseDomain
         try {
             $key = Crypto::createNewRandomKey();
         } catch (Ex\CryptoTestFailedException $ex) {
-            print_r($ex);
+            var_dump($ex);
             return false;
         } catch (Ex\CannotPerformOperationException $ex) {
-            print_r($ex);
+            var_dump($ex);
             return false;
         }
 
         // encrypt key:
         $keyEncryped = $this->encryptString($key, $password);
-
-        // store key in database:
-        $statement = "INSERT INTO kvstore (`key`,`value`) VALUES (%s,%s)";
-        return $this->db->prepare($statement, 'encryption_key', $keyEncryped)->execute();
+        return $keyEncryped;
     }
 
     /**

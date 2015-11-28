@@ -51,13 +51,14 @@ CREATE TABLE IF NOT EXISTS `servers` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `kvstore`
+-- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS `kvstore` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `key` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `value` blob,
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `password` blob NOT NULL,
+  `encryption_key` blob NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `key` (`key`)
+  UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

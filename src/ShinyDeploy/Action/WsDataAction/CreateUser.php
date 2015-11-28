@@ -2,16 +2,20 @@
 
 use ShinyDeploy\Domain\Database\Auth;
 
-class SetMasterPasswordHash extends WsDataAction
+class CreateUser extends WsDataAction
 {
     /**
-     * Checks if master-password hash was already set.
+     * Checks if system user exists.
      *
      * @param mixed $actionPayload
      * @return bool
      */
     public function __invoke($actionPayload)
     {
+        if (empty($actionPayload['username'])) {
+            $this->responder->setError('Username can not be empty.');
+            return false;
+        }
         if (empty($actionPayload['password']) || empty($actionPayload['password_verify'])) {
             $this->responder->setError('Password can not be empty.');
             return false;
@@ -24,16 +28,13 @@ class SetMasterPasswordHash extends WsDataAction
         $auth = new Auth($this->config, $this->logger);
 
         // store hash of master password in database:
-        $result = $auth->setMasterPasswordHash($actionPayload['password']);
-        if ($result === false) {
-            $this->responder->setError('Could not save master-password hash.');
-            return false;
+        if ($actionPayload['username'] === 'system') {
+            $result = $auth->createSystemUser($actionPayload['password']);
+        } else {
+            $result = $auth->createUser($actionPayload['username'], $actionPayload['password']);
         }
-
-        // generate encrytion key and sote in database:
-        $result = $auth->generateEncryptionKey($actionPayload['password']);
         if ($result === false) {
-            $this->responder->setError('Could not save encryption key.');
+            $this->responder->setError('Could not save user to database.');
             return false;
         }
 

@@ -5,8 +5,11 @@ use ShinyDeploy\Domain\Database\Auth;
 class Login extends WsDataAction
 {
     /**
-     * Fetches a server list
-     * @param mixed $actionPayload
+     * Does user login.
+     *
+     * @todo Use username from request as soon as multiple users are supported.
+     *
+     * @param array $actionPayload
      * @return bool
      */
     public function __invoke($actionPayload)
@@ -15,9 +18,11 @@ class Login extends WsDataAction
             $this->responder->setError('Invalid password.');
             return false;
         }
+
+        $username = 'system';
         $auth = new Auth($this->config, $this->logger);
         $inputHash = hash('sha256', $actionPayload['password']);
-        $storedHash = $auth->getMasterHash();
+        $storedHash = $auth->getPasswordHashByUsername($username);
         if (empty($storedHash)) {
             $this->responder->setError('No master password set.');
             return false;

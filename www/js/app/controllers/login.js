@@ -5,20 +5,20 @@
         .module('shinyDeploy')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$scope', '$location', 'auth', 'alertsService'];
+    LoginController.$inject = ['$location', 'auth', 'alertsService'];
 
-    function LoginController($scope, $location, auth, alertsService) {
+    function LoginController($location, auth, alertsService) {
         /*jshint validthis: true */
         var vm = this;
 
         // Properties
         vm.password = '';
         vm.password_verify = '';
-        vm.masterHashSet = false;
+        vm.systemUserExists = false;
 
         // Methods
         vm.login = login;
-        vm.setMasterPasswordHash = setMasterPasswordHash;
+        vm.createSystemUser = createSystemUser;
 
         init();
 
@@ -28,9 +28,9 @@
          *
          */
         function init() {
-            auth.masterHashExists().then(function(response) {
-                if (response.hasOwnProperty('hashExists') && response.hashExists === true) {
-                    vm.masterHashSet = true;
+            auth.systemUserExists().then(function(response) {
+                if (response.hasOwnProperty('userExists') && response.userExists === true) {
+                    vm.systemUserExists = true;
                 }
             });
         };
@@ -52,18 +52,18 @@
         }
 
         /**
-         * Sets new master password.
+         * Triggers creation of system user.
          *
-         * @returns {undefined}
+         * @returns {booloan}
          */
-        function setMasterPasswordHash() {
-           auth.setMasterPasswordHash(vm.password, vm.password_verify).then(function(response) {
+        function createSystemUser() {
+           auth.createSystemUser(vm.password, vm.password_verify).then(function(response) {
                if (response.hasOwnProperty('success') && response.success === true) {
-                   vm.masterHashSet = true;
-                   alertsService.pushAlert('Password successfully saved.', 'success');
+                   vm.systemUserExists = true;
+                   alertsService.pushAlert('System user successfully created.', 'success');
                    return true;
                }
-               alertsService.pushAlert('Error while setting password. Check logs.', 'error');
+               alertsService.pushAlert('Error while creating system user. Check logfile for details', 'error');
                return false;
            }, function(error) {
                alertsService.pushAlert(error, 'error');
