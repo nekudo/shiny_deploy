@@ -32,7 +32,7 @@ class Login extends WsDataAction
             return false;
         }
 
-        $jwt = $auth->generateToken($actionPayload['password'], $this->clientId);
+        $jwt = $auth->generateToken($username, $actionPayload['password'], $this->clientId);
         if (empty($jwt)) {
             $this->responder->setError('Error during login. Please check logs.');
             return false;

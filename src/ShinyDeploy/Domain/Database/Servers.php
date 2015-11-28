@@ -6,9 +6,12 @@ use RuntimeException;
 use ShinyDeploy\Domain\Server\Server;
 use ShinyDeploy\Domain\Server\SftpServer;
 use ShinyDeploy\Domain\Server\SshServer;
+use ShinyDeploy\Traits\CryptableDomain;
 
 class Servers extends DatabaseDomain
 {
+    use CryptableDomain;
+
     /** @var array $rules Validation rules */
     protected $rules = [
         'required' => [
@@ -27,6 +30,15 @@ class Servers extends DatabaseDomain
         'hostname' => [
             ['hostname']
         ],
+    ];
+
+    /** @var array $encryptedFields Fields that are encrypted in database. */
+    protected $encryptedFields = [
+        'hostname',
+        'port',
+        'username',
+        'password',
+        'root_path',
     ];
 
     /**
@@ -86,6 +98,12 @@ class Servers extends DatabaseDomain
     public function getServers()
     {
         $rows = $this->db->prepare("SELECT * FROM servers ORDER BY `name`")->getResult(false);
+        if (empty($rows)) {
+            return $rows;
+        }
+        foreach ($rows as $i => $row) {
+            $rows[$i] = $this->decryptData($row, $this->encryptedFields);
+        }
         return $rows;
     }
 
@@ -97,11 +115,13 @@ class Servers extends DatabaseDomain
      */
     public function addServer(array $serverData)
     {
+        $serverData = $this->encryptData($serverData, $this->encryptedFields);
+
         return $this->db->prepare(
             "INSERT INTO servers
               (`name`, `type`, `hostname`, `port`, `username`, `password`, `root_path`)
               VALUES
-                (%s, %s, %s, %d, %s, %s, %s)",
+                (%s, %s, %s, %s, %s, %s, %s)",
             $serverData['name'],
             $serverData['type'],
             $serverData['hostname'],
@@ -123,12 +143,15 @@ class Servers extends DatabaseDomain
         if (!isset($serverData['id'])) {
             return false;
         }
+
+        $serverData = $this->encryptData($serverData, $this->encryptedFields);
+        
         return $this->db->prepare(
             "UPDATE servers
             SET `name` = %s,
               `type` = %s,
               `hostname` = %s,
-              `port` = %d,
+              `port` = %s,
               `username` = %s,
               `password` = %s,
               `root_path` = %s
@@ -175,6 +198,8 @@ class Servers extends DatabaseDomain
         if (empty($serverData)) {
             return [];
         }
+
+        $serverData = $this->decryptData($serverData, $this->encryptedFields);
         return $serverData;
     }
 

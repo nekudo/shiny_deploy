@@ -1,4 +1,4 @@
-<?php namespace ShinyDeploy\Domain;
+<?php namespace ShinyDeploy\Core\Crypto;
 /**
  * A class to handle secure encryption and decryption of arbitrary data
  *
@@ -16,7 +16,7 @@
  * - Does HMAC verification of source data
  *
  */
-class Encryption
+class PasswordCrypto
 {
 
     /**

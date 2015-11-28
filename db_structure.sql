@@ -40,13 +40,13 @@ CREATE TABLE IF NOT EXISTS `servers` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `type` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `hostname` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `port` int(5) NOT NULL,
-  `username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `root_path` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `hostname` blob NOT NULL,
+  `port` blob NOT NULL,
+  `username` blob NOT NULL,
+  `password` blob NOT NULL,
+  `root_path` blob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
