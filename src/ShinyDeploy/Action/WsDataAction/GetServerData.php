@@ -1,6 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Servers;
 use ShinyDeploy\Exceptions\WebsocketException;
 
@@ -15,6 +16,16 @@ class GetServerData extends WsDataAction
         }
         $serverId = (int)$actionPayload['serverId'];
         $servers = new Servers($this->config, $this->logger);
+
+        // get users encryption key:
+        $auth = new Auth($this->config, $this->logger);
+        $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+        if (empty($encryptionKey)) {
+            $this->responder->setError('Could not get encryption key.');
+            return false;
+        }
+
+        $servers->setEnryptionKey($encryptionKey);
         $serverData = $servers->getServerData($serverId);
         if (empty($serverData)) {
             $this->responder->setError('Server not found in database.');
