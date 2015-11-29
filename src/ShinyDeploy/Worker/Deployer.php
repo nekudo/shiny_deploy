@@ -43,7 +43,11 @@ class Deployer extends Worker
             if (empty($params['deploymentId'])) {
                 throw new WebsocketException('Can not handle job. No deployment-id provided.');
             }
+            if (empty($params['token'])) {
+                throw new WebsocketException('Can not handle job. Token not provided.');
+            }
             $action = new Deploy($this->config, $this->logger);
+            $action->setToken($params['token']);
             $action->__invoke($params['deploymentId'], $params['clientId']);
         } catch (WorkerException $e) {
             $this->logger->alert(
@@ -71,7 +75,11 @@ class Deployer extends Worker
             if (empty($params['deploymentId'])) {
                 throw new WebsocketException('Can not handle job. No deployment-id provided.');
             }
+            if (empty($params['token'])) {
+                throw new WebsocketException('Can not handle job. Token not provided.');
+            }
             $action = new GetChangedFiles($this->config, $this->logger);
+            $action->setToken($params['token']);
             $action->__invoke($params['deploymentId'], $params['clientId']);
         } catch (WorkerException $e) {
             $this->logger->alert(
@@ -96,8 +104,12 @@ class Deployer extends Worker
             if (empty($params['clientId'])) {
                 throw new WebsocketException('Can not handle job. No client-id provided.');
             }
+            if (empty($params['token'])) {
+                throw new WebsocketException('Can not handle job. Token not provided.');
+            }
 
             $action = new GetFileDiff($this->config, $this->logger);
+            $action->setToken($params['token']);
             $action->__invoke($params);
         } catch (WorkerException $e) {
             $this->logger->alert(
@@ -122,8 +134,12 @@ class Deployer extends Worker
             if (empty($params['clientId'])) {
                 throw new WebsocketException('Can not handle job. No client-id provided.');
             }
+            if (empty($params['token'])) {
+                throw new WebsocketException('Can not handle job. Token not provided.');
+            }
 
             $action = new SetLocalRevision($this->config, $this->logger);
+            $action->setToken($params['token']);
             $action->__invoke($params);
         } catch (WorkerException $e) {
             $this->logger->alert(
@@ -148,8 +164,12 @@ class Deployer extends Worker
             if (empty($params['clientId'])) {
                 throw new WebsocketException('Can not handle job. No client-id provided.');
             }
+            if (empty($params['token'])) {
+                throw new WebsocketException('Can not handle job. Token not provided.');
+            }
 
             $action = new SetRemoteRevision($this->config, $this->logger);
+            $action->setToken($params['token']);
             $action->__invoke($params);
         } catch (WorkerException $e) {
             $this->logger->alert(

@@ -22,11 +22,13 @@ class Deployment extends Domain
     /** @var array $changedFiles */
     protected $changedFiles = [];
 
-    public function init(array $data)
+    public function init(array $data, $encryptionKey)
     {
         $this->data = $data;
         $servers = new Servers($this->config, $this->logger);
+        $servers->setEnryptionKey($encryptionKey);
         $repositories = new Repositories($this->config, $this->logger);
+        $repositories->setEnryptionKey($encryptionKey);
         $this->server = $servers->getServer($data['server_id']);
         $this->repository = $repositories->getRepository($data['repository_id']);
     }

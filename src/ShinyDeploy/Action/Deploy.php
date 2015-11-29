@@ -3,6 +3,7 @@ namespace ShinyDeploy\Action;
 
 use RuntimeException;
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Responder\WsLogResponder;
 use ShinyDeploy\Responder\WsNotificationResponder;
@@ -18,6 +19,14 @@ class Deploy extends Action
                 throw new RuntimeException('Deployment-ID can not be empty');
             }
 
+            // get users encryption key:
+            $auth = new Auth($this->config, $this->logger);
+            $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+            if (empty($encryptionKey)) {
+                $this->responder->setError('Could not get encryption key.');
+                return false;
+            }
+
             // Init stuff
             $logResponder = new WsLogResponder($this->config, $this->logger);
             $logResponder->setClientId($clientId);
@@ -26,6 +35,7 @@ class Deploy extends Action
             $notificationResponder = new WsNotificationResponder($this->config, $this->logger);
             $notificationResponder->setClientId($clientId);
             $deployments = new Deployments($this->config, $this->logger);
+            $deployments->setEnryptionKey($encryptionKey);
             $deployment = $deployments->getDeployment($deploymentId);
             $deployment->setLogResponder($logResponder);
 
