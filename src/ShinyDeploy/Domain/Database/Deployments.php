@@ -3,9 +3,12 @@ namespace ShinyDeploy\Domain\Database;
 
 use RuntimeException;
 use ShinyDeploy\Domain\Deployment;
+use ShinyDeploy\Traits\CryptableDomain;
 
 class Deployments extends DatabaseDomain
 {
+    use CryptableDomain;
+
     /** @var array $rules Validation rules */
     protected $rules = [
         'required' => [
@@ -24,6 +27,11 @@ class Deployments extends DatabaseDomain
             ['branch', 1, 100],
             ['target_path', 1, 200],
         ]
+    ];
+
+    /** @var array $encryptedFields Fields that are encrypted in database. */
+    protected $encryptedFields = [
+        'tasks',
     ];
 
     /**
@@ -62,7 +70,7 @@ class Deployments extends DatabaseDomain
             throw  new RuntimeException('Deployment not found in database.');
         }
         $deployment = new Deployment($this->config, $this->logger);
-        $deployment->init($data);
+        $deployment->init($data, $this->encryptionKey);
         return $deployment;
     }
 
@@ -74,6 +82,16 @@ class Deployments extends DatabaseDomain
     public function getDeployments()
     {
         $rows = $this->db->prepare("SELECT * FROM deployments ORDER BY `name`")->getResult(false);
+        if (empty($rows)) {
+            return $rows;
+        }
+        foreach ($rows as $i => $row) {
+            $rowDecrypted = $this->decryptData($row, $this->encryptedFields);
+            if ($rowDecrypted === false) {
+                throw new RuntimeException('Data decryption failed.');
+            }
+            $rows[$i] = $rowDecrypted;
+        }
         return $rows;
     }
 
@@ -87,6 +105,10 @@ class Deployments extends DatabaseDomain
     {
         if (!isset($deploymentData['tasks'])) {
             $deploymentData['tasks'] = '';
+        }
+        $deploymentData = $this->encryptData($deploymentData, $this->encryptedFields);
+        if ($deploymentData === false) {
+            throw new RuntimeException('Data encryption failed.');
         }
         return $this->db->prepare(
             "INSERT INTO deployments
@@ -112,6 +134,10 @@ class Deployments extends DatabaseDomain
     {
         if (!isset($deploymentData['id'])) {
             return false;
+        }
+         $deploymentData = $this->encryptData($deploymentData, $this->encryptedFields);
+        if ($deploymentData === false) {
+            throw new RuntimeException('Data encryption failed.');
         }
         return $this->db->prepare(
             "UPDATE deployments
@@ -163,6 +189,10 @@ class Deployments extends DatabaseDomain
             ->getResult(true);
         if (empty($deploymentData)) {
             return [];
+        }
+        $deploymentData = $this->decryptData($deploymentData, $this->encryptedFields);
+        if ($deploymentData === false) {
+            throw new RuntimeException('Data decryption failed.');
         }
         if (!empty($deploymentData['tasks'])) {
             $deploymentData['tasks'] = json_decode($deploymentData['tasks'], true);

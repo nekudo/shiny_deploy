@@ -1,6 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Exceptions\WebsocketException;
 use Valitron\Validator;
@@ -10,7 +11,7 @@ class UpdateDeployment extends WsDataAction
     public function __invoke($actionPayload)
     {
         $this->authorize($this->clientId);
-        
+
         if (!isset($actionPayload['deploymentData'])) {
             throw new WebsocketException('Invalid updateDeployment request received.');
         }
@@ -28,7 +29,16 @@ class UpdateDeployment extends WsDataAction
             return false;
         }
 
+        // get users encryption key:
+        $auth = new Auth($this->config, $this->logger);
+        $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+        if (empty($encryptionKey)) {
+            $this->responder->setError('Could not get encryption key.');
+            return false;
+        }
+
         // update deployment:
+        $deployments->setEnryptionKey($encryptionKey);
         $updateResult = $deployments->updateDeployment($deploymentData);
         if ($updateResult === false) {
             $this->responder->setError('Could not update deployment.');

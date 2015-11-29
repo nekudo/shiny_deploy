@@ -3,6 +3,7 @@ namespace ShinyDeploy\Action;
 
 use RuntimeException;
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Responder\WsChangedFilesResponder;
 use ShinyDeploy\Responder\WsLogResponder;
@@ -18,10 +19,19 @@ class GetChangedFiles extends Action
                 throw new RuntimeException('Deployment-ID can not be empty');
             }
 
+            // get users encryption key:
+            $auth = new Auth($this->config, $this->logger);
+            $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+            if (empty($encryptionKey)) {
+                $this->responder->setError('Could not get encryption key.');
+                return false;
+            }
+
             // init stuff:
             $logResponder = new WsLogResponder($this->config, $this->logger);
             $logResponder->setClientId($clientId);
             $deployments = new Deployments($this->config, $this->logger);
+            $deployments->setEnryptionKey($encryptionKey);
             $deployment = $deployments->getDeployment($deploymentId);
             $deployment->setLogResponder($logResponder);
 

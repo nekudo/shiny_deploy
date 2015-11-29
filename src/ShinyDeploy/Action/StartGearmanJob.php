@@ -19,7 +19,7 @@ class StartGearmanJob extends Action
     public function __invoke($jobName, $clientId, array $jobPayload = [])
     {
         $this->authorize($clientId);
-        
+
         try {
             if (empty($jobName) || empty($clientId)) {
                 throw new RuntimeException('Required argument missing.');
@@ -36,6 +36,7 @@ class StartGearmanJob extends Action
             $client = new \GearmanClient;
             $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
             $jobPayload['clientId'] = $clientId;
+            $jobPayload['token'] = $this->token;
             $payload = json_encode($jobPayload);
             $client->doBackground($jobName, $payload);
             return true;

@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS `deployments` (
   `repository_id` int(10) unsigned NOT NULL DEFAULT '0',
   `branch` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `target_path` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `tasks` text COLLATE utf8_unicode_ci NOT NULL,
+  `tasks` blob NOT NULL,
   PRIMARY KEY (`id`),
   KEY `server_id` (`server_id`,`repository_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -24,11 +24,11 @@ CREATE TABLE IF NOT EXISTS `repositories` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   `type` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `url` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `username` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `url` blob NOT NULL,
+  `username` blob NOT NULL,
+  `password` blob NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 

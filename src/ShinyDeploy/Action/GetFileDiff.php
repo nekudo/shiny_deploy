@@ -3,6 +3,7 @@ namespace ShinyDeploy\Action;
 
 use RuntimeException;
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Responder\WsFileDiffResponder;
 
@@ -21,7 +22,16 @@ class GetFileDiff extends Action
                 throw new RuntimeException('Invalid local revision');
             }
 
+            // get users encryption key:
+            $auth = new Auth($this->config, $this->logger);
+            $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+            if (empty($encryptionKey)) {
+                $this->responder->setError('Could not get encryption key.');
+                return false;
+            }
+
             $repositories = new Repositories($this->config, $this->logger);
+            $repositories->setEnryptionKey($encryptionKey);
             $repository = $repositories->getRepository($params['repositoryId']);
             $diff = $repository->getFileDiff($params['file'], $params['localRevision'], $params['remoteRevision']);
             $responder = new WsFileDiffResponder($this->config, $this->logger);
