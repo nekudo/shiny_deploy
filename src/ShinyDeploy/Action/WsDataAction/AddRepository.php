@@ -1,6 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Exceptions\WebsocketException;
 use Valitron\Validator;
@@ -10,7 +11,7 @@ class AddRepository extends WsDataAction
     public function __invoke($actionPayload)
     {
         $this->authorize($this->clientId);
-        
+
         if (!isset($actionPayload['repositoryData'])) {
             throw new WebsocketException('Invalid addRepository request received.');
         }
@@ -42,7 +43,16 @@ class AddRepository extends WsDataAction
             return false;
         }
 
+        // get users encryption key:
+        $auth = new Auth($this->config, $this->logger);
+        $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+        if (empty($encryptionKey)) {
+            $this->responder->setError('Could not get encryption key.');
+            return false;
+        }
+
         // add repository:
+        $repositories->setEnryptionKey($encryptionKey);
         $repositoryId = $repositories->addRepository($repositoryData);
         if ($repositoryId === false) {
             $this->responder->setError('Could not add repository to database.');
@@ -54,6 +64,7 @@ class AddRepository extends WsDataAction
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $actionPayload['clientId'] = $this->clientId;
         $actionPayload['repositoryId'] = $repositoryId;
+        $actionPayload['token'] = $this->token;
         $payload = json_encode($actionPayload);
         $client->doBackground('cloneRepository', $payload);
         return true;

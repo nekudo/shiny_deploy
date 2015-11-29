@@ -3,9 +3,12 @@ namespace ShinyDeploy\Domain\Database;
 
 use RuntimeException;
 use ShinyDeploy\Domain\Repository;
+use ShinyDeploy\Traits\CryptableDomain;
 
 class Repositories extends DatabaseDomain
 {
+    use CryptableDomain;
+
     /** @var array $rules Validation rules */
     protected $rules = [
         'required' => [
@@ -19,6 +22,13 @@ class Repositories extends DatabaseDomain
         'url' => [
             ['url']
         ],
+    ];
+
+    /** @var array $encryptedFields Fields that are encrypted in database. */
+    protected $encryptedFields = [
+        'url',
+        'username',
+        'password',
     ];
 
     /**
@@ -70,6 +80,16 @@ class Repositories extends DatabaseDomain
     public function getRepositories()
     {
         $rows = $this->db->prepare("SELECT * FROM repositories ORDER BY `name`")->getResult(false);
+        if (empty($rows)) {
+            return $rows;
+        }
+        foreach ($rows as $i => $row) {
+            $decryptedRow = $this->decryptData($row, $this->encryptedFields);
+            if ($decryptedRow === false) {
+                throw new RuntimeException('Date decryption failed.');
+            }
+            $rows[$i] = $decryptedRow;
+        }
         return $rows;
     }
 
@@ -86,6 +106,10 @@ class Repositories extends DatabaseDomain
         }
         if (!isset($repositoryData['password'])) {
             $repositoryData['password'] = '';
+        }
+        $repositoryData = $this->encryptData($repositoryData, $this->encryptedFields);
+        if ($repositoryData === false) {
+            throw new RuntimeException('Data encryption failed.');
         }
         $result = $this->db->prepare(
             "INSERT INTO repositories
@@ -120,6 +144,10 @@ class Repositories extends DatabaseDomain
         }
         if (!isset($repositoryData['password'])) {
             $repositoryData['password'] = '';
+        }
+        $repositoryData = $this->encryptData($repositoryData, $this->encryptedFields);
+        if ($repositoryData === false) {
+            throw new RuntimeException('Data encryption failed.');
         }
         return $this->db->prepare(
             "UPDATE repositories
@@ -170,6 +198,10 @@ class Repositories extends DatabaseDomain
             ->getResult(true);
         if (empty($repositoryData)) {
             return [];
+        }
+        $repositoryData = $this->decryptData($repositoryData, $this->encryptedFields);
+        if ($repositoryData === false) {
+            throw new RuntimeException('Data decryption failed.');
         }
         if (!isset($repositoryData['username'])) {
             $repositoryData['username'] = '';
