@@ -102,7 +102,11 @@ class Servers extends DatabaseDomain
             return $rows;
         }
         foreach ($rows as $i => $row) {
-            $rows[$i] = $this->decryptData($row, $this->encryptedFields);
+            $decryptedRow = $this->decryptData($row, $this->encryptedFields);
+            if ($decryptedRow === false) {
+                throw new RuntimeException('Date decryption failed.');
+            }
+            $rows[$i] = $decryptedRow;
         }
         return $rows;
     }
@@ -116,6 +120,9 @@ class Servers extends DatabaseDomain
     public function addServer(array $serverData)
     {
         $serverData = $this->encryptData($serverData, $this->encryptedFields);
+        if ($serverData === false) {
+            throw new RuntimeException('Data encryption failed.');
+        }
 
         return $this->db->prepare(
             "INSERT INTO servers
@@ -145,7 +152,10 @@ class Servers extends DatabaseDomain
         }
 
         $serverData = $this->encryptData($serverData, $this->encryptedFields);
-        
+        if ($serverData === false) {
+            throw new RuntimeException('Data encryption failed.');
+        }
+
         return $this->db->prepare(
             "UPDATE servers
             SET `name` = %s,
@@ -200,6 +210,9 @@ class Servers extends DatabaseDomain
         }
 
         $serverData = $this->decryptData($serverData, $this->encryptedFields);
+        if ($serverData === false) {
+            throw new RuntimeException('Data decryption failed.');
+        }
         return $serverData;
     }
 

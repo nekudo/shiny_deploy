@@ -1,7 +1,10 @@
 <?php
 namespace ShinyDeploy\Action;
 
+use InvalidArgumentException;
+use RuntimeException;
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Responder\WsNotificationResponder;
 
@@ -12,10 +15,18 @@ class CloneRepository extends Action
         try {
             $repositoryId = (int)$repositoryId;
             if (empty($repositoryId)) {
-                throw new \RuntimeException('Repository-ID can not be empty');
+                throw new InvalidArgumentException('Repository-ID can not be empty');
             }
             if (empty($clientId)) {
-                throw new \RuntimeException('Client-ID can not be empty.');
+                throw new InvalidArgumentException('Client-ID can not be empty.');
+            }
+
+            // get users encryption key:
+            $auth = new Auth($this->config, $this->logger);
+            $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+            if (empty($encryptionKey)) {
+                $this->responder->setError('Could not get encryption key.');
+                return false;
             }
 
             // Init responder:
@@ -24,6 +35,7 @@ class CloneRepository extends Action
 
             // Init domains:
             $repositories = new Repositories($this->config, $this->logger);
+            $repositories->setEnryptionKey($encryptionKey);
             $repository = $repositories->getRepository($repositoryId);
             if (empty($repository)) {
                 $notificationResponder->send('Repository not found in database.', 'danger');
@@ -57,7 +69,7 @@ class CloneRepository extends Action
             $notificationResponder->send('Could not clone repository to local server.', 'danger');
             return false;
 
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->logger->alert(
                 'Runtime Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );

@@ -1,6 +1,7 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
+use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Exceptions\WebsocketException;
 use Valitron\Validator;
@@ -10,7 +11,7 @@ class UpdateRepository extends WsDataAction
     public function __invoke($actionPayload)
     {
         $this->authorize($this->clientId);
-        
+
         if (!isset($actionPayload['repositoryData'])) {
             throw new WebsocketException('Invalid updateRepository request received.');
         }
@@ -42,7 +43,16 @@ class UpdateRepository extends WsDataAction
             return false;
         }
 
+        // get users encryption key:
+        $auth = new Auth($this->config, $this->logger);
+        $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+        if (empty($encryptionKey)) {
+            $this->responder->setError('Could not get encryption key.');
+            return false;
+        }
+
         // update repository:
+        $repositories->setEnryptionKey($encryptionKey);
         $addResult = $repositories->updateRepository($repositoryData);
         if ($addResult === false) {
             $this->responder->setError('Could not update repository.');

@@ -37,7 +37,11 @@ class RepositoryActions extends Worker
             if (empty($params['repositoryId'])) {
                 throw new WebsocketException('Can not handle job. No repository-id provided.');
             }
+            if (empty($params['token'])) {
+                throw new WebsocketException('Can not handle job. No token provided.');
+            }
             $cloneRepositoryAction = new CloneRepository($this->config, $this->logger);
+            $cloneRepositoryAction->setToken($params['token']);
             $cloneRepositoryAction->__invoke($params['repositoryId'], $params['clientId']);
         } catch (WorkerException $e) {
             $this->logger->alert(
