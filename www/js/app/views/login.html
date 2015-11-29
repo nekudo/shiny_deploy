@@ -27,24 +27,42 @@
                     <h3 class="box-title">Create system user</h3>
                 </div>
 
-                <form role="form">
+                <form role="form" name="addUserForm" novalidate>
                     <div class="box-body">
                         <p>
                             It seems like you did not create a system user yet. Please enter a password for the
                             system user now.
                         </p>
-                        <div class="form-group">
+                        <div class="form-group"
+                             data-ng-class="{ 'has-error': addUserForm.password.$invalid && addUserForm.password.$dirty}">
                             <label for="password">Password</label>
-                            <input data-ng-model="vm.password" type="password" class="form-control" id="password" placeholder="Password">
+                            <input data-ng-model="vm.password"
+                                   data-ng-minlength="6"
+                                   required
+                                   name="password"
+                                   type="password"
+                                   class="form-control"
+                                   id="password"
+                                   placeholder="Password">
                         </div>
-                        <div class="form-group">
-                            <label for="password">Repeat Password</label>
-                            <input data-ng-model="vm.password_verify" type="password" class="form-control" id="password_verify" placeholder="Repeat Password">
+                        <div class="form-group"
+                             data-ng-class="{ 'has-error': addUserForm.password_verify.$invalid && addUserForm.password_verify.$dirty}">
+                            <label for="password_verify">Repeat Password</label>
+                            <input data-ng-model="vm.password_verify"
+                                   data-ng-minlength="6"
+                                   required
+                                   type="password"
+                                   name="password_verify"
+                                   class="form-control"
+                                   id="password_verify"
+                                   placeholder="Repeat Password">
                         </div>
                     </div>
 
                     <div class="box-footer">
-                        <button data-ng-click="vm.createSystemUser()" class="btn btn-primary">Submit</button>
+                        <button data-ng-click="vm.createSystemUser()"
+                                data-ng-disabled="addUserForm.$invalid"
+                                class="btn btn-primary">Submit</button>
                     </div>
                 </form>
             </div>
