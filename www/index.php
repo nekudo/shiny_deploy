@@ -62,7 +62,7 @@
 <div data-ng-include="'/js/app/partials/notifications.html'"></div>
 
 <script src="/js/vendor.min.js"></script>
-<script src="/js/project.min.js"></script>
 <script src="/js/config.js"></script>
+<script src="/js/project.min.js"></script>
 </body>
 </html>
