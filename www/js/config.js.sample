@@ -1,4 +1,4 @@
 angular.module('shinyDeploy.config', [])
     .constant('shinyDeployConfig', {
-        wsUrl: 'ws://127.0.0.1:8090'
+        wsUrl: 'ws://yourdomain.com:8090' // url to websocket server
     });
