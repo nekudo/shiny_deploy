@@ -63,5 +63,6 @@
 
 <script src="/js/vendor.min.js"></script>
 <script src="/js/project.min.js"></script>
+<script src="/js/config.js"></script>
 </body>
 </html>

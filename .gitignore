@@ -19,4 +19,4 @@ composer.lock
 
 # Project
 /src/ShinyDeploy/config.php
-/www/js/app/app.config.js
+/www/js/config.js

@@ -10,30 +10,30 @@ a wide range of users. You should **always have a backup** of your data.
 
 ## Features
 
-* Graphical user interface
+##### Graphical user interface
 
-  All action from adding servers and repositories to deployments can be managed from simple and easy to use GUI.
+All action from adding servers and repositories to deployments can be managed from simple and easy to use GUI.
 
-* Secure data storage
+##### Secure data storage
 
-  Sensitive data like usernames and passwords are encrypted before storing them in database. Decryption is only
-  possible with a password you need to enter during login.
+Sensitive data like usernames and passwords are encrypted before storing them in database. Decryption is only
+possible with a password you need to enter during login.
 
-* List changed files before deploy
+##### List changed files before deploy
 
-  Before deploying to a target server you can list all files that have been changed since last deploy. Using a
-  diff-view you can even review changes before uploading.
+Before deploying to a target server you can list all files that have been changed since last deploy. Using a
+diff-view you can even review changes before uploading.
 
-* Execute tasks before/after deploy
+##### Execute tasks before/after deploy
 
-  It is possible to define simple ssh commands to be executed before/after each deployment. This feature may be
-  useful to re-start applications, build css/js or do whatever is necessary to deploy your application.
+It is possible to define simple ssh commands to be executed before/after each deployment. This feature may be
+useful to re-start applications, build css/js or do whatever is necessary to deploy your application.
 
-* Open source
+##### Open source
 
-  The whole project is open-source and MIT license. This way you can host your own instance in your local network
-  and don't have to worry about giving sensitive information away. And of course you can modify the application
-  in any way you like.
+The whole project is open-source and MIT license. This way you can host your own instance in your local network
+and don't have to worry about giving sensitive information away. And of course you can modify the application
+in any way you like.
 
 ## Installation
 
@@ -75,7 +75,7 @@ PHP Extensions
 
   ```mv src/ShinyDeploy/config.sample.php src/ShinyDeploy/config.php```
 
-  ```mv www/js/app/app.config.js.sample www/js/app.config.js```
+  ```mv www/js/config.js.sample www/js/config.js```
 
 ### Start application
 
