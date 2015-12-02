@@ -5,16 +5,16 @@
         .module('shinyDeploy')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$location', 'auth', 'alertsService'];
+    LoginController.$inject = ['$timeout', '$location', 'auth', 'alertsService'];
 
-    function LoginController($location, auth, alertsService) {
+    function LoginController($timeout, $location, auth, alertsService) {
         /*jshint validthis: true */
         var vm = this;
 
         // Properties
         vm.password = '';
         vm.password_verify = '';
-        vm.systemUserExists = false;
+        vm.systemUserExists = true;
 
         // Methods
         vm.login = login;
@@ -28,11 +28,13 @@
          *
          */
         function init() {
-            auth.systemUserExists().then(function(response) {
-                if (response.hasOwnProperty('userExists') && response.userExists === true) {
-                    vm.systemUserExists = true;
-                }
-            });
+            $timeout(function() {
+                auth.systemUserExists().then(function(response) {
+                    if (response.hasOwnProperty('userExists') && response.userExists !== true) {
+                        vm.systemUserExists = false;
+                    }
+                });
+            }, 100);
         };
 
         /**
