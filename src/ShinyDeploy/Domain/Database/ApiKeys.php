@@ -57,4 +57,21 @@ class ApiKeys extends DatabaseDomain
         $statement = "DELETE FROM api_keys WHERE `deployment_id` = %d";
         return $this->db->prepare($statement, $deploymentId)->execute();
     }
+
+    /**
+     * Fetches API key data by api-key.
+     *
+     * @param string $apiKey
+     * @return array
+     * @throws InvalidArgumentException
+     */
+    public function getDataByApiKey($apiKey)
+    {
+        if (empty($apiKey)) {
+            throw new \InvalidArgumentException('API key can not be empty.');
+        }
+        $statement = "SELECT * FROM api_keys WHERE `api_key` = %s";
+        $row = $this->db->prepare($statement, $apiKey)->getResult();
+        return $row;
+    }
 }

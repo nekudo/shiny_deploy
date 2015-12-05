@@ -7,6 +7,7 @@ use ShinyDeploy\Action\GetChangedFiles;
 use ShinyDeploy\Action\GetFileDiff;
 use ShinyDeploy\Action\SetLocalRevision;
 use ShinyDeploy\Action\SetRemoteRevision;
+use ShinyDeploy\Action\ApiAction\Deploy as ApiDeploy;
 use ShinyDeploy\Core\Worker;
 use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\WorkerException;
@@ -19,6 +20,7 @@ class Deployer extends Worker
     protected function registerCallbacks()
     {
         $this->GearmanWorker->addFunction('deploy', [$this, 'deploy']);
+        $this->GearmanWorker->addFunction('apiDeploy', [$this, 'apiDeploy']);
         $this->GearmanWorker->addFunction('getChangedFiles', [$this, 'getChangedFiles']);
         $this->GearmanWorker->addFunction('getFileDiff', [$this, 'getFileDiff']);
         $this->GearmanWorker->addFunction('setLocalRevision', [$this, 'setLocalRevision']);
@@ -49,6 +51,36 @@ class Deployer extends Worker
             $action = new Deploy($this->config, $this->logger);
             $action->setToken($params['token']);
             $action->__invoke($params['deploymentId'], $params['clientId']);
+        } catch (WorkerException $e) {
+            $this->logger->alert(
+                'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+        }
+        return true;
+    }
+
+    /**
+     * Handles deployment requested by REST API.
+     *
+     * @param \GearmanJob $Job
+     * @throws \Exception
+     * @return bool
+     */
+    public function apiDeploy(\GearmanJob $Job)
+    {
+        try {
+            $this->countJob();
+            $params = json_decode($Job->workload(), true);
+            if (empty($params['apiKey'])) {
+                throw new \InvalidArgumentException('API key missing.');
+            }
+            if (empty($params['apiPassword'])) {
+                throw new \InvalidArgumentException('API password missing.');
+            }
+            $action = new ApiDeploy($this->config, $this->logger);
+            $action->setApiKey($params['apiKey']);
+            $action->setApiPassword($params['apiPassword']);
+            $action->__invoke();
         } catch (WorkerException $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
