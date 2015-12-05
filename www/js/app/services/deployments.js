@@ -121,6 +121,19 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
     };
 
     /**
+     * Trigger API key generation.
+     *
+     * @param {Array} deploymentData
+     * @returns {promise}
+     */
+    this.generateApiKey = function (deploymentData) {
+        var requestParams = {
+            deploymentData: deploymentData
+        };
+        return ws.sendDataRequest('generateApiKey', requestParams);
+    };
+
+    /**
      * Registers an event listener at websocket module.
      *
      * @param {string} eventName

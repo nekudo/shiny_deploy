@@ -143,6 +143,26 @@
 
             </form>
         </div>
+
+        <div class="col-xs-12">
+            <div class="box" data-ng-class="{'box-primary': vm.isEdit, 'box-success': vm.isAdd}">
+                <div class="box-header">
+                    <h3 class="box-title">API/Webhook URL</h3>
+                </div>
+                <div class="box-body">
+                    <p>explain foo bar baz...</p>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn btn-default btn-block" data-ng-click="vm.generateApiKey()">
+                                Generate Webhook URL
+                            </button>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" class="form-control" data-ng-model="vm.apiUrl" readonly>
+                        </div>
+                    </div>
+                </div>
+        </div>
     </div>
 </section>
 
