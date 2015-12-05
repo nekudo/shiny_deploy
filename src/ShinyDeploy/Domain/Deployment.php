@@ -22,13 +22,25 @@ class Deployment extends Domain
     /** @var array $changedFiles */
     protected $changedFiles = [];
 
-    public function init(array $data, $encryptionKey)
+    /** @var string $encryptionKey */
+    protected $encryptionKey;
+
+
+    public function setEncryptionKey($encryptionKey)
+    {
+        if (empty($encryptionKey)) {
+            throw new \InvalidArgumentException('Encryption key can not be empty.');
+        }
+        $this->encryptionKey = $encryptionKey;
+    }
+
+    public function init(array $data)
     {
         $this->data = $data;
         $servers = new Servers($this->config, $this->logger);
-        $servers->setEnryptionKey($encryptionKey);
+        $servers->setEnryptionKey($this->encryptionKey);
         $repositories = new Repositories($this->config, $this->logger);
-        $repositories->setEnryptionKey($encryptionKey);
+        $repositories->setEnryptionKey($this->encryptionKey);
         $this->server = $servers->getServer($data['server_id']);
         $this->repository = $repositories->getRepository($data['repository_id']);
     }

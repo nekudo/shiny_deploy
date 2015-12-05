@@ -209,6 +209,23 @@ class Auth extends DatabaseDomain
     }
 
     /**
+     * Checks if an API password is valid.
+     *
+     * @param string $apiPassword
+     * @return bool
+     */
+    public function apiPasswordIsValid($apiPassword)
+    {
+        if (empty($apiPassword)) {
+            return false;
+        }
+        $passwordHash = hash('sha256', $apiPassword);
+        $statement = "SELECT id FROM api_keys WHERE `password` = %s";
+        $apiKeyId = (int)$this->db->prepare($statement, $passwordHash)->getValue();
+        return ($apiKeyId > 0);
+    }
+
+    /**
      * Generates new encrpytion key and stores it in database.
      *
      * @param string $password

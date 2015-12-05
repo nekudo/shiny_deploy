@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `api_keys` (
   `password` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
   `encryption_key` blob NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `api_key_2` (`api_key`),
   KEY `api_key` (`api_key`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

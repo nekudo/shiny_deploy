@@ -70,7 +70,8 @@ class Deployments extends DatabaseDomain
             throw  new RuntimeException('Deployment not found in database.');
         }
         $deployment = new Deployment($this->config, $this->logger);
-        $deployment->init($data, $this->encryptionKey);
+        $deployment->setEncryptionKey($this->encryptionKey);
+        $deployment->init($data);
         return $deployment;
     }
 
