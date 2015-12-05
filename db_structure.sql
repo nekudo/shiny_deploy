@@ -1,4 +1,18 @@
 --
+-- Table structure for table `api_keys`
+--
+
+CREATE TABLE IF NOT EXISTS `api_keys` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `api_key` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `deployment_id` int(10) unsigned NOT NULL,
+  `password` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `encryption_key` blob NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `api_key` (`api_key`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
 -- Table structure for table `deployments`
 --
 
