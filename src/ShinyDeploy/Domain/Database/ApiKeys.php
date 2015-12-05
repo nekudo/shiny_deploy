@@ -42,4 +42,19 @@ class ApiKeys extends DatabaseDomain
             'password' => $password
         ];
     }
+
+    /**
+     * Deletes all existing API keys for specified deployment.
+     *
+     * @param int $deploymentId
+     * @return bool
+     */
+    public function deleteApiKeysByDeploymentId($deploymentId)
+    {
+        if (empty($deploymentId)) {
+            throw new \InvalidArgumentException('Deployment id can not be empty.');
+        }
+        $statement = "DELETE FROM api_keys WHERE `deployment_id` = %d";
+        return $this->db->prepare($statement, $deploymentId)->execute();
+    }
 }

@@ -150,10 +150,14 @@
                     <h3 class="box-title">API/Webhook URL</h3>
                 </div>
                 <div class="box-body">
-                    <p>explain foo bar baz...</p>
+                    <p>
+                        You can trigger deployments using an API request. The API url can be generated here.
+                    </p>
                     <div class="row">
                         <div class="col-md-3">
-                            <button class="btn btn-default btn-block" data-ng-click="vm.generateApiKey()">
+                            <button class="btn btn-default btn-block"
+                                    data-ng-really-message="Attention: Generating a new API-URL will invalidate previously generated URLs. Are you sure?"
+                                    data-ng-really-click="vm.generateApiKey()">
                                 Generate Webhook URL
                             </button>
                         </div>
@@ -161,6 +165,11 @@
                             <input type="text" class="form-control" data-ng-model="vm.apiUrl" readonly>
                         </div>
                     </div>
+                    <p class="help-block">
+                        <strong>Hint:</strong> Once this URL is generated it can not be restored. You should store
+                        it in a secure location. If you loose the URL you will have to generate a new one making the
+                        old URL invalid.
+                    </p>
                 </div>
         </div>
     </div>

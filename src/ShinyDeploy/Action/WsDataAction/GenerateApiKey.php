@@ -30,6 +30,7 @@ class GenerateApiKey extends WsDataAction
         // generate API key:
         $apiKeys = new ApiKeys($this->config, $this->logger);
         $apiKeys->setEnryptionKey($encryptionKey);
+        $apiKeys->deleteApiKeysByDeploymentId($deploymentData['id']);
         $apiKeyData = $apiKeys->addApiKey($deploymentData['id']);
         $this->responder->setPayload($apiKeyData);
         return true;
