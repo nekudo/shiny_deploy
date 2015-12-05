@@ -215,6 +215,7 @@
         vm.deployment = {};
         vm.task = {};
         vm.taskFormMode = 'add';
+        vm.apiUrl = '';
 
         // Methods
         vm.updateDeployment = updateDeployment;
@@ -224,6 +225,7 @@
         vm.addTask = addTask;
         vm.editTask = editTask;
         vm.deleteTask = deleteTask;
+        vm.generateApiKey = generateApiKey;
 
         // Init
         init();
@@ -328,6 +330,23 @@
          */
         function deleteTask(index) {
             vm.deployment.tasks.splice(index, 1);
+        }
+
+        /**
+         * Trigger generation of new API key/webhook URL.
+         */
+        function generateApiKey() {
+            deploymentsService.generateApiKey(vm.deployment).then(function (data) {
+                if (!data.hasOwnProperty('apiKey')) {
+                    alertsService.pushAlert('Could not generate API key.', 'warning');
+                    return false;
+                }
+                var webhookUrl = location.protocol+'//'+location.hostname;
+                webhookUrl += '/api.php?ak='+data.apiKey+'&ap='+data.password;
+                vm.apiUrl = webhookUrl;
+            }, function (reason) {
+                alertsService.pushAlert(reason, 'warning');
+            });
         }
     }
 })();

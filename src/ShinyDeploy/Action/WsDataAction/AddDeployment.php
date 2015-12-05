@@ -43,7 +43,7 @@ class AddDeployment extends WsDataAction
             return false;
         }
 
-        // add deployments:
+        // add deployment:
         $deployments->setEnryptionKey($encryptionKey);
         $addResult = $deployments->addDeployment($deploymentData);
         if ($addResult === false) {
