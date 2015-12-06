@@ -7,6 +7,11 @@ class Bitbucket implements RequestParser
     /** @var array $parameters */
     protected $parameters = [];
 
+    /**
+     * Parse useful information out of bitbucket "post" request.
+     *
+     * @return boolean
+     */
     public function parseRequest()
     {
         if (empty($_SERVER['HTTP_USER_AGENT'])) {
@@ -40,6 +45,11 @@ class Bitbucket implements RequestParser
         return true;
     }
 
+    /**
+     * Returns parsed informations.
+     *
+     * @return array
+     */
     public function getParameters()
     {
         return $this->parameters;
