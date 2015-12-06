@@ -29,6 +29,11 @@ diff-view you can even review changes before uploading.
 It is possible to define simple ssh commands to be executed before/after each deployment. This feature may be
 useful to re-start applications, build css/js or do whatever is necessary to deploy your application.
 
+##### Webhook support
+
+Once a Deployment is created you can generate an API-URL. Using this URL you can trigger deployments directly from
+GitHub or Bitbucket as soon as you push changes to your repositories.
+
 ##### Open source
 
 The whole project is open-source and MIT license. This way you can host your own instance in your local network
@@ -104,7 +109,6 @@ To start a watcher automatically rebuilding files on modifications run:
 ## ToDos and Known Bugs
 
 * Add SSH key support.
-* Trigger deployments using webhooks and API keys.
 * Check switch from Ratchet to another websocket server. (Ratchet development seems to be stuck...)
 * Check switch from Gearman to RabbitMQ. (Gearman development seems to be stuck...)
 
