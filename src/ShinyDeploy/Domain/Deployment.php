@@ -457,4 +457,19 @@ class Deployment extends Domain
         }
         return true;
     }
+
+    /**
+     * Checks if deployments branch matches the passed one.
+     *
+     * @param string $checkBranch
+     */
+    public function isBranch($checkBranch)
+    {
+        if (empty($this->data)) {
+            throw new RuntimeException('Deployment data not found. Initialization missing?');
+        }
+        $brachParts = explode('/', $this->data['branch']);
+        $branch = array_pop($brachParts);
+        return ($branch === $checkBranch);
+    }
 }

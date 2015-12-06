@@ -77,10 +77,14 @@ class Deployer extends Worker
             if (empty($params['apiPassword'])) {
                 throw new \InvalidArgumentException('API password missing.');
             }
+            $requestParameters = [];
+            if (!empty($params['requestParameters'])) {
+                $requestParameters = $params['requestParameters'];
+            }
             $action = new ApiDeploy($this->config, $this->logger);
             $action->setApiKey($params['apiKey']);
             $action->setApiPassword($params['apiPassword']);
-            $action->__invoke();
+            $action->__invoke($requestParameters);
         } catch (WorkerException $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'

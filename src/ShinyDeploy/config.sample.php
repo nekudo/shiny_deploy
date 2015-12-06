@@ -54,5 +54,11 @@ return [
     'git' => [
         'name' => 'John Doe',
         'email' => 'john@needsnomail.com',
-    ]
+    ],
+    'api' => [
+        'requestParser' => [
+            'github',
+            'bitbucket',
+        ],
+    ],
 ];
