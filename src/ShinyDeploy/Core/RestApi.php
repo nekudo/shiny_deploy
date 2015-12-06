@@ -101,8 +101,8 @@ class RestApi
      */
     protected function parseRequest()
     {
-        $this->action = (isset($_GET['a'])) ? trim($_GET['a']) : 'deploy';
-        $this->apiKey = (isset($_GET['ak'])) ? trim($_GET['ak']) : '';
-        $this->apiPassword = (isset($_GET['ap'])) ? trim($_GET['ap']) : '';
+        $this->action = (isset($_REQUEST['a'])) ? trim($_REQUEST['a']) : 'deploy';
+        $this->apiKey = (isset($_REQUEST['ak'])) ? trim($_REQUEST['ak']) : '';
+        $this->apiPassword = (isset($_REQUEST['ap'])) ? trim($_REQUEST['ap']) : '';
     }
 }
