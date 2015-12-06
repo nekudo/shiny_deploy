@@ -10,7 +10,7 @@ abstract class ApiAction extends Action
     /** @var string $apiPassword */
     protected $apiPassword;
 
-    abstract public function __invoke();
+    abstract public function __invoke(array $requestParameters = []);
 
     /**
      * Sets API key.

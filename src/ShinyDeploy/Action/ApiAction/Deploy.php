@@ -4,12 +4,13 @@ use RuntimeException;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
 use ShinyDeploy\Domain\Database\ApiKeys;
 use ShinyDeploy\Domain\Database\Deployments;
+use ShinyDeploy\Domain\Deployment;
 use ShinyDeploy\Responder\NullResponder;
 
 class Deploy extends ApiAction
 {
 
-    public function __invoke()
+    public function __invoke(array $requestParameters = [])
     {
         $apiKeys = new ApiKeys($this->config, $this->logger);
         $apiKeyData = $apiKeys->getDataByApiKey($this->apiKey);
@@ -24,8 +25,16 @@ class Deploy extends ApiAction
         // get deployment:
         $deployments = new Deployments($this->config, $this->logger);
         $deployments->setEnryptionKey($encryptionKey);
-        /** @var \ShinyDeploy\Domain\Deployment $deployment */
+        /** @var Deployment $deployment */
         $deployment = $deployments->getDeployment($apiKeyData['deployment_id']);
+
+        // check if branches match
+        if (!empty($requestParameters['branch'])) {
+            if ($deployment->isBranch($requestParameters['branch']) === false) {
+                $this->logger->info('API Deployment skipped. Wrong branch.');
+                return false;
+            }
+        }
 
         // start requested deploy:
         $nullResponder = new NullResponder($this->config, $this->logger);

@@ -11,10 +11,11 @@ class StartApiJob extends Action
      * @param string $jobName
      * @param string $apiKey
      * @param string $apiPassword
+     * @param array $requestParameters
      * @return boolean
      * @throws RuntimeException
      */
-    public function __invoke($jobName, $apiKey, $apiPassword)
+    public function __invoke($jobName, $apiKey, $apiPassword, array $requestParameters = [])
     {
         $actionClassName = ucfirst(str_replace('api', '', $jobName));
         if (!class_exists('\ShinyDeploy\Action\ApiAction\\' . $actionClassName)) {
@@ -25,6 +26,7 @@ class StartApiJob extends Action
         $jobPayload = [
             'apiKey' => $apiKey,
             'apiPassword' => $apiPassword,
+            'requestParameters' => $requestParameters,
         ];
         $payload = json_encode($jobPayload);
         $client->doBackground($jobName, $payload);

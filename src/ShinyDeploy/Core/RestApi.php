@@ -24,6 +24,9 @@ class RestApi
     /** @var string $apiPassword */
     protected $apiPassword = '';
 
+    /** @var array $requestParams */
+    protected $requestParams = [];
+
     /** @var RestApiResponder $responder */
     protected $responder;
 
@@ -53,7 +56,7 @@ class RestApi
             $jobName = strtolower($this->action);
             $jobName = 'api' . ucfirst($jobName);
             $action = new StartApiJob($this->config, $this->logger);
-            $result = $action->__invoke($jobName, $this->apiKey, $this->apiPassword);
+            $result = $action->__invoke($jobName, $this->apiKey, $this->apiPassword, $this->requestParams);
             if ($result === true) {
                 $this->responder->respond('OK');
             }
@@ -104,5 +107,33 @@ class RestApi
         $this->action = (isset($_REQUEST['a'])) ? trim($_REQUEST['a']) : 'deploy';
         $this->apiKey = (isset($_REQUEST['ak'])) ? trim($_REQUEST['ak']) : '';
         $this->apiPassword = (isset($_REQUEST['ap'])) ? trim($_REQUEST['ap']) : '';
+        $this->parseRequestParameters();
+    }
+
+    /**
+     * Will trigger all activated request-parser to get additonal plattform dependent
+     * parameters from request.
+     *
+     * @return bool
+     */
+    protected function parseRequestParameters()
+    {
+        $parserNames = $this->config->get('api.requestParser');
+        if (empty($parserNames)) {
+            return true;
+        }
+        foreach ($parserNames as $parserName) {
+            $parserClass = '\ShinyDeploy\Core\RequestParser\\' . ucfirst(strtolower($parserName));
+            if (!class_exists($parserClass)) {
+                throw new \RuntimeException('Request parser not found. (' . $parserName . ')');
+            }
+            /** @var \ShinyDeploy\Core\RequestParser $parser */
+            $parser = new $parserClass;
+            if ($parser->parseRequest() === true) {
+                $this->requestParams = $parser->getParameters();
+                return true;
+            }
+        }
+        return true;
     }
 }
