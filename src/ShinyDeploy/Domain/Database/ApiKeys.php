@@ -26,7 +26,8 @@ class ApiKeys extends DatabaseDomain
         }
 
         $apiKey = StringHelper::getRandomString(20);
-        $password = StringHelper::getRandomString(16);
+        $passwordForUrl = StringHelper::getRandomString(16);
+        $password = $passwordForUrl . $this->config->get('auth.secret');
         $passwordHash = hash('sha256', $password);
         $encryption = new PasswordCrypto(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
         $encryptionKeySave = $encryption->encrypt($this->encryptionKey, $password);
@@ -39,7 +40,7 @@ class ApiKeys extends DatabaseDomain
         }
         return [
             'apiKey' => $apiKey,
-            'password' => $password
+            'password' => $passwordForUrl
         ];
     }
 
