@@ -219,7 +219,7 @@ class Auth extends DatabaseDomain
         if (empty($apiPassword)) {
             return false;
         }
-        $passwordHash = hash('sha256', $apiPassword);
+        $passwordHash = hash('sha256', $apiPassword . $this->config->get('auth.secret'));
         $statement = "SELECT id FROM api_keys WHERE `password` = %s";
         $apiKeyId = (int)$this->db->prepare($statement, $passwordHash)->getValue();
         return ($apiKeyId > 0);
