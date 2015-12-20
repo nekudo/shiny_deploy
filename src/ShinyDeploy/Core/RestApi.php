@@ -3,7 +3,6 @@
 use Apix\Log\Logger;
 use Exception;
 use Noodlehaus\Config;
-use ShinyDeploy\Action\StartApiJob;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Responder\RestApiResponder;
 
@@ -54,13 +53,11 @@ class RestApi
     {
         try {
             $jobName = strtolower($this->action);
-            $jobName = 'api' . ucfirst($jobName);
-            $action = new StartApiJob($this->config, $this->logger);
-            $result = $action->__invoke($jobName, $this->apiKey, $this->apiPassword, $this->requestParams);
-            if ($result === true) {
+            if ($this->triggerBackgroundJob($jobName) === true) {
                 $this->responder->respond('OK');
+            } else {
+                $this->responder->respondError('Could not start job.');
             }
-            $this->responder->respondError('Could not start job.');
         } catch (Exception $e) {
             $this->logger->error(
                 'API Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -134,6 +131,32 @@ class RestApi
                 return true;
             }
         }
+        return true;
+    }
+
+    /**
+     * Triggers execution of a background job.
+     *
+     * @param string $action
+     * @return boolean
+     * @throws \RuntimeException
+     */
+    protected function triggerBackgroundJob($action)
+    {
+        $actionClassName = ucfirst($action);
+        $jobName = 'api' . $actionClassName;
+        if (!class_exists('\ShinyDeploy\Action\ApiAction\\' . $actionClassName)) {
+            throw new \RuntimeException('Invalid API action requested.');
+        }
+        $client = new \GearmanClient;
+        $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
+        $jobPayload = [
+            'apiKey' => $this->apiKey,
+            'apiPassword' => $this->apiPassword,
+            'requestParameters' => $this->requestParams,
+        ];
+        $payload = json_encode($jobPayload);
+        $client->doBackground($jobName, $payload);
         return true;
     }
 }
