@@ -4,16 +4,23 @@ namespace ShinyDeploy\Action\WsDataAction;
 use RuntimeException;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class GetRepositoryBranches extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Fetches list of repository branches.
+     * 
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['repositoryId'])) {
-            throw new WebsocketException('Invalid getRepositoryBranches request received.');
+            throw new InvalidPayloadException('Invalid getRepositoryBranches request received.');
         }
 
         try {

@@ -2,16 +2,23 @@
 namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Servers;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class DeleteServer extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Removes a server from database.
+     * 
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
-        
+
         if (!isset($actionPayload['serverId'])) {
-            throw new WebsocketException('Invalid deleteServer request received.');
+            throw new InvalidPayloadException('Invalid deleteServer request received.');
         }
         $serverId = (int)$actionPayload['serverId'];
         $servers = new Servers($this->config, $this->logger);

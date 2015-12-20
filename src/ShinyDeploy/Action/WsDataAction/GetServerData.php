@@ -3,16 +3,23 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Servers;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class GetServerData extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Fetches server data from database.
+     * 
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['serverId'])) {
-            throw new WebsocketException('Invalid getServerData request received.');
+            throw new InvalidPayloadException('Invalid getServerData request received.');
         }
         $serverId = (int)$actionPayload['serverId'];
         $servers = new Servers($this->config, $this->logger);

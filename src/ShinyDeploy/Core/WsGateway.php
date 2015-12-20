@@ -5,8 +5,9 @@ use Apix\Log\Logger;
 use Noodlehaus\Config;
 use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\WampServerInterface;
-use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\InvalidTokenException;
+use ShinyDeploy\Exceptions\MissingDataException;
+use ShinyDeploy\Exceptions\WebsocketException;
 
 class WsGateway implements WampServerInterface
 {
@@ -50,8 +51,11 @@ class WsGateway implements WampServerInterface
         try {
             $this->logger->debug('onApiEvent: ' . $dataEncoded);
             $data = json_decode($dataEncoded, true);
-            if (empty($data['clientId']) || empty($data['eventName'])) {
-                throw new WebsocketException('Required parameter missing.');
+            if (empty($data['clientId'])) {
+                throw new MissingDataException('ClientId can not be empty.');
+            }
+            if (empty($data['eventName'])) {
+                throw new MissingDataException('EventName can not be empty.');
             }
             if (!isset($this->subscriptions[$data['clientId']])) {
                 throw new WebsocketException('Invalid client-id.');
@@ -60,7 +64,7 @@ class WsGateway implements WampServerInterface
             $Topic = $this->subscriptions[$data['clientId']];
             $Topic->broadcast($data);
             return true;
-        } catch (WebsocketException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -92,7 +96,7 @@ class WsGateway implements WampServerInterface
             }
         } catch (InvalidTokenException $e) {
             $this->onUnauthorized($params['clientId']);
-        } catch (WebsocketException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -216,6 +220,5 @@ class WsGateway implements WampServerInterface
         /** @var \Ratchet\Wamp\Topic $topic */
         $topic = $this->subscriptions[$clientId];
         $topic->broadcast($eventData);
-
     }
 }

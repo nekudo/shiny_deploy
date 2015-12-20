@@ -3,17 +3,24 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 use Valitron\Validator;
 
 class UpdateDeployment extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Updates deployment data in database.
+     * 
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['deploymentData'])) {
-            throw new WebsocketException('Invalid updateDeployment request received.');
+            throw new InvalidPayloadException('Invalid updateDeployment request received.');
         }
         $deploymentData = $actionPayload['deploymentData'];
         if (isset($deploymentData['tasks'])) {

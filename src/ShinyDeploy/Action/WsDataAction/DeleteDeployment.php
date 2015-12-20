@@ -2,16 +2,23 @@
 namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Deployments;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class DeleteDeployment extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Removes a deployment from database.
+     *
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
-        
+
         if (!isset($actionPayload['deploymentId'])) {
-            throw new WebsocketException('Invalid deleteDeployment request received.');
+            throw new InvalidPayloadException('Invalid deleteDeployment request received.');
         }
         $deploymentId = (int)$actionPayload['deploymentId'];
         $deployments = new Deployments($this->config, $this->logger);

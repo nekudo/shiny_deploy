@@ -3,16 +3,23 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class DeleteRepository extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Removes a repository from database.
+     *
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['repositoryId'])) {
-            throw new WebsocketException('Invalid deleteRepository request received.');
+            throw new InvalidPayloadException('Invalid deleteRepository request received.');
         }
 
         // get users encryption key:

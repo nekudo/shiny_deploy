@@ -3,16 +3,23 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class GetDeploymentData extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Fetches deploymant data from database.
+     * 
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['deploymentId'])) {
-            throw new WebsocketException('Invalid getDeploymentData request received.');
+            throw new InvalidPayloadException('Invalid getDeploymentData request received.');
         }
 
         // get users encryption key:
