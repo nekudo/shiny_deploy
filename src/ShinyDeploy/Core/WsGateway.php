@@ -8,6 +8,7 @@ use Ratchet\Wamp\WampServerInterface;
 use ShinyDeploy\Exceptions\InvalidTokenException;
 use ShinyDeploy\Exceptions\MissingDataException;
 use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Responder\WsDataResponder;
 
 class WsGateway implements WampServerInterface
 {
@@ -120,7 +121,9 @@ class WsGateway implements WampServerInterface
             throw new WebsocketException('Invalid data action passed to worker gateway. ('.$actionName.')');
         }
         /** @var \ShinyDeploy\Action\WsDataAction $action */
+        $responder = new WsDataResponder($this->config, $this->logger);
         $action = new $actionClassName($this->config, $this->logger);
+        $action->setResponder($responder);
         $action->setClientId($clientId);
         $action->setToken($token);
         $action->__invoke($actionPayload);
