@@ -146,10 +146,14 @@ class WsGateway implements WampServerInterface
      */
     protected function handleTriggerRequest($clientId, $token, $actionName, $actionPayload)
     {
-        $this->wsLog($clientId, 'Passing job request ' . $actionName . ' to StartGearmanJob action.');
-        $action = new \ShinyDeploy\Action\StartGearmanJob($this->config, $this->logger);
-        $action->setToken($token);
-        $action->__invoke($actionName, $clientId, $actionPayload);
+        $this->wsLog($clientId, 'Triggering job: ' . $actionName);
+        $client = new \GearmanClient;
+        $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
+        $actionPayload['clientId'] = $clientId;
+        $actionPayload['token'] = $token;
+        $payloadEncoded = json_encode($actionPayload);
+        $client->doBackground($actionName, $payloadEncoded);
+        unset($client);
     }
 
     /**
