@@ -13,7 +13,7 @@ abstract class WsDataAction extends Action
 
     protected $clientId;
 
-    abstract public function __invoke($actionPayload);
+    abstract public function __invoke(array $actionPayload);
 
     public function __construct(Config $config, Logger $logger) {
         parent::__construct($config, $logger);

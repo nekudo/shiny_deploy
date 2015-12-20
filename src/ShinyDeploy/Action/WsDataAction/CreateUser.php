@@ -5,12 +5,12 @@ use ShinyDeploy\Domain\Database\Auth;
 class CreateUser extends WsDataAction
 {
     /**
-     * Checks if system user exists.
+     * Saves a new user to database.
      *
      * @param mixed $actionPayload
      * @return bool
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         if (empty($actionPayload['username'])) {
             $this->responder->setError('Username can not be empty.');

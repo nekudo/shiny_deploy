@@ -3,17 +3,24 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 use Valitron\Validator;
 
 class AddRepository extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Adds new repository to database.
+     *
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['repositoryData'])) {
-            throw new WebsocketException('Invalid addRepository request received.');
+            throw new InvalidPayloadException('Invalid addRepository request received.');
         }
         $repositoryData = $actionPayload['repositoryData'];
         $repositories = new Repositories($this->config, $this->logger);
