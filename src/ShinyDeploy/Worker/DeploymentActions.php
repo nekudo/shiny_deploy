@@ -5,6 +5,7 @@ use ShinyDeploy\Action\WsWorkerAction\GetChangedFiles;
 use ShinyDeploy\Action\WsWorkerAction\GetFileDiff;
 use ShinyDeploy\Action\WsWorkerAction\SetLocalRevision;
 use ShinyDeploy\Action\WsWorkerAction\SetRemoteRevision;
+use ShinyDeploy\Action\ApiAction\Deploy as ApiDeploy;
 use ShinyDeploy\Core\Worker;
 use ShinyDeploy\Exceptions\MissingDataException;
 
