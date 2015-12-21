@@ -1,6 +1,7 @@
 <?php namespace ShinyDeploy\Action\ApiAction;
 
 use ShinyDeploy\Core\Action;
+use ShinyDeploy\Exceptions\MissingDataException;
 
 abstract class ApiAction extends Action
 {
@@ -16,12 +17,12 @@ abstract class ApiAction extends Action
      * Sets API key.
      *
      * @param string $apiKey
-     * @throws \InvalidArgumentException
+     * @throws MissingDataException
      */
     public function setApiKey($apiKey)
     {
         if (empty($apiKey)) {
-            throw new \InvalidArgumentException('API key can not be empty.');
+            throw new MissingDataException('API key can not be empty.');
         }
         $this->apiKey = $apiKey;
     }
@@ -30,12 +31,12 @@ abstract class ApiAction extends Action
      * Sets API password.
      *
      * @param string $apiPassword
-     * @throws \InvalidArgumentException
+     * @throws MissingDataException
      */
     public function setApiPassword($apiPassword)
     {
         if (empty($apiPassword)) {
-            throw new \InvalidArgumentException('API password can not be empty');
+            throw new MissingDataException('API password can not be empty');
         }
         $this->apiPassword = $apiPassword;
     }

@@ -4,7 +4,7 @@ use Apix\Log\Logger;
 use Apix\Log\Logger\File;
 use Nekudo\Angela\Worker as AngelaBaseWorker;
 use Noodlehaus\Config;
-use ShinyDeploy\Exceptions\WorkerException;
+use ShinyDeploy\Exceptions\MissingDataException;
 
 abstract class Worker extends AngelaBaseWorker
 {
@@ -39,12 +39,12 @@ abstract class Worker extends AngelaBaseWorker
      * @param string $clientId Unique identifier for client.
      * @param string $msg
      * @param string $type
-     * @throws WorkerException
+     * @throws MissingDataException
      */
     protected function wsLog($clientId, $msg, $type = 'default')
     {
         if (empty($clientId)) {
-            throw new WorkerException('Required parameter missing.');
+            throw new MissingDataException('ClientId can not be empty.');
         }
         $pushData = [
             'clientId' => $clientId,

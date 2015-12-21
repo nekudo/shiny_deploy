@@ -53,6 +53,7 @@ class DeleteRepository extends WsDataAction
         $client = new \GearmanClient;
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $actionPayload['clientId'] = $this->clientId;
+        $actionPayload['token'] = $this->token;
         $actionPayload['repoPath'] = $repositoryPath;
         $payload = json_encode($actionPayload);
         $client->doBackground('deleteRepository', $payload);
