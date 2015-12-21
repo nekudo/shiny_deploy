@@ -90,7 +90,7 @@ class RestApi
             $this->responder->respondBadRequest('Invalid API password.');
         }
         $auth = new Auth($this->config, $this->logger);
-        $passwordIsValid = $auth->apiPasswordIsValid($this->apiPassword);
+        $passwordIsValid = $auth->apiPasswordIsValid($this->apiKey, $this->apiPassword);
         if ($passwordIsValid === false) {
             $this->responder->respondBadRequest('Invalid API password.');
         }
