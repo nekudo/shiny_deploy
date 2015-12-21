@@ -292,10 +292,15 @@ class Deployment extends Domain
         $targetDir = dirname($targetPath);
         $targetDirContent = $this->server->listDir($targetDir);
         if ($targetDirContent === false) {
+            $this->logResponder->log(
+                'Target path on remote server not found or not accessible.',
+                'danger',
+                'getRemoteRevision'
+            );
             return false;
         }
         if (is_array($targetDirContent) && empty($targetDirContent)) {
-             $this->logResponder->log('Remote revision not found - deploying all files.', 'info', 'getRemoteRevision');
+             $this->logResponder->log('Target path is empty. No revision yet.', 'info', 'getRemoteRevision');
             return '-1';
         }
         return false;
