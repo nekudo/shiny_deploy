@@ -205,7 +205,6 @@ class WsGateway implements WampServerInterface
             'eventPayload' => [
                 'text' => $msg,
                 'type' => $type,
-                'source' => 'WsGateway'
             ],
         ];
         /** @var \Ratchet\Wamp\Topic $topic */

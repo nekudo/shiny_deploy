@@ -44,7 +44,7 @@ class Deploy extends WsWorkerAction
         $deployment->setLogResponder($logResponder);
 
         // Start deployment
-        $logResponder->log('Starting deployment...', 'default', 'DeployService');
+        $logResponder->log('Starting deployment...');
         $result = $deployment->deploy(false);
         if ($result === false) {
             $notificationResponder->send('Deployment failed. Check log for details.', 'danger');
@@ -54,7 +54,7 @@ class Deploy extends WsWorkerAction
         // Send updated revision to client:
         $revision = $deployment->getRemoteRevision();
         $remoteRevisionResponder->respond($revision);
-        $logResponder->log("Deployment successfully completed.", 'success', 'DeployService');
+        $logResponder->success('Deployment successfully completed.');
 
         // Send success notfication
         $notificationResponder->send('Deployment successfully completed.', 'success');
