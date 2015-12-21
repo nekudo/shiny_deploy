@@ -1,16 +1,14 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
-use ShinyDeploy\Core\Action;
+use ShinyDeploy\Action\WsAction;
 use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Responder\WsDataResponder;
 
-abstract class WsDataAction extends Action
+abstract class WsDataAction extends WsAction
 {
     /** @var WsDataResponder $responder */
     protected $responder;
-
-    protected $clientId;
 
     abstract public function __invoke(array $actionPayload);
 
@@ -23,10 +21,5 @@ abstract class WsDataAction extends Action
     {
         $this->responder->setCallbackId($callbackId);
         return $this->responder->getFrameData();
-    }
-
-    public function setClientId($clientId)
-    {
-        $this->clientId = $clientId;
     }
 }

@@ -1,25 +1,23 @@
-<?php
-namespace ShinyDeploy\Action;
+<?php namespace ShinyDeploy\Action\WsWorkerAction;
 
-use RuntimeException;
-use ShinyDeploy\Core\Action;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
+use ShinyDeploy\Exceptions\MissingDataException;
 use ShinyDeploy\Responder\NullResponder;
-use ShinyDeploy\Responder\WsSetRemoteRevisionResponder;
+use ShinyDeploy\Responder\WsSetLocalRevisionResponder;
 
-class SetRemoteRevision extends Action
+class SetLocalRevision extends WsWorkerAction
 {
     /**
-     * Fetches remote repository revision
+     * Fetches and returns revision of a local repository.
      *
      * @param array $params
      * @return bool
      */
-    public function __invoke($params)
+    public function __invoke(array $params)
     {
         if (!isset($params['deploymentId'])) {
-            throw new RuntimeException('Required parameter missing.');
+            throw new MissingDataException('Required parameter missing.');
         }
 
         // get users encryption key:
@@ -36,9 +34,9 @@ class SetRemoteRevision extends Action
         $deployment = $deployments->getDeployment($deploymentId);
         $logResponder = new NullResponder($this->config, $this->logger);
         $deployment->setLogResponder($logResponder);
-        $revision = $deployment->getRemoteRevision();
-        $responder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
-        $responder->setClientId($params['clientId']);
+        $revision = $deployment->getLocalRevision();
+        $responder = new WsSetLocalRevisionResponder($this->config, $this->logger);
+        $responder->setClientId($this->clientId);
         $responder->respond($revision);
         return true;
     }

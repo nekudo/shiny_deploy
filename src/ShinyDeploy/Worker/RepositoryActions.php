@@ -2,11 +2,10 @@
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-use ShinyDeploy\Action\CloneRepository;
-use ShinyDeploy\Action\DeleteRepositoryFiles;
+use ShinyDeploy\Action\WsWorkerAction\CloneRepository;
+use ShinyDeploy\Action\WsWorkerAction\DeleteRepositoryFiles;
 use ShinyDeploy\Core\Worker;
-use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Exceptions\WorkerException;
+use ShinyDeploy\Exceptions\MissingDataException;
 
 class RepositoryActions extends Worker
 {
@@ -32,18 +31,19 @@ class RepositoryActions extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
-            }
-            if (empty($params['repositoryId'])) {
-                throw new WebsocketException('Can not handle job. No repository-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
             }
             if (empty($params['token'])) {
-                throw new WebsocketException('Can not handle job. No token provided.');
+                throw new MissingDataException('Token can not be empty.');
+            }
+            if (empty($params['repositoryId'])) {
+                throw new MissingDataException('RepositoryId can not be empty.');
             }
             $cloneRepositoryAction = new CloneRepository($this->config, $this->logger);
+            $cloneRepositoryAction->setClientId($params['clientId']);
             $cloneRepositoryAction->setToken($params['token']);
             $cloneRepositoryAction->__invoke($params['repositoryId'], $params['clientId']);
-        } catch (WorkerException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -64,14 +64,19 @@ class RepositoryActions extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
+            }
+            if (empty($params['token'])) {
+                throw new MissingDataException('Token can not be empty.');
             }
             if (empty($params['repoPath'])) {
-                throw new WebsocketException('Can not handle job. No repository path provided.');
+                throw new MissingDataException('RepoPath can not be empty.');
             }
             $deleteRepositoryAction = new DeleteRepositoryFiles($this->config, $this->logger);
-            $deleteRepositoryAction->__invoke($params['repoPath'], $params['clientId']);
-        } catch (WorkerException $e) {
+            $deleteRepositoryAction->setClientId($params['clientId']);
+            $deleteRepositoryAction->setToken($params['token']);
+            $deleteRepositoryAction->__invoke($params['repoPath']);
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );

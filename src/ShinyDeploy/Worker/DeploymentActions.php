@@ -1,18 +1,16 @@
 <?php namespace ShinyDeploy\Worker;
 
+use ShinyDeploy\Action\WsWorkerAction\Deploy;
+use ShinyDeploy\Action\WsWorkerAction\GetChangedFiles;
+use ShinyDeploy\Action\WsWorkerAction\GetFileDiff;
+use ShinyDeploy\Action\WsWorkerAction\SetLocalRevision;
+use ShinyDeploy\Action\WsWorkerAction\SetRemoteRevision;
+use ShinyDeploy\Core\Worker;
+use ShinyDeploy\Exceptions\MissingDataException;
+
 require __DIR__ . '/../../../vendor/autoload.php';
 
-use ShinyDeploy\Action\Deploy;
-use ShinyDeploy\Action\GetChangedFiles;
-use ShinyDeploy\Action\GetFileDiff;
-use ShinyDeploy\Action\SetLocalRevision;
-use ShinyDeploy\Action\SetRemoteRevision;
-use ShinyDeploy\Action\ApiAction\Deploy as ApiDeploy;
-use ShinyDeploy\Core\Worker;
-use ShinyDeploy\Exceptions\WebsocketException;
-use ShinyDeploy\Exceptions\WorkerException;
-
-class Deployer extends Worker
+class DeploymentActions extends Worker
 {
     /**
      * Calls all "init methods" and waits for jobs from gearman server.
@@ -31,7 +29,7 @@ class Deployer extends Worker
      * Handles deployment related actions.
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
+     * @throws Exception
      * @return bool
      */
     public function deploy(\GearmanJob $Job)
@@ -40,18 +38,19 @@ class Deployer extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
-            }
-            if (empty($params['deploymentId'])) {
-                throw new WebsocketException('Can not handle job. No deployment-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
             }
             if (empty($params['token'])) {
-                throw new WebsocketException('Can not handle job. Token not provided.');
+                throw new MissingDataException('Token can not be empty.');
+            }
+            if (empty($params['deploymentId'])) {
+                throw new MissingDataException('DeploymentId can not be empty.');
             }
             $action = new Deploy($this->config, $this->logger);
+            $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
-            $action->__invoke($params['deploymentId'], $params['clientId']);
-        } catch (WorkerException $e) {
+            $action->__invoke($params['deploymentId']);
+        } catch (Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -63,7 +62,7 @@ class Deployer extends Worker
      * Handles deployment requested by REST API.
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
+     * @throws Exception
      * @return bool
      */
     public function apiDeploy(\GearmanJob $Job)
@@ -72,10 +71,10 @@ class Deployer extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['apiKey'])) {
-                throw new \InvalidArgumentException('API key missing.');
+                throw new MissingDataException('API key missing.');
             }
             if (empty($params['apiPassword'])) {
-                throw new \InvalidArgumentException('API password missing.');
+                throw new MissingDataException('API password missing.');
             }
             $requestParameters = [];
             if (!empty($params['requestParameters'])) {
@@ -85,7 +84,7 @@ class Deployer extends Worker
             $action->setApiKey($params['apiKey']);
             $action->setApiPassword($params['apiPassword']);
             $action->__invoke($requestParameters);
-        } catch (WorkerException $e) {
+        } catch (Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -97,7 +96,7 @@ class Deployer extends Worker
      * Handles deployment related actions.
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
+     * @throws Exception
      * @return bool
      */
     public function getChangedFiles(\GearmanJob $Job)
@@ -106,18 +105,19 @@ class Deployer extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
-            }
-            if (empty($params['deploymentId'])) {
-                throw new WebsocketException('Can not handle job. No deployment-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
             }
             if (empty($params['token'])) {
-                throw new WebsocketException('Can not handle job. Token not provided.');
+                throw new MissingDataException('Token can not be empty.');
+            }
+            if (empty($params['deploymentId'])) {
+                throw new MissingDataException('DeploymentId can not be empty.');
             }
             $action = new GetChangedFiles($this->config, $this->logger);
+            $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
-            $action->__invoke($params['deploymentId'], $params['clientId']);
-        } catch (WorkerException $e) {
+            $action->__invoke($params['deploymentId']);
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -129,7 +129,7 @@ class Deployer extends Worker
      * Generates a git-diff for given file.
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
+     * @throws Exception
      * @return bool
      */
     public function getFileDiff(\GearmanJob $Job)
@@ -138,16 +138,16 @@ class Deployer extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
             }
             if (empty($params['token'])) {
-                throw new WebsocketException('Can not handle job. Token not provided.');
+                throw new MissingDataException('Token can not be empty.');
             }
-
             $action = new GetFileDiff($this->config, $this->logger);
+            $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
             $action->__invoke($params);
-        } catch (WorkerException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -159,7 +159,7 @@ class Deployer extends Worker
      * Fetches local revision of a repository sends it to WSS.
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
+     * @throws Exception
      * @return bool
      */
     public function setLocalRevision(\GearmanJob $Job)
@@ -168,16 +168,16 @@ class Deployer extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
             }
             if (empty($params['token'])) {
-                throw new WebsocketException('Can not handle job. Token not provided.');
+                throw new MissingDataException('Token can not be empty.');
             }
-
             $action = new SetLocalRevision($this->config, $this->logger);
+            $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
             $action->__invoke($params);
-        } catch (WorkerException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -189,7 +189,7 @@ class Deployer extends Worker
      * Fetches remote revision of a repository sends it to WSS.
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
+     * @throws Exception
      * @return bool
      */
     public function setRemoteRevision(\GearmanJob $Job)
@@ -198,16 +198,16 @@ class Deployer extends Worker
             $this->countJob();
             $params = json_decode($Job->workload(), true);
             if (empty($params['clientId'])) {
-                throw new WebsocketException('Can not handle job. No client-id provided.');
+                throw new MissingDataException('ClientId can not be empty.');
             }
             if (empty($params['token'])) {
-                throw new WebsocketException('Can not handle job. Token not provided.');
+                throw new MissingDataException('Token can not be empty.');
             }
-
             $action = new SetRemoteRevision($this->config, $this->logger);
+            $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
             $action->__invoke($params);
-        } catch (WorkerException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
