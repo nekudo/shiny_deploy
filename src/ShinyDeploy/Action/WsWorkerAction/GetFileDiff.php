@@ -38,8 +38,7 @@ class GetFileDiff extends WsWorkerAction
         $auth = new Auth($this->config, $this->logger);
         $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
         if (empty($encryptionKey)) {
-            $this->responder->setError('Could not get encryption key.');
-            return false;
+            throw new RuntimeException('Could not get encryption key.');
         }
 
         $repositories = new Repositories($this->config, $this->logger);
