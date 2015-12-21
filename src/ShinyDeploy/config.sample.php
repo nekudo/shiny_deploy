@@ -5,7 +5,7 @@ return [
     ],
     'logging' => [
         'file' => __DIR__ . '/../../logs/general.log',
-        'level' => 'debug',
+        'level' => 'warning',
     ],
     'gearman' => [
         'host' => '127.0.0.1',
