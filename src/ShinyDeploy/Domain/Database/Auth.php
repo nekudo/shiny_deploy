@@ -211,18 +211,22 @@ class Auth extends DatabaseDomain
     /**
      * Checks if an API password is valid.
      *
+     * @param string $apiKey
      * @param string $apiPassword
      * @return bool
      */
-    public function apiPasswordIsValid($apiPassword)
+    public function apiPasswordIsValid($apiKey, $apiPassword)
     {
-        if (empty($apiPassword)) {
+        if (empty($apiKey) || empty($apiPassword)) {
             return false;
         }
         $passwordHash = hash('sha256', $apiPassword . $this->config->get('auth.secret'));
-        $statement = "SELECT id FROM api_keys WHERE `password` = %s";
-        $apiKeyId = (int)$this->db->prepare($statement, $passwordHash)->getValue();
-        return ($apiKeyId > 0);
+        $statement = "SELECT api_key FROM api_keys WHERE `password` = %s";
+        $apiKeyDb = $this->db->prepare($statement, $passwordHash)->getValue();
+        if (empty($apiKeyDb)) {
+            return false;
+        }
+        return ($apiKeyDb === $apiKey);
     }
 
     /**
