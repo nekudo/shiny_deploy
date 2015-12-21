@@ -537,7 +537,7 @@
          */
         function setRemoteRevision(data) {
             $scope.$apply(function() {
-                vm.remoteRevision = data.revision;
+                vm.remoteRevision = (!data.revision) ? 'n/a' : data.revision;
             });
         }
 
@@ -548,7 +548,7 @@
          */
         function setLocalRevision(data) {
             $scope.$apply(function() {
-                vm.localRevision = data.revision;
+                vm.localRevision = (!data.revision) ? 'n/a' : data.revision;
             });
         }
 
