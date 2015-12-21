@@ -126,7 +126,9 @@ class Deployment extends Domain
 
         // If remote server is up to date we can stop right here:
         if ($localRevision === $remoteRevision) {
-            $this->logResponder->info('Remote server is aleady up to date.');
+            if ($listMode === false) {
+                $this->logResponder->info('Remote server is aleady up to date.');
+            }
             return true;
         }
 
