@@ -1,5 +1,6 @@
 <?php namespace ShinyDeploy\Action\WsWorkerAction;
 
+use RuntimeException;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Exceptions\MissingDataException;
@@ -27,8 +28,7 @@ class GetChangedFiles extends WsWorkerAction
         $auth = new Auth($this->config, $this->logger);
         $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
         if (empty($encryptionKey)) {
-            $this->responder->setError('Could not get encryption key.');
-            return false;
+            throw new RuntimeException('Could not get encryption key.');
         }
 
         // init stuff:
