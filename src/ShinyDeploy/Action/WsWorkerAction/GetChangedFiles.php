@@ -40,7 +40,7 @@ class GetChangedFiles extends WsWorkerAction
         $deployment->setLogResponder($logResponder);
 
         // get changed files and respond:
-        $logResponder->log('Collecting changed files...', 'default', 'DeployService');
+        $logResponder->log('Collecting changed files...');
         $result = $deployment->deploy(true);
         if ($result === false) {
             $notificationResponder = new WsNotificationResponder($this->config, $this->logger);
@@ -50,11 +50,7 @@ class GetChangedFiles extends WsWorkerAction
         }
         $changedFiles = $deployment->getChangedFiles();
         $changedFilesCount = count($changedFiles);
-        $logResponder->log(
-            $changedFilesCount . ' changed files found. Sending list...',
-            'default',
-            'DeployService'
-        );
+        $logResponder->log($changedFilesCount . ' changed files found.');
 
         // respond to client:
         $changedFilesResponder = new WsChangedFilesResponder($this->config, $this->logger);

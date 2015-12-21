@@ -12,6 +12,57 @@ class WsLogResponder extends WsEventResponder
     }
 
     /**
+     * Sends a log message of type "default".
+     *
+     * @param string $message
+     */
+    public function log($message)
+    {
+        $this->pushMessage($message, 'default');
+    }
+
+    /**
+     * Sends a log message of type "success".
+     *
+     * @param string $message
+     */
+    public function success($message)
+    {
+        $this->pushMessage($message, 'success');
+    }
+
+    /**
+     * Sends a log message of type "info".
+     *
+     * @param string $message
+     */
+    public function info($message)
+    {
+        $this->pushMessage($message, 'info');
+    }
+
+    /**
+     * Sends a log message of type "danger".
+     *
+     * @param string $message
+     */
+    public function danger($message)
+    {
+        $this->pushMessage($message, 'danger');
+    }
+
+    /**
+     * Sends a log message of type "error".
+     *
+     * @param string $message
+     * @param string $source
+     */
+    public function error($message)
+    {
+        $this->pushMessage($message, 'error');
+    }
+
+    /**
      * Sends a log event to websocket server.
      *
      * @param string $msg
@@ -19,7 +70,7 @@ class WsLogResponder extends WsEventResponder
      * @param string $source
      * @throws \RuntimeException
      */
-    public function log($msg, $type = 'default', $source = '')
+    protected function pushMessage($msg, $type = 'default')
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');
@@ -28,7 +79,6 @@ class WsLogResponder extends WsEventResponder
             'clientId' => $this->clientId,
             'eventName' => 'log',
             'eventPayload' => [
-                'source' => $source,
                 'type' => $type,
                 'text' => $msg,
             ],
