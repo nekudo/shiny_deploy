@@ -1,33 +1,25 @@
 <?php
 namespace ShinyDeploy\Action\WsDataAction;
 
-use Apix\Log\Logger;
-use Noodlehaus\Config;
-use ShinyDeploy\Core\Action;
+use ShinyDeploy\Action\WsAction;
+use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Responder\WsDataResponder;
 
-abstract class WsDataAction extends Action
+abstract class WsDataAction extends WsAction
 {
     /** @var WsDataResponder $responder */
     protected $responder;
 
-    protected $clientId;
+    abstract public function __invoke(array $actionPayload);
 
-    abstract public function __invoke($actionPayload);
-
-    public function __construct(Config $config, Logger $logger) {
-        parent::__construct($config, $logger);
-        $this->responder = new WsDataResponder($this->config, $this->logger);
+    public function setResponder(Responder $responder)
+    {
+        $this->responder = $responder;
     }
 
     public function getResponse($callbackId)
     {
         $this->responder->setCallbackId($callbackId);
         return $this->responder->getFrameData();
-    }
-
-    public function setClientId($clientId)
-    {
-        $this->clientId = $clientId;
     }
 }

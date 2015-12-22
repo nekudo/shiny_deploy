@@ -59,6 +59,7 @@
             <div class="box box-solid">
                 <div class="box-body">
                     <button class="btn btn-info" data-ng-click="vm.triggerGetChangedFiles()"><i class="fa fa-list"></i> List Changes</button>
+                    <button class="btn btn-info" data-ng-click="vm.showDeploymentLogs()"><i class="fa fa-history"></i> Show Logs</button>
                     <button class="btn btn-success" data-ng-click="vm.triggerDeploy()"><i class="fa fa-play"></i> Deploy</button>
                     <a href="/deployments" class="pull-right btn btn-default"><i class="fa fa-chevron-left"></i> Back</a>
                 </div>
@@ -93,6 +94,52 @@
                                     <span class="fa fa-columns"></span> Diff
                                 </button>
                             </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12" data-ng-if="vm.deploymentLogs.length">
+            <div class="box box-solid">
+                <div class="box-header">
+                    <h3 class="box-title">Latest deployments</h3>
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool">
+                            <span class="fa fa-times" data-ng-click="vm.closeDeploymentLogs()"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body no-padding">
+                    <table class="table table-condensed">
+                        <tbody>
+                        <tr>
+                            <td>#</td>
+                            <th>Type</th>
+                            <th>Time</th>
+                            <th>Result</th>
+                            <th>Duration</th>
+                        </tr>
+                        <tr data-ng-repeat="logItem in vm.deploymentLogs">
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ logItem.deployment_type }}</td>
+                            <td>{{ logItem.request_time }}</td>
+                            <td>
+                                <span class="label label-success"
+                                      data-ng-if="logItem.result === 'success'">
+                                    success
+                                </span>
+                                <span class="label label-danger"
+                                      data-ng-if="logItem.result === 'error'">
+                                    error
+                                </span>
+                                <span class="label label-default"
+                                      data-ng-if="logItem.result !== 'error' && logItem.result !== 'success'">
+                                    unknown
+                                </span>
+                            </td>
+                            <td>{{ logItem.duration }}s</td>
                         </tr>
                         </tbody>
                     </table>

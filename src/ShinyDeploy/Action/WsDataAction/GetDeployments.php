@@ -9,10 +9,10 @@ class GetDeployments extends WsDataAction
     /**
      * Fetches a deployments list
      *
-     * @param mixed $actionPayload
+     * @param array $actionPayload
      * @return bool
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
@@ -26,8 +26,8 @@ class GetDeployments extends WsDataAction
 
         $deployments = new Deployments($this->config, $this->logger);
         $deployments->setEnryptionKey($encryptionKey);
-        $deployments = $deployments->getDeployments();
-        $this->responder->setPayload($deployments);
+        $deploymentsData = $deployments->getDeployments();
+        $this->responder->setPayload($deploymentsData);
         return true;
     }
 }

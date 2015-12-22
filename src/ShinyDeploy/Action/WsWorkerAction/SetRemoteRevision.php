@@ -1,33 +1,31 @@
-<?php
-namespace ShinyDeploy\Action;
+<?php namespace ShinyDeploy\Action\WsWorkerAction;
 
 use RuntimeException;
-use ShinyDeploy\Core\Action;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Deployments;
+use ShinyDeploy\Exceptions\MissingDataException;
 use ShinyDeploy\Responder\NullResponder;
-use ShinyDeploy\Responder\WsSetLocalRevisionResponder;
+use ShinyDeploy\Responder\WsSetRemoteRevisionResponder;
 
-class SetLocalRevision extends Action
+class SetRemoteRevision extends WsWorkerAction
 {
     /**
-     * Fetches a deployments list
+     * Fetches remote repository revision
      *
-     * @param mixed $params
+     * @param array $params
      * @return bool
      */
-    public function __invoke($params)
+    public function __invoke(array $params)
     {
         if (!isset($params['deploymentId'])) {
-            throw new RuntimeException('Required parameter missing.');
+            throw new MissingDataException('DeploymentId can not be empty.');
         }
 
         // get users encryption key:
         $auth = new Auth($this->config, $this->logger);
         $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
         if (empty($encryptionKey)) {
-            $this->responder->setError('Could not get encryption key.');
-            return false;
+            throw new RuntimeException('Could not get encryption key.');
         }
 
         $deploymentId = (int)$params['deploymentId'];
@@ -36,9 +34,9 @@ class SetLocalRevision extends Action
         $deployment = $deployments->getDeployment($deploymentId);
         $logResponder = new NullResponder($this->config, $this->logger);
         $deployment->setLogResponder($logResponder);
-        $revision = $deployment->getLocalRevision();
-        $responder = new WsSetLocalRevisionResponder($this->config, $this->logger);
-        $responder->setClientId($params['clientId']);
+        $revision = $deployment->getRemoteRevision();
+        $responder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
+        $responder->setClientId($this->clientId);
         $responder->respond($revision);
         return true;
     }

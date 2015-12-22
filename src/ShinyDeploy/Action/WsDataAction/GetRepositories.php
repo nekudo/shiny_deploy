@@ -9,10 +9,10 @@ class GetRepositories extends WsDataAction
     /**
      * Fetches a repositories list
      *
-     * @param mixed $actionPayload
+     * @param array $actionPayload
      * @return bool
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
@@ -26,8 +26,8 @@ class GetRepositories extends WsDataAction
 
         $repositories = new Repositories($this->config, $this->logger);
         $repositories->setEnryptionKey($encryptionKey);
-        $repositories = $repositories->getRepositories();
-        $this->responder->setPayload($repositories);
+        $repositoriesData = $repositories->getRepositories();
+        $this->responder->setPayload($repositoriesData);
         return true;
     }
 }

@@ -5,8 +5,10 @@ use Apix\Log\Logger;
 use Noodlehaus\Config;
 use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\WampServerInterface;
-use ShinyDeploy\Exceptions\WebsocketException;
 use ShinyDeploy\Exceptions\InvalidTokenException;
+use ShinyDeploy\Exceptions\MissingDataException;
+use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Responder\WsDataResponder;
 
 class WsGateway implements WampServerInterface
 {
@@ -50,8 +52,11 @@ class WsGateway implements WampServerInterface
         try {
             $this->logger->debug('onApiEvent: ' . $dataEncoded);
             $data = json_decode($dataEncoded, true);
-            if (empty($data['clientId']) || empty($data['eventName'])) {
-                throw new WebsocketException('Required parameter missing.');
+            if (empty($data['clientId'])) {
+                throw new MissingDataException('ClientId can not be empty.');
+            }
+            if (empty($data['eventName'])) {
+                throw new MissingDataException('EventName can not be empty.');
             }
             if (!isset($this->subscriptions[$data['clientId']])) {
                 throw new WebsocketException('Invalid client-id.');
@@ -60,7 +65,7 @@ class WsGateway implements WampServerInterface
             $Topic = $this->subscriptions[$data['clientId']];
             $Topic->broadcast($data);
             return true;
-        } catch (WebsocketException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -92,7 +97,7 @@ class WsGateway implements WampServerInterface
             }
         } catch (InvalidTokenException $e) {
             $this->onUnauthorized($params['clientId']);
-        } catch (WebsocketException $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Gateway Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -116,7 +121,9 @@ class WsGateway implements WampServerInterface
             throw new WebsocketException('Invalid data action passed to worker gateway. ('.$actionName.')');
         }
         /** @var \ShinyDeploy\Action\WsDataAction $action */
+        $responder = new WsDataResponder($this->config, $this->logger);
         $action = new $actionClassName($this->config, $this->logger);
+        $action->setResponder($responder);
         $action->setClientId($clientId);
         $action->setToken($token);
         $action->__invoke($actionPayload);
@@ -139,10 +146,14 @@ class WsGateway implements WampServerInterface
      */
     protected function handleTriggerRequest($clientId, $token, $actionName, $actionPayload)
     {
-        $this->wsLog($clientId, 'Passing job request ' . $actionName . ' to StartGearmanJob action.');
-        $action = new \ShinyDeploy\Action\StartGearmanJob($this->config, $this->logger);
-        $action->setToken($token);
-        $action->__invoke($actionName, $clientId, $actionPayload);
+        $this->wsLog($clientId, 'Triggering job: ' . $actionName);
+        $client = new \GearmanClient;
+        $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
+        $actionPayload['clientId'] = $clientId;
+        $actionPayload['token'] = $token;
+        $payloadEncoded = json_encode($actionPayload);
+        $client->doBackground($actionName, $payloadEncoded);
+        unset($client);
     }
 
     /**
@@ -194,7 +205,6 @@ class WsGateway implements WampServerInterface
             'eventPayload' => [
                 'text' => $msg,
                 'type' => $type,
-                'source' => 'WsGateway'
             ],
         ];
         /** @var \Ratchet\Wamp\Topic $topic */
@@ -216,6 +226,5 @@ class WsGateway implements WampServerInterface
         /** @var \Ratchet\Wamp\Topic $topic */
         $topic = $this->subscriptions[$clientId];
         $topic->broadcast($eventData);
-
     }
 }

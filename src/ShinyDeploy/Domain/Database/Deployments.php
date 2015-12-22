@@ -171,6 +171,10 @@ class Deployments extends DatabaseDomain
         if ($deploymentId === 0) {
             return false;
         }
+        // delete deployment logs:
+        $this->db->prepare("DELETE FROM deployment_logs WHERE `deployment_id` = %d", $deploymentId)->execute();
+
+        // delete deployment:
         return $this->db->prepare("DELETE FROM deployments WHERE `id` = %d LIMIT 1", $deploymentId)->execute();
     }
 

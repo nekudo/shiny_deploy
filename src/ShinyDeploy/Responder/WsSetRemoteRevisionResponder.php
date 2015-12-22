@@ -23,7 +23,6 @@ class WsSetRemoteRevisionResponder extends WsEventResponder
             throw new \RuntimeException('Client-Id not set.');
         }
 
-
         $pushData = [
             'clientId' => $this->clientId,
             'eventName' => 'setRemoteRevision',

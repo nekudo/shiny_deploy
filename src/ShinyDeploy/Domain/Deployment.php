@@ -84,57 +84,58 @@ class Deployment extends Domain
             throw new RuntimeException('Repository object not found');
         }
 
-        $this->logResponder->log('Checking prerequisites...', 'default', 'DeployService');
+        $this->logResponder->log('Checking prerequisites...');
         if ($this->checkPrerequisites() === false) {
-            $this->logResponder->log('Prerequisites check failed. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Prerequisites check failed. Aborting job.');
             return false;
         }
 
-        $this->logResponder->log('Preparing local repository...', 'default', 'DeployService');
+        $this->logResponder->log('Preparing local repository...');
         if ($this->prepareRepository() === false) {
-            $this->logResponder->log('Preparation of local repository failed. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Preparation of local repository failed. Aborting job.');
             return false;
         }
-
 
         if ($listMode === false) {
-            $this->logResponder->log('Running tasks...', 'default', 'DeployService');
+            $this->logResponder->log('Running tasks...');
             if ($this->runTasks('before') === false) {
-                $this->logResponder->log('Running tasks failed. Aborting job.', 'error', 'DeployService');
+                $this->logResponder->error('Running tasks failed. Aborting job.');
                 return false;
             }
         }
 
-        $this->logResponder->log('Estimating remote revision...', 'default', 'DeployService');
+        $this->logResponder->log('Estimating remote revision...');
         $remoteRevision = $this->getRemoteRevision();
         if ($remoteRevision === false) {
-            $this->logResponder->log('Could not estimate remote revision. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Could not estimate remote revision. Aborting job.');
             return false;
         }
 
-        $this->logResponder->log('Switching branch...', 'default', 'DeployService');
+        $this->logResponder->log('Switching branch...');
         if ($this->switchBranch() === false) {
-            $this->logResponder->log('Could not swtich to selected branch. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Could not swtich to selected branch. Aborting job.');
             return false;
         }
 
-        $this->logResponder->log('Estimating local revision...', 'default', 'DeployService');
+        $this->logResponder->log('Estimating local revision...');
         $localRevision = $this->getLocalRevision();
         if ($localRevision === false) {
-            $this->logResponder->log('Could not estimate local revision. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Could not estimate local revision. Aborting job.');
             return false;
         }
 
         // If remote server is up to date we can stop right here:
         if ($localRevision === $remoteRevision) {
-            $this->logResponder->log('Remote server is aleady up to date.', 'info', 'DeployService');
+            if ($listMode === false) {
+                $this->logResponder->info('Remote server is aleady up to date.');
+            }
             return true;
         }
 
-        $this->logResponder->log('Collecting changed files...', 'default', 'DeployService');
+        $this->logResponder->log('Collecting changed files...');
         $changedFiles = $this->getChangedFilesList($localRevision, $remoteRevision);
         if (empty($changedFiles)) {
-            $this->logResponder->log('Could not estimate changed files.', 'error', 'DeployService');
+            $this->logResponder->error('Could not estimate changed files.');
             return false;
         }
 
@@ -144,24 +145,24 @@ class Deployment extends Domain
             return true;
         }
 
-        $this->logResponder->log('Sorting changed files...', 'default', 'DeployService');
+        $this->logResponder->log('Sorting changed files...');
         $sortedChangedFiles = $this->sortFilesByOperation($changedFiles);
 
-        $this->logResponder->log('Processing changed files...', 'default', 'DeployService');
+        $this->logResponder->log('Processing changed files...');
         if ($this->processChangedFiles($sortedChangedFiles) === false) {
-            $this->logResponder->log('Could not process files. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Could not process files. Aborting job.');
             return false;
         }
 
-        $this->logResponder->log('Updating revision file...', 'default', 'DeployService');
+        $this->logResponder->log('Updating revision file...');
         if ($this->updateRemoteRevisionFile($localRevision) === false) {
-            $this->logResponder->log('Could not update remove revision file. Aborting job.', 'error', 'DeployService');
+            $this->logResponder->error('Could not update remove revision file. Aborting job.');
             return false;
         }
 
-        $this->logResponder->log('Running tasks...', 'default', 'DeployService');
+        $this->logResponder->log('Running tasks...');
         if ($listMode === false && $this->runTasks('after') === false) {
-            $this->logResponder->log('Running tasks failed. Aborting job.', 'error', 'Deployment');
+            $this->logResponder->error('Running tasks failed. Aborting job.');
             return false;
         }
 
@@ -175,19 +176,19 @@ class Deployment extends Domain
      */
     protected function checkPrerequisites()
     {
-        $this->logResponder->log('Checking git binary...', 'default', 'PrerequisitesCheck');
+        $this->logResponder->log('Checking git binary...');
         if ($this->repository->checkGit() === false) {
-            $this->logResponder->log('Git executable not found. Aborting job.', 'danger', 'PrerequisitesCheck');
+            $this->logResponder->danger('Git executable not found.');
             return false;
         }
-        $this->logResponder->log('Checking connection to repository...', 'default', 'PrerequisitesCheck');
+        $this->logResponder->log('Checking connection to repository...');
         if ($this->repository->checkConnectivity() === false) {
-            $this->logResponder->log('Connection to repository failed.', 'danger', 'PrerequisitesCheck');
+            $this->logResponder->danger('Connection to repository failed.');
             return false;
         }
-        $this->logResponder->log('Checking connection target server...', 'default', 'PrerequisitesCheck');
+        $this->logResponder->log('Checking connection target server...');
         if ($this->server->checkConnectivity() === false) {
-            $this->logResponder->log('Connection to remote server failed.', 'danger', 'PrerequisitesCheck');
+            $this->logResponder->danger('Connection to remote server failed.');
             return false;
         }
         return true;
@@ -203,12 +204,12 @@ class Deployment extends Domain
         if ($this->repository->exists() === true) {
             $result = $this->repository->doPull();
             if ($result === false) {
-                $this->logResponder->log('Error while updating repository.', 'danger', 'prepareRepository');
+                $this->logResponder->danger('Error while updating repository.');
             }
         } else {
             $result = $this->repository->doClone();
             if ($result === false) {
-                $this->logResponder->log('Error while cloning repository.', 'danger', 'prepareRepository');
+                $this->logResponder->danger('Error while cloning repository.');
             }
         }
         return $result;
@@ -240,7 +241,7 @@ class Deployment extends Domain
 
         // Skip if server is not ssh capable:
         if ($this->server->getType() !== 'ssh') {
-            $this->logResponder->log('Server not of type SSH. Skipping tasks.', 'danger', 'runTasks');
+            $this->logResponder->danger('Server not of type SSH. Skipping tasks.');
             return false;
         }
 
@@ -248,12 +249,12 @@ class Deployment extends Domain
         $remotePath = $this->getRemotePath();
         foreach ($typeTasks as $task) {
             $command = 'cd ' . $remotePath . ' && ' . $task['command'];
-            $this->logResponder->log('Executing task: ' . $task['name'], 'info', 'runTasks');
+            $this->logResponder->info('Executing task: ' . $task['name']);
             $response = $this->server->executeCommand($command);
             if ($response === false) {
-                $this->logResponder->log('Task failed.', 'danger', 'runTasks');
+                $this->logResponder->danger('Task failed.');
             } else {
-                $this->logResponder->log($response, 'default', 'runTasks');
+                $this->logResponder->log($response);
             }
         }
         return true;
@@ -286,16 +287,17 @@ class Deployment extends Domain
         $revision = $this->server->getFileContent($targetPath);
         $revision = trim($revision);
         if (!empty($revision) && preg_match('#[0-9a-f]{40}#', $revision) === 1) {
-            $this->logResponder->log('Remote server is at revision: ' . $revision, 'info', 'getRemoteRevision');
+            $this->logResponder->info('Remote server is at revision: ' . $revision);
             return $revision;
         }
         $targetDir = dirname($targetPath);
         $targetDirContent = $this->server->listDir($targetDir);
         if ($targetDirContent === false) {
+            $this->logResponder->danger('Target path on remote server not found or not accessible.');
             return false;
         }
         if (is_array($targetDirContent) && empty($targetDirContent)) {
-             $this->logResponder->log('Remote revision not found - deploying all files.', 'info', 'getRemoteRevision');
+             $this->logResponder->info('Target path is empty. No revision yet.');
             return '-1';
         }
         return false;
@@ -309,14 +311,14 @@ class Deployment extends Domain
     public function getLocalRevision()
     {
         if ($this->repository->checkConnectivity() === false) {
-            $this->logResponder->log('Could not connect to remote repository.', 'info', 'getLocalRevision');
+            $this->logResponder->danger('Could not connect to remote repository.');
             return false;
         }
         $revision = $this->repository->getRemoteRevision($this->data['branch']);
         if ($revision !== false) {
-            $this->logResponder->log('Local repository is at revision: ' . $revision, 'info', 'getLocalRevision');
+            $this->logResponder->info('Local repository is at revision: ' . $revision);
         } else {
-            $this->logResponder->log('Local revision not found.', 'info', 'getLocalRevision');
+            $this->logResponder->danger('Local revision not found.');
         }
         return $revision;
     }
@@ -400,13 +402,11 @@ class Deployment extends Domain
         $uploadCount = count($changedFiles['upload']);
         $deleteCount = count($changedFiles['delete']);
         if ($uploadCount === 0 && $deleteCount === 0) {
-            $this->logResponder->log('Noting to upload or delete.', 'info', 'processChangedFiles');
+            $this->logResponder->info('Noting to upload or delete.');
             return true;
         }
-        $this->logResponder->log(
-            'Files to upload: '.$uploadCount.' - Files to delete: ' . $deleteCount . ' - processing...',
-            'info',
-            'processChangedFiles'
+        $this->logResponder->info(
+            'Files to upload: '.$uploadCount.' - Files to delete: ' . $deleteCount . ' - processing...'
         );
 
         if ($uploadCount > 0) {
@@ -416,29 +416,25 @@ class Deployment extends Domain
                 $uploadEnd = microtime(true);
                 $uploadDuration = round($uploadEnd - $uploadStart, 2);
                 if ($result === true) {
-                    $this->logResponder->log(
-                        'Uploading ' . $file . ': success ('.$uploadDuration.'s)',
-                        'info',
-                        'processChangedFiles'
-                    );
+                    $this->logResponder->info('Uploading ' . $file . ': success ('.$uploadDuration.'s)');
                 } else {
-                    $this->logResponder->log('Uploading ' . $file . ': failed', 'danger', 'processChangedFiles');
+                    $this->logResponder->danger('Uploading ' . $file . ': failed');
                 }
             }
         }
         if ($deleteCount > 0) {
-            $this->logResponder->log('Removing files...', 'default', 'Deployment');
+            $this->logResponder->log('Removing files...');
             foreach ($changedFiles['delete'] as $file) {
                 $result = $this->server->delete($remotePath.$file);
                 if ($result === true) {
-                    $this->logResponder->log('Deleting ' . $file . ': success', 'info', 'processChangedFiles');
+                    $this->logResponder->info('Deleting ' . $file . ': success');
                 } else {
-                    $this->logResponder->log('Deleting ' . $file . ': failed', 'danger', 'processChangedFiles');
+                    $this->logResponder->danger('Deleting ' . $file . ': failed');
                 }
             }
         }
 
-        $this->logResponder->log('Processing files completed.', 'info', 'processChangedFiles');
+        $this->logResponder->info('Processing files completed.');
 
         return true;
     }
@@ -452,7 +448,7 @@ class Deployment extends Domain
     {
         $remotePath = $this->getRemotePath();
         if ($this->server->putContent($revision, $remotePath.'REVISION') === false) {
-            $this->logResponder->log('Could not update remote revision file.', 'error', 'updateRemoteRevisionFile');
+            $this->logResponder->error('Could not update remote revision file.');
             return false;
         }
         return true;
