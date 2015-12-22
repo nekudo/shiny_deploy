@@ -7,11 +7,12 @@ use ShinyDeploy\Domain\Database\Servers;
 class GetServers extends WsDataAction
 {
     /**
-     * Fetches a server list
-     * @param mixed $actionPayload
+     * Fetches a server list.
+     *
+     * @param array $actionPayload
      * @return bool
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
@@ -22,7 +23,7 @@ class GetServers extends WsDataAction
             $this->responder->setError('Could not get encryption key.');
             return false;
         }
-        
+
         $serversDomain = new Servers($this->config, $this->logger);
         $serversDomain->setEnryptionKey($encryptionKey);
         $servers = $serversDomain->getServers();

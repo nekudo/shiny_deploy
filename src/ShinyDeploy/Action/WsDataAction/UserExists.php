@@ -1,20 +1,21 @@
 <?php namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\MissingDataException;
 
 class UserExists extends WsDataAction
 {
     /**
      * Checks if master-password hash was already set.
      *
-     * @param mixed $actionPayload
+     * @param array $actionPayload
      * @return bool
+     * @throws MissingDataException
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         if (empty($actionPayload['username'])) {
-            throw new WebsocketException('Username missing.');
+            throw new MissingDataException('Username missing.');
         }
         $username = $actionPayload['username'];
         $auth = new Auth($this->config, $this->logger);

@@ -12,7 +12,7 @@ class Login extends WsDataAction
      * @param array $actionPayload
      * @return bool
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         if (empty($actionPayload['password'])) {
             $this->responder->setError('Invalid password.');
@@ -45,8 +45,4 @@ class Login extends WsDataAction
         );
         return true;
     }
-
-
-
-
 }

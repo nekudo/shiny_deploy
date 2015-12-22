@@ -4,7 +4,6 @@ use Apix\Log\Logger;
 use Apix\Log\Logger\File;
 use Nekudo\Angela\Worker as AngelaBaseWorker;
 use Noodlehaus\Config;
-use ShinyDeploy\Exceptions\WorkerException;
 
 abstract class Worker extends AngelaBaseWorker
 {
@@ -31,44 +30,5 @@ abstract class Worker extends AngelaBaseWorker
         $this->zmqContext = new \ZMQContext;
         $this->logger->info('Starting worker. (Name: ' . $workerName . ')');
         parent::__construct($workerName, $gearmanHost, $gearmanPort, $runPath);
-    }
-
-    /**
-     * Sends a log message to websocket server.
-     *
-     * @param string $clientId Unique identifier for client.
-     * @param string $msg
-     * @param string $type
-     * @throws WorkerException
-     */
-    protected function wsLog($clientId, $msg, $type = 'default')
-    {
-        if (empty($clientId)) {
-            throw new WorkerException('Required parameter missing.');
-        }
-        $pushData = [
-            'clientId' => $clientId,
-            'wsEventName' => 'log',
-            'wsEventParams' => [
-                'source' => $this->workerName,
-                'type' => $type,
-                'text' => $msg,
-            ],
-        ];
-        $this->zmqSend($pushData);
-    }
-
-    /**
-     * Sends a message to using zqm.
-     *
-     * @param array $data
-     */
-    protected function zmqSend(array $data)
-    {
-        $zmqDsn = $this->config->get('zmq.dsn');
-        $zmqSocket = $this->zmqContext->getSocket(\ZMQ::SOCKET_PUSH);
-        $zmqSocket->connect($zmqDsn);
-        $zmqSocket->send(json_encode($data));
-        $zmqSocket->disconnect($zmqDsn);
     }
 }

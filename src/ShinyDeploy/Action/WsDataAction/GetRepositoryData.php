@@ -3,16 +3,23 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class GetRepositoryData extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Fetches repository data from database.
+     * 
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['repositoryId'])) {
-            throw new WebsocketException('Invalid getRepositoryData request received.');
+            throw new InvalidPayloadException('Invalid getRepositoryData request received.');
         }
 
         // get users encryption key:

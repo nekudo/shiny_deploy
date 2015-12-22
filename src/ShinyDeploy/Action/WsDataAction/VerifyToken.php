@@ -6,10 +6,10 @@ class VerifyToken extends WsDataAction
 {
     /**
      * Fetches a server list
-     * @param mixed $actionPayload
+     * @param array $actionPayload
      * @return bool
      */
-    public function __invoke($actionPayload)
+    public function __invoke(array $actionPayload)
     {
         if (empty($actionPayload['token'])) {
             $this->responder->setError('Token not provided.');

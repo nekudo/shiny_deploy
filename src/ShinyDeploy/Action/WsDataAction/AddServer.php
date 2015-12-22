@@ -3,17 +3,24 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Servers;
-use ShinyDeploy\Exceptions\WebsocketException;
+use ShinyDeploy\Exceptions\InvalidPayloadException;
 use Valitron\Validator;
 
 class AddServer extends WsDataAction
 {
-    public function __invoke($actionPayload)
+    /**
+     * Adds new server to database.
+     *
+     * @param array $actionPayload
+     * @return boolean
+     * @throws InvalidPayloadException
+     */
+    public function __invoke(array $actionPayload)
     {
         $this->authorize($this->clientId);
 
         if (!isset($actionPayload['serverData'])) {
-            throw new WebsocketException('Invalid addServer request received.');
+            throw new InvalidPayloadException('Invalid addServer request received.');
         }
         $serverData = $actionPayload['serverData'];
         $servers = new Servers($this->config, $this->logger);

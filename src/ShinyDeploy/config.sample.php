@@ -5,7 +5,8 @@ return [
     ],
     'logging' => [
         'file' => __DIR__ . '/../../logs/general.log',
-        'level' => 'debug',
+        'level' => 'warning',
+        'maxDeploymentLogs' => 50,
     ],
     'gearman' => [
         'host' => '127.0.0.1',
@@ -19,15 +20,15 @@ return [
 
         // Worker startup configuration:
         'workerScripts' => [
-            'deployer' => [
-                'classname' => 'ShinyDeploy\Worker\Deployer',
+            'deploymentactions' => [
+                'classname' => 'ShinyDeploy\Worker\DeploymentActions',
                 'filename' => 'Deployer.php',
-                'instances' => 5,
+                'instances' => 4,
             ],
             'repoactions' => [
                 'classname' => 'ShinyDeploy\Worker\RepositoryActions',
                 'filename' => 'RepositoryActions.php',
-                'instances' => 5,
+                'instances' => 2,
             ],
         ]
     ],
