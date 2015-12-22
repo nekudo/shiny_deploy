@@ -3,6 +3,7 @@
 use RuntimeException;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
 use ShinyDeploy\Domain\Database\ApiKeys;
+use ShinyDeploy\Domain\Database\DeploymentLogs;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Domain\Deployment;
 use ShinyDeploy\Responder\NullResponder;
@@ -23,6 +24,10 @@ class Deploy extends ApiAction
         $decryptionPassword = $this->apiPassword . $this->config->get('auth.secret');
         $encryptionKey = $encryption->decrypt($apiKeyData['encryption_key'], $decryptionPassword);
 
+        // log start of deployment:
+        $deploymentLogs = new DeploymentLogs($this->config, $this->logger);
+        $logId = $deploymentLogs->logDeploymentStart($apiKeyData['deployment_id'], 'API');
+
         // get deployment:
         $deployments = new Deployments($this->config, $this->logger);
         $deployments->setEnryptionKey($encryptionKey);
@@ -41,9 +46,13 @@ class Deploy extends ApiAction
         $nullResponder = new NullResponder($this->config, $this->logger);
         $deployment->setLogResponder($nullResponder);
         $result = $deployment->deploy(false);
+
+        // log result:
         if ($result === true) {
+            $deploymentLogs->logDeploymentSuccess($logId);
             $this->logger->info('API Deployment succeeded.');
         } else {
+            $deploymentLogs->logDeploymentError($logId);
             $this->logger->error('API Deployment failed.');
         }
     }

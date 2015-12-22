@@ -152,4 +152,17 @@ app.service('deploymentsService', ['ws', '$q', function (ws, $q) {
     this.triggerJob = function(jobName, jobPayload) {
         ws.sendTriggerRequest(jobName, jobPayload);
     };
+
+    /**
+     * Fetches list of deployment logs.
+     *
+     * @param {Number} deploymentId
+     * @returns {Promise}
+     */
+    this.getDeploymentLogs = function(deploymentId) {
+        var requestParams = {
+            deploymentId: deploymentId
+        };
+        return ws.sendDataRequest('getDeploymentLogs', requestParams);
+    };
 }]);

@@ -2,6 +2,7 @@
 
 use RuntimeException;
 use ShinyDeploy\Domain\Database\Auth;
+use ShinyDeploy\Domain\Database\DeploymentLogs;
 use ShinyDeploy\Domain\Database\Deployments;
 use ShinyDeploy\Exceptions\MissingDataException;
 use ShinyDeploy\Responder\WsLogResponder;
@@ -31,25 +32,33 @@ class Deploy extends WsWorkerAction
             throw new RuntimeException('Could not get encryption key.');
         }
 
-        // Init stuff
+        // Init responder
         $logResponder = new WsLogResponder($this->config, $this->logger);
         $logResponder->setClientId($this->clientId);
         $remoteRevisionResponder = new WsSetRemoteRevisionResponder($this->config, $this->logger);
         $remoteRevisionResponder->setClientId($this->clientId);
         $notificationResponder = new WsNotificationResponder($this->config, $this->logger);
         $notificationResponder->setClientId($this->clientId);
+
+        // Log deployment start
+        $deploymentLogs = new DeploymentLogs($this->config, $this->logger);
+        $logId = $deploymentLogs->logDeploymentStart($deploymentId, 'GUI');
+
+        // Start deployment
         $deployments = new Deployments($this->config, $this->logger);
         $deployments->setEnryptionKey($encryptionKey);
         $deployment = $deployments->getDeployment($deploymentId);
         $deployment->setLogResponder($logResponder);
-
-        // Start deployment
         $logResponder->log('Starting deployment...');
         $result = $deployment->deploy(false);
         if ($result === false) {
+            $deploymentLogs->logDeploymentError($logId);
             $notificationResponder->send('Deployment failed. Check log for details.', 'danger');
             return false;
         }
+
+        // Log deployment success:
+        $deploymentLogs->logDeploymentSuccess($logId);
 
         // Send updated revision to client:
         $revision = $deployment->getRemoteRevision();
