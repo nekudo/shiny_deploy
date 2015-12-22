@@ -32,6 +32,23 @@ CREATE TABLE IF NOT EXISTS `deployments` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `deployment_logs`
+--
+
+CREATE TABLE IF NOT EXISTS `deployment_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `deployment_id` int(11) NOT NULL DEFAULT '0',
+  `deployment_type` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `result` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `request_time` datetime DEFAULT NULL,
+  `end_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `deployment_id` (`deployment_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `repositories`
 --
 

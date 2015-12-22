@@ -390,6 +390,7 @@
         vm.diff = '';
         vm.remoteRevision = '';
         vm.localRevision = '';
+        vm.deploymentLogs = [];
 
         // Methods
         vm.triggerDeploy = triggerDeploy;
@@ -404,6 +405,8 @@
         vm.setRemoteRevision = setRemoteRevision;
         vm.closeChangedFiles = closeChangedFiles;
         vm.closeDiff = closeDiff;
+        vm.showDeploymentLogs = showDeploymentLogs;
+        vm.closeDeploymentLogs = closeDeploymentLogs;
 
         // Init
         init();
@@ -564,6 +567,24 @@
          */
         function closeDiff() {
             vm.diff = '';
+        }
+
+        /**
+         * Fetches list of deployment logs.
+         */
+        function showDeploymentLogs() {
+            deploymentsService.getDeploymentLogs(vm.deployment.id).then(function (data) {
+                vm.deploymentLogs = data;
+            }, function(reason) {
+                console.log(reason);
+            });
+        }
+
+        /**
+         * "Unsets" list of deployment logs.
+         */
+        function closeDeploymentLogs() {
+            vm.deploymentLogs = [];
         }
     }
 })();

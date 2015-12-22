@@ -6,6 +6,7 @@ return [
     'logging' => [
         'file' => __DIR__ . '/../../logs/general.log',
         'level' => 'warning',
+        'maxDeploymentLogs' => 50,
     ],
     'gearman' => [
         'host' => '127.0.0.1',
