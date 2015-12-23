@@ -22,7 +22,7 @@ return [
         'workerScripts' => [
             'deploymentactions' => [
                 'classname' => 'ShinyDeploy\Worker\DeploymentActions',
-                'filename' => 'Deployer.php',
+                'filename' => 'DeploymentActions.php',
                 'instances' => 4,
             ],
             'repoactions' => [
