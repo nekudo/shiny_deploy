@@ -90,6 +90,12 @@ class Deployment extends Domain
             return false;
         }
 
+        $this->logResponder->log('Switching branch...');
+        if ($this->switchBranch() === false) {
+            $this->logResponder->error('Could not swtich to selected branch. Aborting job.');
+            return false;
+        }
+
         $this->logResponder->log('Preparing local repository...');
         if ($this->prepareRepository() === false) {
             $this->logResponder->error('Preparation of local repository failed. Aborting job.');
@@ -108,12 +114,6 @@ class Deployment extends Domain
         $remoteRevision = $this->getRemoteRevision();
         if ($remoteRevision === false) {
             $this->logResponder->error('Could not estimate remote revision. Aborting job.');
-            return false;
-        }
-
-        $this->logResponder->log('Switching branch...');
-        if ($this->switchBranch() === false) {
-            $this->logResponder->error('Could not swtich to selected branch. Aborting job.');
             return false;
         }
 
