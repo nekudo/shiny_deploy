@@ -1,6 +1,8 @@
 <?php namespace ShinyDeploy\Core\Crypto;
 
 use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Exception\CryptoException;
+use Defuse\Crypto\Key;
 
 class KeyCrypto
 {
@@ -14,10 +16,9 @@ class KeyCrypto
     public function encryptString($string, $key)
     {
         try {
-            $enryptedString = Crypto::encrypt($string, $key);
-        } catch (Ex\CryptoTestFailedException $ex) {
-            return false;
-        } catch (Ex\CannotPerformOperationException $ex) {
+            $defuseKey = Key::loadFromAsciiSafeString($key);
+            $enryptedString = Crypto::encrypt($string, $defuseKey);
+        } catch (CryptoException $ex) {
             return false;
         }
         return $enryptedString;
@@ -33,12 +34,9 @@ class KeyCrypto
     public function decryptString($string, $key)
     {
         try {
-            $decryptedString = Crypto::decrypt($string, $key);
-        } catch (Ex\InvalidCiphertextException $ex) {
-            return false;
-        } catch (Ex\CryptoTestFailedException $ex) {
-            return false;
-        } catch (Ex\CannotPerformOperationException $ex) {
+            $defuseKey = Key::loadFromAsciiSafeString($key);
+            $decryptedString = Crypto::decrypt($string, $defuseKey);
+        } catch (CryptoException $ex) {
             return false;
         }
         return $decryptedString;
@@ -65,6 +63,7 @@ class KeyCrypto
      *
      * @param array $data
      * @param string $key
+     * @return bool|array
      */
     public function decryptArray(array $data, $key)
     {

@@ -1,7 +1,8 @@
 <?php
 namespace ShinyDeploy\Domain\Database;
 
-use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Exception\CryptoException;
+use Defuse\Crypto\Key;
 use Exception;
 use InvalidArgumentException;
 use Lcobucci\JWT\Builder;
@@ -243,10 +244,8 @@ class Auth extends DatabaseDomain
 
         // generate key:
         try {
-            $key = Crypto::createNewRandomKey();
-        } catch (Ex\CryptoTestFailedException $ex) {
-            return false;
-        } catch (Ex\CannotPerformOperationException $ex) {
+            $key = Key::createNewRandomKey()->saveToAsciiSafeString();
+        } catch (CryptoException $ex) {
             return false;
         }
 
