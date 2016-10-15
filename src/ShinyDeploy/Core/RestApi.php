@@ -124,7 +124,7 @@ class RestApi
             if (!class_exists($parserClass)) {
                 throw new \RuntimeException('Request parser not found. (' . $parserName . ')');
             }
-            /** @var \ShinyDeploy\Core\RequestParser $parser */
+            /** @var \ShinyDeploy\Core\RequestParser\RequestParser $parser */
             $parser = new $parserClass;
             if ($parser->parseRequest() === true) {
                 $this->requestParams = $parser->getParameters();

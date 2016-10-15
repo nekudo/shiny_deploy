@@ -24,10 +24,6 @@ class Deploy extends ApiAction
         $decryptionPassword = $this->apiPassword . $this->config->get('auth.secret');
         $encryptionKey = $encryption->decrypt($apiKeyData['encryption_key'], $decryptionPassword);
 
-        // log start of deployment:
-        $deploymentLogs = new DeploymentLogs($this->config, $this->logger);
-        $logId = $deploymentLogs->logDeploymentStart($apiKeyData['deployment_id'], 'API');
-
         // get deployment:
         $deployments = new Deployments($this->config, $this->logger);
         $deployments->setEnryptionKey($encryptionKey);
@@ -42,6 +38,10 @@ class Deploy extends ApiAction
             }
         }
 
+        // log start of deployment:
+        $deploymentLogs = new DeploymentLogs($this->config, $this->logger);
+        $logId = $deploymentLogs->logDeploymentStart($apiKeyData['deployment_id'], 'API');
+
         // start requested deploy:
         $nullResponder = new NullResponder($this->config, $this->logger);
         $deployment->setLogResponder($nullResponder);
@@ -55,5 +55,7 @@ class Deploy extends ApiAction
             $deploymentLogs->logDeploymentError($logId);
             $this->logger->error('API Deployment failed.');
         }
+
+        return true;
     }
 }
