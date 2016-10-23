@@ -9,7 +9,8 @@ class Repository extends Domain
     /** @var Git $git */
     protected $git;
 
-    public function init(array $data) {
+    public function init(array $data)
+    {
         $this->data = $data;
         $this->git = new Git($this->config, $this->logger);
     }
@@ -109,6 +110,17 @@ class Repository extends Domain
     }
 
     /**
+     * Removes old branches from repository.
+     *
+     * @return bool
+     */
+    public function doPrune()
+    {
+        $repoPath = $this->getLocalPath();
+        return $this->git->pruneRemoteBranches($repoPath);
+    }
+
+    /**
      * Retuns repository revision for given branch.
      *
      * @param string $branch
@@ -144,8 +156,8 @@ class Repository extends Domain
     {
         $files = [];
         $repoPath = $this->getLocalPath();
-        $reponse = $this->git->listFiles($repoPath);
-        $lines = explode("\n", $reponse);
+        $response = $this->git->listFiles($repoPath);
+        $lines = explode("\n", $response);
         if (empty($lines)) {
             return $files;
         }
@@ -295,7 +307,6 @@ class Repository extends Domain
     /**
      * Checks if URL responses with status 200.
      *
-     * @param array $repositoryData
      * @return bool
      */
     public function checkConnectivity()

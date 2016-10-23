@@ -6,17 +6,16 @@ use ShinyDeploy\Core\Domain;
 use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Domain\Database\Servers;
-use ShinyDeploy\Domain\Server\Server;
 
 class Deployment extends Domain
 {
-    /** @var Server $server */
+    /** @var \ShinyDeploy\Domain\Server\SftpServer|\ShinyDeploy\Domain\Server\SshServer $server */
     protected $server;
 
     /** @var Repository $repository */
     protected $repository;
 
-    /** @var LogResponder $logResponder */
+    /** @var \ShinyDeploy\Responder\WsLogResponder $logResponder */
     protected $logResponder;
 
     /** @var array $changedFiles */
@@ -206,6 +205,10 @@ class Deployment extends Domain
             if ($result === false) {
                 $this->logResponder->danger('Error while updating repository.');
             }
+            $pruneResult = $this->repository->doPrune();
+            if ($pruneResult === false) {
+                $this->logResponder->info('Possible error during git remote prune.');
+            }
         } else {
             $result = $this->repository->doClone();
             if ($result === false) {
@@ -393,6 +396,7 @@ class Deployment extends Domain
      * Deploys changes to target server by uploading/deleting files.
      *
      * @param array $changedFiles
+     * @return bool
      */
     protected function processChangedFiles($changedFiles)
     {
@@ -442,6 +446,7 @@ class Deployment extends Domain
     /**
      * Updates revision file on remote server.
      *
+     * @param string $revision Revision hash
      * @return boolean
      */
     protected function updateRemoteRevisionFile($revision)
@@ -458,6 +463,7 @@ class Deployment extends Domain
      * Checks if deployments branch matches the passed one.
      *
      * @param string $checkBranch
+     * @return bool
      */
     public function isBranch($checkBranch)
     {
