@@ -204,7 +204,7 @@ class Git extends Domain
      * Fetches list of repositories remote branches.
      *
      * @param string $repoPath
-     * @return array
+     * @return bool|array
      */
     public function getRemoteBranches($repoPath)
     {
@@ -314,6 +314,30 @@ class Git extends Domain
             return true;
         }
         if (strpos($output, 'Already on') !== false) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes old already deleted branches from repository.
+     *
+     * @param string $repoPath
+     * @return bool
+     */
+    public function pruneRemoteBranches($repoPath)
+    {
+        if (empty($repoPath)) {
+            throw new \RuntimeException('Required parameter missing.');
+        }
+        $oldDir = getcwd();
+        if (@chdir($repoPath) === false) {
+            throw new \RuntimeException('Could not change to repository directory.');
+        }
+        $output = $this->exec('remote prune origin');
+        chdir($oldDir);
+        $output = trim($output);
+        if (empty($output) || strpos($output, 'pruned') !== false) {
             return true;
         }
         return false;
