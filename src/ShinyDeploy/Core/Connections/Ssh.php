@@ -131,7 +131,7 @@ class Ssh
         if (!isset($this->existingFolders[$remoteDir])) {
             $this->mkdir($remoteDir, 0755, true);
         }
-        $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'w');
+        $sftpStream = @fopen('ssh2.sftp://' . (int)$this->sftpConnection . $remoteFile, 'w');
         if ($sftpStream === false) {
             $this->setError(7);
             return false;
@@ -154,7 +154,7 @@ class Ssh
     public function get($remoteFile)
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
-        $sftpStream = @fopen('ssh2.sftp://' . $this->sftpConnection . $remoteFile, 'r');
+        $sftpStream = @fopen('ssh2.sftp://' . (int)$this->sftpConnection . $remoteFile, 'r');
         if ($sftpStream === false) {
             $this->setError(7);
             return false;
@@ -211,7 +211,7 @@ class Ssh
      */
     public function listdir($path = '/')
     {
-        $dir = 'ssh2.sftp://' . $this->sftpConnection . $path;
+        $dir = 'ssh2.sftp://' . (int)$this->sftpConnection . $path;
         $filelist = [];
         if (($handle = @opendir($dir)) !== false) {
             while (false !== ($file = readdir($handle))) {
@@ -265,50 +265,42 @@ class Ssh
      */
     protected function setError($errorCode)
     {
-        switch($errorCode) {
+        switch ($errorCode) {
             case 1:
                 $this->errorMsg = 'Server data not complete.';
                 return true;
-                break;
             case 2:
                 $this->errorMsg = 'Connection to Server could not be established.';
                 return true;
-                break;
             case 3:
                 $this->errorMsg = 'Could not authenticate at server.';
                 return true;
-                break;
             case 4:
                 $this->errorMsg = 'No active connection to close.';
                 return true;
-                break;
             case 5:
                 $this->errorMsg = 'Could not create dir.';
                 return true;
-                break;
             case 6:
                 $this->errorMsg = 'Could not initialize sftp subsystem.';
                 return true;
-                break;
             case 7:
                 $this->errorMsg = 'Could not upload file to target server.';
                 return true;
-                break;
             case 8:
                 $this->errorMsg = 'Could not delete remote file.';
-                break;
+                return true;
             case 9:
                 $this->errorMsg = 'Could not open remote directory.';
-                break;
+                return true;
             case 10:
                 $this->errorMsg = 'Could not rename file.';
-                break;
+                return true;
             case 11:
                 $this->errorMsg = 'Could not execute ssh command.';
-                break;
+                return true;
             default:
                 return false;
-                break;
         }
     }
 
