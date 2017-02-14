@@ -15,10 +15,11 @@ class Deploy extends WsWorkerAction
      * Deploy file changes from repository to target server.
      *
      * @param int $id
+     * @param array $tasksToRun
      * @return boolean
      * @throws MissingDataException
      */
-    public function __invoke($id)
+    public function __invoke($id, array $tasksToRun = [])
     {
         $deploymentId = (int)$id;
         if (empty($deploymentId)) {
@@ -49,6 +50,7 @@ class Deploy extends WsWorkerAction
         $deployments->setEnryptionKey($encryptionKey);
         $deployment = $deployments->getDeployment($deploymentId);
         $deployment->setLogResponder($logResponder);
+        $deployment->setTasksToRun($tasksToRun);
         $logResponder->log('Starting deployment...');
         $result = $deployment->deploy(false);
         if ($result === false) {

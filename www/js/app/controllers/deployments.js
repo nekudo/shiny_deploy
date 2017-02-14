@@ -391,6 +391,7 @@
         vm.remoteRevision = '';
         vm.localRevision = '';
         vm.deploymentLogs = [];
+        vm.tasksToRun = {};
 
         // Methods
         vm.triggerDeploy = triggerDeploy;
@@ -420,6 +421,7 @@
             deploymentsService.getDeploymentData(deploymentId).then(function (data) {
                 vm.deployment = data;
                 resolveRelations();
+                initTasksToRun();
             }, function(reason) {
                 $location.path('/deployments');
             });
@@ -448,13 +450,32 @@
         }
 
         /**
+         * Init list of tasks to run during deployment.
+         *
+         * @returns {boolean}
+         */
+        function initTasksToRun() {
+            if (vm.deployment.tasks.length === 0) {
+                return true;
+            }
+            angular.forEach(vm.deployment.tasks, function(task, i) {
+                vm.tasksToRun[task.id] = 0;
+                if (task.hasOwnProperty('run_by_default') && task.run_by_default === "1") {
+                    vm.tasksToRun[task.id] = 1;
+                }
+            });
+            return true;
+        }
+
+        /**
          * Start new deployment job.
          */
         function triggerDeploy() {
             vm.changedFiles = {};
             vm.diff = '';
             deploymentsService.triggerJob('deploy', {
-                deploymentId: vm.deployment.id
+                deploymentId: vm.deployment.id,
+                tasksToRun: vm.tasksToRun
             });
         }
 

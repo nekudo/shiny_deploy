@@ -109,6 +109,7 @@
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Type</th>
+                                <th>Run by default</th>
                                 <th></th>
                             </tr>
                             </thead>
@@ -117,6 +118,7 @@
                                 <td>{{$index+1}}</td>
                                 <td>{{task.name}}</td>
                                 <td>{{task.type}}</td>
+                                <td>{{task.run_by_default === "1" ? 'Yes' : 'No'}}</td>
                                 <td>
                                     <button class="btn btn-xs btn-danger"
                                             data-ng-click="vm.deleteTask($index)">
@@ -216,6 +218,20 @@
                                         required>
                                     <option value="before">Before deploy</option>
                                     <option value="after">After deploy</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-group"
+                                 data-ng-class="{ 'has-error': editTaskForm.task_run_by_default.$invalid && editTaskForm.task_run_by_default.$dirty}">
+                                <label for="deployment-task_run_by_default">Run by default</label>
+                                <select name="task_run_by_default"
+                                        id="deployment-task_run_by_default"
+                                        class="form-control"
+                                        data-ng-model="vm.task.run_by_default"
+                                        required>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
                                 </select>
                             </div>
                         </div>

@@ -38,6 +38,7 @@ class DeploymentActions extends Worker
         try {
             $this->countJob();
             $params = json_decode($Job->workload(), true);
+            $tasksToRun = (!empty($params['tasksToRun'])) ? $params['tasksToRun'] : [];
             if (empty($params['clientId'])) {
                 throw new MissingDataException('ClientId can not be empty.');
             }
@@ -50,7 +51,7 @@ class DeploymentActions extends Worker
             $action = new Deploy($this->config, $this->logger);
             $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
-            $action->__invoke($params['deploymentId']);
+            $action->__invoke($params['deploymentId'], $tasksToRun);
         } catch (Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
