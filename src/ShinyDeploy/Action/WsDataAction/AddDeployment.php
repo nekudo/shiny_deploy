@@ -23,10 +23,10 @@ class AddDeployment extends WsDataAction
             throw new InvalidPayloadException('Invalid addDeployment request received.');
         }
         $deploymentData = $actionPayload['deploymentData'];
-        if (isset($deploymentData['tasks'])) {
-            $deploymentData['tasks'] = json_encode($deploymentData['tasks']);
-        }
         $deployments = new Deployments($this->config, $this->logger);
+        if (isset($deploymentData['tasks'])) {
+            $deploymentData['tasks'] = $deployments->encodeDeploymentTasks($deploymentData['tasks']);
+        }
 
         // validate input:
         $validator = new Validator($deploymentData);

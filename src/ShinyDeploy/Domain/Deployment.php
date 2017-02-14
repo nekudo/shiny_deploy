@@ -24,6 +24,9 @@ class Deployment extends Domain
     /** @var string $encryptionKey */
     protected $encryptionKey;
 
+    /** @var array $tasksToRun */
+    protected $tasksToRun = [];
+
 
     public function setEncryptionKey($encryptionKey)
     {
@@ -55,6 +58,16 @@ class Deployment extends Domain
     }
 
     /**
+     * Setter for tasksToRun filter.
+     *
+     * @param array $tasksToRun
+     */
+    public function setTasksToRun(array $tasksToRun)
+    {
+        $this->tasksToRun = $tasksToRun;
+    }
+
+    /**
      * Returns list of changed files.
      *
      * @return array
@@ -82,6 +95,8 @@ class Deployment extends Domain
         if (empty($this->repository)) {
             throw new RuntimeException('Repository object not found');
         }
+
+        $this->filterTasks();
 
         $this->logResponder->log('Checking prerequisites...');
         if ($this->checkPrerequisites() === false) {
@@ -216,6 +231,70 @@ class Deployment extends Domain
             }
         }
         return $result;
+    }
+
+    /**
+     * Removes tasks disabled via GUI or which are not enabled by default.
+     *
+     * @return bool
+     */
+    protected function filterTasks()
+    {
+        if (empty($this->data['tasks'])) {
+            return true;
+        }
+        if (empty($this->tasksToRun)) {
+            return $this->filterNonDefaultTasks();
+        } else {
+            return $this->filterNonSelectedTasks();
+        }
+    }
+
+    /**
+     * Removes tasks from task-list not enabled by default.
+     *
+     * @return bool
+     */
+    private function filterNonDefaultTasks()
+    {
+        foreach ($this->data['tasks'] as $i => $task) {
+            if ((int)$task['run_by_default'] !== 1) {
+                unset($this->data['tasks'][$i]);
+            }
+        }
+        array_merge($this->data['tasks'], []);
+        return true;
+    }
+
+    /**
+     * Removes tasks from task-list not enabled/selected in GUI.
+     *
+     * @return bool
+     */
+    private function filterNonSelectedTasks()
+    {
+        // noting to do if task-filter is empty
+        if (empty($this->tasksToRun)) {
+            return true;
+        }
+
+        // collect task-ids to remove
+        $tasksToRemove = [];
+        foreach ($this->tasksToRun as $taskId => $taskEnabled) {
+            if ((int)$taskEnabled === 1) {
+                continue;
+            }
+            array_push($tasksToRemove, $taskId);
+        }
+
+        // remove tasks
+        foreach ($this->data['tasks'] as $i => $task) {
+            if (in_array($task['id'], $tasksToRemove)) {
+                unset($this->data['tasks'][$i]);
+            }
+        }
+        array_merge($this->data['tasks'], []);
+        return true;
     }
 
     /**

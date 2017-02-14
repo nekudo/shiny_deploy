@@ -136,7 +136,7 @@ class Deployments extends DatabaseDomain
         if (!isset($deploymentData['id'])) {
             return false;
         }
-         $deploymentData = $this->encryptData($deploymentData, $this->encryptedFields);
+        $deploymentData = $this->encryptData($deploymentData, $this->encryptedFields);
         if ($deploymentData === false) {
             throw new RuntimeException('Data encryption failed.');
         }
@@ -217,5 +217,40 @@ class Deployments extends DatabaseDomain
         $cnt = $this->db->prepare($statement, $deploymentData['server_id'],$deploymentData['target_path'])
             ->getValue();
         return ($cnt > 0);
+    }
+
+    /**
+     * Adds ids to tasks and returns data as json-encoded string.
+     *
+     * @param array $tasks
+     * @return string
+     */
+    public function encodeDeploymentTasks(array $tasks)
+    {
+        // set task ids:
+        foreach ($tasks as $i => $task) {
+            if (!isset($task['id'])) {
+                $tasks[$i]['id'] = $this->getRandomTaskId();
+            }
+        }
+
+        // return tasks as json-encoded string:
+        return json_encode($tasks);
+    }
+
+    /**
+     * Generates a random string to use as task-id.
+     *
+     * @return string
+     */
+    protected function getRandomTaskId()
+    {
+        $randomId = '';
+        $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        $max = strlen($characters) - 1;
+        for ($i = 0; $i < 6; $i++) {
+            $randomId .= $characters[mt_rand(0, $max)];
+        }
+        return $randomId;
     }
 }

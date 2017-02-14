@@ -55,6 +55,27 @@
             </div>
         </div>
 
+        <div class="col-xs-12" data-ng-if="vm.deployment.tasks.length > 0">
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Tasks</h3>
+                </div>
+                <div class="box-body">
+                    <div class="form-group">
+                        <div class="checkbox" data-ng-repeat="task in vm.deployment.tasks">
+                            <label>
+                                <input type="checkbox"
+                                       data-ng-model="vm.tasksToRun[task.id]"
+                                       data-ng-true-value="1"
+                                       data-ng-false-value="0"
+                                       data-ng-checked="task.run_by_default === '1'"> {{ task.name }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-xs-12">
             <div class="box box-solid">
                 <div class="box-body">
