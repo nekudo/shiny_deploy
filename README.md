@@ -91,18 +91,19 @@ the following command:
 
 ### Optional Steps
 
-In case you want to adjust CSS or JS you can use gulp to create the minified files. Install gulp using the following
-command: (node.js is required!)
-
-```npm install```
+In case you want to adjust CSS or JS you can use the robo.phar to rebuild the assets.
 
 To build CSS/JS files run:
 
-```gulp build```
+```php robo.phar assets```
 
 To start a watcher automatically rebuilding files on modifications run:
 
-```gulp watch```
+```php robo.phar watch```
+
+To list all available tasks run:
+
+```php robo.phar list```
 
  Happy hacking...
 
