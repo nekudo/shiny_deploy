@@ -71,10 +71,10 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
     }
 ]);
 
-app.run(['ws', 'auth', function(ws, auth) {
+app.run(['ws', 'authService', function(ws, authService) {
     // connect to websocket server:
     ws.connect();
 
     // Init authentication service:
-    auth.init();
+    authService.init();
 }]);

@@ -77,7 +77,8 @@ class RoboFile extends \Robo\Tasks
     {
         $this->taskConcat([
             $this->jsRoot . 'app/app.js',
-            $this->jsRoot . 'app/**/*.js'
+            $this->jsRoot . 'app/*/*.js',
+            $this->jsRoot . 'app/*/*/*.js'
         ])
             ->to($this->jsRoot . 'project.js')
             ->run();

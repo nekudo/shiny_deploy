@@ -3,12 +3,12 @@
 
     angular
         .module('shinyDeploy')
-        .factory('auth', auth);
+        .factory('authService', authService);
 
-    auth.$inject = ['ws', '$rootScope', '$location', 'jwtHelper'];
+    authService.$inject = ['ws', '$rootScope', '$location', 'jwtHelper'];
 
     /* @ngInject */
-    function auth(ws, $rootScope, $location, jwtHelper) {
+    function authService(ws, $rootScope, $location, jwtHelper) {
 
         var service = {
             init: init,

@@ -5,9 +5,9 @@
         .module('shinyDeploy')
         .controller('LoginController', LoginController);
 
-    LoginController.$inject = ['$timeout', '$location', 'auth', 'alertsService'];
+    LoginController.$inject = ['$timeout', '$location', 'authService', 'alertsService'];
 
-    function LoginController($timeout, $location, auth, alertsService) {
+    function LoginController($timeout, $location, authService, alertsService) {
         /*jshint validthis: true */
         var vm = this;
 
@@ -29,7 +29,7 @@
          */
         function init() {
             $timeout(function() {
-                auth.systemUserExists().then(function(response) {
+                authService.systemUserExists().then(function(response) {
                     if (response.hasOwnProperty('userExists') && response.userExists !== true) {
                         vm.systemUserExists = false;
                     }
@@ -41,9 +41,9 @@
          * Check login credentials.
          */
         function login() {
-            auth.login(vm.password).then(function(response) {
+            authService.login(vm.password).then(function(response) {
                 if (response.hasOwnProperty('success') && response.success === true) {
-                    auth.setToken(response.token);
+                    authService.setToken(response.token);
                     $location.path('/');
                 } else {
                     alertsService.pushAlert('Login failed.', 'error');
@@ -59,7 +59,7 @@
          * @returns {booloan}
          */
         function createSystemUser() {
-           auth.createSystemUser(vm.password, vm.password_verify).then(function(response) {
+            authService.createSystemUser(vm.password, vm.password_verify).then(function(response) {
                if (response.hasOwnProperty('success') && response.success === true) {
                    vm.systemUserExists = true;
                    alertsService.pushAlert('System user successfully created.', 'success');
