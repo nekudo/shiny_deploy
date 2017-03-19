@@ -1,5 +1,10 @@
 {
     "require": {
+        "ext-curl": "*",
+        "ext-gearman": "*",
+        "ext-mcrypt": "*",
+        "ext-ssh2": "*",
+        "ext-zmq": "*",
         "cboden/ratchet": "0.3.*",
         "react/zmq": "0.2.*|0.3.*",
         "apix/log": "1.0.*",

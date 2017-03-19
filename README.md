@@ -1,10 +1,7 @@
 # ShinyDeploy
 
 _ShinyDeploy_ is a deployment tool written in PHP and JavaScript. It's main goal is to provide an easy way to deploy
-files from your repositories to your servers.
-
-**Attention:** Even though this application is usable it is still in an early beta version and has not be tested by
-a wide range of users. You should **always have a backup** of your data.
+files from your GIT repositories to your servers.
 
 ![ShinyDeploy Screenshot](https://nekudo.com/images/github/shiny_deploy_screen01.jpg)
 
@@ -44,25 +41,11 @@ in any way you like.
 
 ### Requirements
 
-The following packages and php-extensions are requried to run this application.
+The following packages and php-extensions are required to run this application.
 
-[ZeroMQ](http://zeromq.org/bindings:php)
-
-```sudo apt-get install libzmq3 libzmq3-dev```
-
-```sudo pecl install zmq-beta```
-
-[Gearman](http://gearman.org/download/#php)
-
-```sudo apt-get install gearman-job-server php5-gearman```
-
-
-PHP Extensions
-
-```sudo apt-get install php5-intl```
-
-```sudo apt-get install libssh2-php```
-
+* [ZeroMQ](http://zeromq.org/bindings:php)
+* [Gearman](http://gearman.org/download/#php)
+* [SSH2](http://php.net/manual/en/book.ssh2.php)
 
 ### Installation procedure
 
@@ -106,12 +89,6 @@ To list all available tasks run:
 ```php robo.phar list```
 
  Happy hacking...
-
-## ToDos and Known Bugs
-
-* Add SSH key support.
-* Check switch from Ratchet to another websocket server. (Ratchet development seems to be stuck...)
-* Check switch from Gearman to RabbitMQ. (Gearman development seems to be stuck...)
 
 ## License
 
