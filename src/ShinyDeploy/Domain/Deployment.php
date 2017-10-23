@@ -354,6 +354,7 @@ class Deployment extends Domain
         $targetPath = trim($this->data['target_path']);
         $targetPath = trim($targetPath, '/');
         $remotePath = $serverRoot . '/' . $targetPath . '/';
+        $remotePath = str_replace('//', '/', $remotePath);
         return $remotePath;
     }
 

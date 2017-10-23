@@ -3,6 +3,7 @@ namespace ShinyDeploy\Domain\Database;
 
 use InvalidArgumentException;
 use RuntimeException;
+use ShinyDeploy\Domain\Server\FtpServer;
 use ShinyDeploy\Domain\Server\Server;
 use ShinyDeploy\Domain\Server\SftpServer;
 use ShinyDeploy\Domain\Server\SshServer;
@@ -25,7 +26,7 @@ class Servers extends DatabaseDomain
             ['port']
         ],
         'in' => [
-            ['type', ['sftp', 'ssh']]
+            ['type', ['sftp', 'ssh', 'ftp']]
         ],
         'hostname' => [
             ['hostname']
@@ -82,6 +83,9 @@ class Servers extends DatabaseDomain
                 break;
             case 'sftp':
                 $server = new SftpServer($this->config, $this->logger);
+                break;
+            case 'ftp':
+                $server = new FtpServer($this->config, $this->logger);
                 break;
             default:
                 throw new \RuntimeException('Invalid server type.');
