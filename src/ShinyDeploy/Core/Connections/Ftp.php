@@ -1,25 +1,28 @@
 <?php
 namespace ShinyDeploy\Core\Connections;
 
+use FtpClient\FtpClient;
+use FtpClient\FtpException;
+
 class Ftp
 {
     /** @var string $errorMsg */
     private $errorMsg =  null;
 
-    /** @var resource $ftpConnection */
-    private $ftpConnection = null;
+    /** @var FtpClient $ftpClient */
+    private $ftpClient = null;
 
     /** @var array $existingFolders */
     protected $existingFolders = [];
 
-    // TODO: Auto connect if server data is passed.
     public function __construct()
     {
+        $this->ftpClient = new FtpClient;
     }
 
-    // TODO: Destroy open connections.
     public function __destruct()
     {
+        $this->disconnect();
     }
 
     /**
@@ -33,7 +36,14 @@ class Ftp
      */
     public function connect($host, $user, $pass, $port = 22)
     {
-
+        try {
+            $this->ftpClient->connect($host, false, $port, 30);
+            $this->ftpClient->login($user, $pass);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -43,7 +53,7 @@ class Ftp
      */
     public function disconnect()
     {
-
+        $this->ftpClient->close();
     }
 
     /**
@@ -56,7 +66,14 @@ class Ftp
      */
     public function mkdir($path, $mode = 0755, $recursive = false)
     {
-
+        try {
+            $this->ftpClient->mkdir($path, $recursive);
+            $this->ftpClient->chmod($mode, $path);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -69,7 +86,13 @@ class Ftp
      */
     public function put($localFile, $remoteFile, $mode = 0644)
     {
-
+        try {
+            $this->ftpClient->put($remoteFile, $localFile, $mode);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -82,7 +105,14 @@ class Ftp
      */
     public function putContent($content, $remoteFile, $mode = 0644)
     {
-
+        try {
+            $this->ftpClient->putFromString($remoteFile, $content);
+            $this->ftpClient->chmod($mode, $remoteFile);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -94,12 +124,36 @@ class Ftp
      */
     public function get($remoteFile)
     {
-
+        var_dump($remoteFile);
+        try {
+            $tempHandle = fopen('php://temp', 'r+');
+            $this->ftpClient->fget($tempHandle, $remoteFile, FTP_BINARY, 0);
+            rewind($tempHandle);
+            $content = stream_get_contents($tempHandle);
+            fclose($tempHandle);
+            return $content;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
+    /**
+     * Downloads a remote file to local server.
+     *
+     * @param string $remoteFile
+     * @param string $localFile
+     * @return bool
+     */
     public function download($remoteFile, $localFile)
     {
-
+        try {
+            $this->ftpClient->get($localFile, $remoteFile, FTP_BINARY, 0);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -110,7 +164,13 @@ class Ftp
      */
     public function unlink($file)
     {
-
+        try {
+            $this->ftpClient->delete($file);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -122,7 +182,13 @@ class Ftp
      */
     public function rename($filenameFrom, $filenameTo)
     {
-
+        try {
+            $this->ftpClient->rename($filenameFrom, $filenameTo);
+            return true;
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -133,7 +199,12 @@ class Ftp
      */
     public function listdir($path = '/')
     {
-
+        try {
+            return $this->ftpClient->nlist($path);
+        } catch (FtpException $e) {
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 
 
@@ -141,12 +212,12 @@ class Ftp
     /**
      * Sets an error message by passing an error code.
      *
-     * @param int $errorCode Numeric value representing an error message.
-     * @return bool True if massage was set falseCn error.
+     * @param string $errorMessage The last error message.
+     * @return bool True if massage was set false on error.
      */
-    protected function setError($errorCode)
+    protected function setError($errorMessage)
     {
-
+        $this->errorMsg = $errorMessage;
     }
 
     /**
