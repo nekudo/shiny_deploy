@@ -69,6 +69,7 @@ class Ftp
         try {
             $this->ftpClient->mkdir($path, $recursive);
             $this->ftpClient->chmod($mode, $path);
+            $this->existingFolders[$path] = true;
             return true;
         } catch (FtpException $e) {
             $this->setError($e->getMessage());
@@ -87,6 +88,11 @@ class Ftp
     public function put($localFile, $remoteFile, $mode = 0644)
     {
         try {
+            $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
+            $remoteDir = dirname($remoteFile);
+            if (!isset($this->existingFolders[$remoteDir])) {
+                $this->mkdir($remoteDir, 0755, true);
+            }
             $this->ftpClient->put($remoteFile, $localFile, FTP_BINARY);
             $this->ftpClient->chmod($mode, $remoteFile);
             return true;
@@ -107,6 +113,11 @@ class Ftp
     public function putContent($content, $remoteFile, $mode = 0644)
     {
         try {
+            $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
+            $remoteDir = dirname($remoteFile);
+            if (!isset($this->existingFolders[$remoteDir])) {
+                $this->mkdir($remoteDir, 0755, true);
+            }
             $this->ftpClient->putFromString($remoteFile, $content);
             $this->ftpClient->chmod($mode, $remoteFile);
             return true;
