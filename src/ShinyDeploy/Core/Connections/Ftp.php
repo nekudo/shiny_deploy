@@ -87,7 +87,8 @@ class Ftp
     public function put($localFile, $remoteFile, $mode = 0644)
     {
         try {
-            $this->ftpClient->put($remoteFile, $localFile, $mode);
+            $this->ftpClient->put($remoteFile, $localFile, FTP_BINARY);
+            $this->ftpClient->chmod($mode, $remoteFile);
             return true;
         } catch (FtpException $e) {
             $this->setError($e->getMessage());
@@ -124,7 +125,6 @@ class Ftp
      */
     public function get($remoteFile)
     {
-        var_dump($remoteFile);
         try {
             $tempHandle = fopen('php://temp', 'r+');
             $this->ftpClient->fget($tempHandle, $remoteFile, FTP_BINARY, 0);
