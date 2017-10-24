@@ -67,8 +67,10 @@ class Ftp
     public function mkdir($path, $mode = 0755, $recursive = false)
     {
         try {
-            $this->ftpClient->mkdir($path, $recursive);
-            $this->ftpClient->chmod($mode, $path);
+            if ($this->ftpClient->isDir($path) === false) {
+                $this->ftpClient->mkdir($path, $recursive);
+                $this->ftpClient->chmod($mode, $path);
+            }
             $this->existingFolders[$path] = true;
             return true;
         } catch (FtpException $e) {
