@@ -8,8 +8,8 @@ $context = new React\ZMQ\Context($loop);
 $pull = $context->getSocket(ZMQ::SOCKET_PULL);
 $pull->bind($config->get('zmq.dsn'));
 $pull->on('message', array($WorkerGateway, 'onApiEvent'));
-$webSock = new React\Socket\Server($loop);
-$webSock->listen($config->get('wss.port'), $config->get('wss.host'));
+$uri = $config->get('wss.host') .':'.$config->get('wss.port');
+$webSock = new React\Socket\Server($uri, $loop);
 $webServer = new Ratchet\Server\IoServer(
     new Ratchet\Http\HttpServer(
         new Ratchet\WebSocket\WsServer(
@@ -20,4 +20,5 @@ $webServer = new Ratchet\Server\IoServer(
     ),
     $webSock
 );
+
 $loop->run();
