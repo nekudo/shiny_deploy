@@ -2,10 +2,10 @@
 
 use Apix\Log\Logger;
 use Apix\Log\Logger\File;
-use Nekudo\Angela\Worker as AngelaBaseWorker;
+use Nekudo\ShinyGears\Worker as ShinyGearsWorker;
 use Noodlehaus\Config;
 
-abstract class Worker extends AngelaBaseWorker
+abstract class Worker extends ShinyGearsWorker
 {
     /** @var Config Project config. */
     protected $config;
@@ -16,10 +16,10 @@ abstract class Worker extends AngelaBaseWorker
     /** @var  \ZMQContext $zmqContext */
     protected $zmqContext;
 
-    public function __construct($workerName, $gearmanHost, $gearmanPort, $runPath)
+    public function __construct(array $config, $poolName, $workerName)
     {
         // load config:
-        $this->config = Config::load(__DIR__ . '/../config.php');
+        $this->config = Config::load(__DIR__ . '/../../../config/config.php');
 
         // init logger:
         $this->logger = new Logger;
@@ -29,6 +29,7 @@ abstract class Worker extends AngelaBaseWorker
 
         $this->zmqContext = new \ZMQContext;
         $this->logger->info('Starting worker. (Name: ' . $workerName . ')');
-        parent::__construct($workerName, $gearmanHost, $gearmanPort, $runPath);
+
+        parent::__construct($config, $poolName, $workerName);
     }
 }

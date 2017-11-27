@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // load config:
-$config = \Noodlehaus\Config::load(__DIR__ . '/../src/ShinyDeploy/config.php');
+$config = \Noodlehaus\Config::load(__DIR__ . '/../config/config.php');
 
 // init logger:
 $logger = new \Apix\Log\Logger;
