@@ -1,4 +1,22 @@
 {
+    "name": "nekudo/shiny_deploy",
+    "description": "ShinyDeploy is a deployment tool written in PHP and JavaScript.",
+    "keywords": [
+        "deployment",
+        "php",
+        "javascript",
+        "angular",
+        "git",
+        "gearman"
+    ],
+    "homepage": "https://github.com/nekudo/shiny_deploy",
+    "authors": [
+        {
+            "name": "Simon Samtleben",
+            "email": "simon@nekudo.com",
+            "homepage": "https://nekudo.com"
+        }
+    ],
     "require": {
         "ext-curl": "*",
         "ext-gearman": "*",
@@ -10,7 +28,7 @@
         "apix/log": "1.2.0",
         "vlucas/valitron": "1.4.2",
         "hassankhan/config": "0.11.2",
-        "nekudo/angela": "1.*",
+        "nekudo/shiny_gears": "1.0.2",
         "lcobucci/jwt": "3.2.2",
         "defuse/php-encryption": "2.1.0",
         "nicolab/php-ftp-client": "1.4.1"
@@ -20,6 +38,13 @@
             "ShinyDeploy\\": "src/ShinyDeploy"
         }
     },
+    "scripts": {
+        "post-create-project-cmd": [
+            "cp config/config.sample.php config/config.php",
+            "cp www/js/config.js.sample www/js/config.js"
+        ]
+    },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "license": "MIT"
 }

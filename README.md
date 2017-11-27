@@ -49,21 +49,17 @@ The following packages and php-extensions are required to run this application.
 
 ### Installation procedure
 
-* Clone repository.
+* Install project using composer.
 
-  ```git clone https://github.com/nekudo/shiny_deploy.git```
-
-* Install dependencies
-
-  ```composer install```
+  ```composer create-project nekudo/shiny_deploy myshinydeploy```
 
 * Create MySQL tables using db_structure.sql in project root.
 
-* Rename and adjust config files
+* Adjust config files in the following folders:
 
-  ```mv src/ShinyDeploy/config.sample.php src/ShinyDeploy/config.php```
+  ```config/config.php```
 
-  ```mv www/js/config.js.sample www/js/config.js```
+  ```www/js/config.js```
 
 ### Start application
 

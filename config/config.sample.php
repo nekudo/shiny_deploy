@@ -3,59 +3,69 @@ return [
     'auth' => [
         'secret' => '', // set a random string to use as encryption password
     ],
+
     'logging' => [
-        'file' => __DIR__ . '/../../logs/general.log',
+        'file' => __DIR__ . '/../logs/general.log',
         'level' => 'warning',
         'maxDeploymentLogs' => 50,
     ],
-    'gearman' => [
-        'host' => '127.0.0.1',
-        'port' => 4730,
 
-        'workerPath' => __DIR__ . '/Worker/',
-        'pidPath' => __DIR__ . '/../../cli/run/',
-        'logPath' => __DIR__ . '/../../logs/',
+    'gears' => [
+        'gearman' => [
+            'host' => '127.0.0.1',
+            'port' => 4730,
+        ],
 
-        'timeTillGhost' => 1200,
+        'paths' => [
+            'config' => __FILE__,
+            'log' => __DIR__ . '/../logs',
+            'run' => __DIR__ . '/../cli/run',
+        ],
 
-        // Worker startup configuration:
-        'workerScripts' => [
+        'pools' => [
             'deploymentactions' => [
-                'classname' => 'ShinyDeploy\Worker\DeploymentActions',
-                'filename' => 'DeploymentActions.php',
-                'instances' => 4,
+                'worker_file' => __DIR__ . '/Worker/DeploymentActions.php',
+                'worker_class' => '\ShinyDeploy\Worker\DeploymentActions',
+                'instances' => 1,
             ],
+
             'repoactions' => [
-                'classname' => 'ShinyDeploy\Worker\RepositoryActions',
-                'filename' => 'RepositoryActions.php',
+                'worker_file' => __DIR__ . '/Worker/RepositoryActions.php',
+                'worker_class' => '\ShinyDeploy\Worker\RepositoryActions',
                 'instances' => 2,
             ],
         ]
     ],
+
     'zmq' => [
         'dsn' => 'tcp://127.0.0.1:5556',
     ],
+
     'wss' => [
         'host' => '0.0.0.0',
         'port' => 8090,
 
-        'wssPath' => __DIR__ . '/../../cli/scripts/',
-        'logPath' => __DIR__ . '/../../logs/',
+        'wssPath' => __DIR__ . '/../cli/scripts/',
+        'logPath' => __DIR__ . '/../logs/',
         'processIdentifier' => 'scripts/wss',
     ],
+
     'repositories' => [
-        'path' => __DIR__ . '/../../repositories',
+        'path' => __DIR__ . '/../repositories',
     ],
+
     'db' => [
         'host' => 'localhost',
         'user' => '',
         'pass' => '',
         'db' => 'my_database',
     ],
+
     'git' => [
         'name' => 'John Doe',
         'email' => 'john@needsnomail.com',
     ],
+
     'api' => [
         'requestParser' => [
             'github',

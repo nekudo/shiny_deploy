@@ -15,8 +15,7 @@
 # Composer/Gulp
 /vendor
 /node_modules
-composer.lock
 
 # Project
-/src/ShinyDeploy/config.php
+/config/config.php
 /www/js/config.js
