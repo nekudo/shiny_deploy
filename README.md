@@ -43,6 +43,7 @@ in any way you like.
 
 The following packages and php-extensions are required to run this application.
 
+* PHP >= 7.1.0
 * [ZeroMQ](http://zeromq.org/bindings:php)
 * [Gearman](http://gearman.org/download/#php)
 * [SSH2](http://php.net/manual/en/book.ssh2.php)
