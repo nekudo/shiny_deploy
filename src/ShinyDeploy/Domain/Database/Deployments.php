@@ -3,6 +3,7 @@ namespace ShinyDeploy\Domain\Database;
 
 use RuntimeException;
 use ShinyDeploy\Domain\Deployment;
+use ShinyDeploy\Exceptions\DatabaseException;
 use ShinyDeploy\Traits\CryptableDomain;
 
 class Deployments extends DatabaseDomain
@@ -39,7 +40,7 @@ class Deployments extends DatabaseDomain
      *
      * @return array
      */
-    public function getCreateRules()
+    public function getCreateRules() : array
     {
         return $this->rules;
     }
@@ -49,7 +50,7 @@ class Deployments extends DatabaseDomain
      *
      * @return array
      */
-    public function getUpdateRules()
+    public function getUpdateRules() : array
     {
         $rules = $this->rules;
         $rules['required'][] = ['id'];
@@ -61,9 +62,10 @@ class Deployments extends DatabaseDomain
      *
      * @param int $deploymentId
      * @throws RuntimeException
+     * @throws DatabaseException
      * @return Deployment
      */
-    public function getDeployment($deploymentId)
+    public function getDeployment(int $deploymentId) : Deployment
     {
         $data = $this->getDeploymentData($deploymentId);
         if (empty($data)) {
@@ -78,9 +80,10 @@ class Deployments extends DatabaseDomain
     /**
      * Fetches list of deployments from database.
      *
-     * @return array|bool
+     * @throws DatabaseException
+     * @return array
      */
-    public function getDeployments()
+    public function getDeployments() : array
     {
         $rows = $this->db->prepare("SELECT * FROM deployments ORDER BY `name`")->getResult(false);
         if (empty($rows)) {
@@ -100,9 +103,10 @@ class Deployments extends DatabaseDomain
      * Stores new server in database.
      *
      * @param array $deploymentData
+     * @throws DatabaseException
      * @return bool
      */
-    public function addDeployment(array $deploymentData)
+    public function addDeployment(array $deploymentData) : bool
     {
         if (!isset($deploymentData['tasks'])) {
             $deploymentData['tasks'] = '';
@@ -129,9 +133,10 @@ class Deployments extends DatabaseDomain
      * Updates deployment.
      *
      * @param array $deploymentData
+     * @throws DatabaseException
      * @return bool
      */
-    public function updateDeployment(array $deploymentData)
+    public function updateDeployment(array $deploymentData) : bool
     {
         if (!isset($deploymentData['id'])) {
             return false;
@@ -163,9 +168,10 @@ class Deployments extends DatabaseDomain
      * Deletes a deployment.
      *
      * @param int $deploymentId
+     * @throws DatabaseException
      * @return bool
      */
-    public function deleteDeployment($deploymentId)
+    public function deleteDeployment(int $deploymentId) : bool
     {
         $deploymentId = (int)$deploymentId;
         if ($deploymentId === 0) {
@@ -182,9 +188,10 @@ class Deployments extends DatabaseDomain
      * Fetches deployment data.
      *
      * @param int $deploymentId
+     * @throws DatabaseException
      * @return array
      */
-    public function getDeploymentData($deploymentId)
+    public function getDeploymentData(int $deploymentId) : array
     {
         $deploymentId = (int)$deploymentId;
         if ($deploymentId === 0) {
@@ -209,12 +216,13 @@ class Deployments extends DatabaseDomain
      * Checks if another deployment with same server-id and target path exists.
      *
      * @param array $deploymentData
+     * @throws DatabaseException
      * @return bool
      */
-    public function targetExists(array $deploymentData)
+    public function targetExists(array $deploymentData) : bool
     {
         $statement = "SELECT COUNT(id) FROM deployments WHERE `server_id` = %d AND `target_path` = %s";
-        $cnt = $this->db->prepare($statement, $deploymentData['server_id'],$deploymentData['target_path'])
+        $cnt = $this->db->prepare($statement, $deploymentData['server_id'], $deploymentData['target_path'])
             ->getValue();
         return ($cnt > 0);
     }
@@ -225,7 +233,7 @@ class Deployments extends DatabaseDomain
      * @param array $tasks
      * @return string
      */
-    public function encodeDeploymentTasks(array $tasks)
+    public function encodeDeploymentTasks(array $tasks) : string
     {
         // set task ids:
         foreach ($tasks as $i => $task) {
@@ -243,7 +251,7 @@ class Deployments extends DatabaseDomain
      *
      * @return string
      */
-    protected function getRandomTaskId()
+    protected function getRandomTaskId() : string
     {
         $randomId = '';
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';

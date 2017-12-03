@@ -8,8 +8,9 @@ class RestApiResponder extends Responder
      * Responds with a "bad request" header.
      *
      * @param string $errorMessage
+     * @return void
      */
-    public function respondBadRequest($errorMessage = '')
+    public function respondBadRequest(string $errorMessage = '') : void
     {
         http_response_code(400);
         echo $errorMessage;
@@ -20,8 +21,9 @@ class RestApiResponder extends Responder
      * Responds with an "internal server error" header.
      *
      * @param string $errorMessage
+     * @return void
      */
-    public function respondError($errorMessage = '')
+    public function respondError(string $errorMessage = '') : void
     {
         http_response_code(500);
         echo $errorMessage;
@@ -32,8 +34,9 @@ class RestApiResponder extends Responder
      * Responds with "200 OK" header.
      *
      * @param string $message
+     * @return void
      */
-    public function respond($message = '')
+    public function respond(string $message = '') : void
     {
         http_response_code(200);
         echo $message;

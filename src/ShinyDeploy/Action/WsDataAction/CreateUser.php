@@ -8,9 +8,10 @@ class CreateUser extends WsDataAction
      * Saves a new user to database.
      *
      * @param mixed $actionPayload
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         if (empty($actionPayload['username'])) {
             $this->responder->setError('Username can not be empty.');

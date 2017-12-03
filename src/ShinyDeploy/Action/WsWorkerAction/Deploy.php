@@ -16,10 +16,10 @@ class Deploy extends WsWorkerAction
      *
      * @param int $id
      * @param array $tasksToRun
-     * @return boolean
      * @throws MissingDataException
+     * @return boolean
      */
-    public function __invoke($id, array $tasksToRun = [])
+    public function __invoke(int $id, array $tasksToRun = []) : bool
     {
         $deploymentId = (int)$id;
         if (empty($deploymentId)) {

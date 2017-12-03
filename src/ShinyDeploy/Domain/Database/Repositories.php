@@ -3,6 +3,7 @@ namespace ShinyDeploy\Domain\Database;
 
 use RuntimeException;
 use ShinyDeploy\Domain\Repository;
+use ShinyDeploy\Exceptions\DatabaseException;
 use ShinyDeploy\Traits\CryptableDomain;
 
 class Repositories extends DatabaseDomain
@@ -36,7 +37,7 @@ class Repositories extends DatabaseDomain
      *
      * @return array
      */
-    public function getCreateRules()
+    public function getCreateRules() : array
     {
         return $this->rules;
     }
@@ -46,7 +47,7 @@ class Repositories extends DatabaseDomain
      *
      * @return array
      */
-    public function getUpdateRules()
+    public function getUpdateRules() : array
     {
         $rules = $this->rules;
         $rules['required'][] = ['id'];
@@ -58,9 +59,10 @@ class Repositories extends DatabaseDomain
      *
      * @param int $repositoryId
      * @return Repository
+     * @throws DatabaseException
      * @throws RuntimeException
      */
-    public function getRepository($repositoryId)
+    public function getRepository(int $repositoryId) : Repository
     {
         $data = $this->getRepositoryData($repositoryId);
         if (empty($data)) {
@@ -75,9 +77,10 @@ class Repositories extends DatabaseDomain
     /**
      * Fetches list of repositories from database.
      *
-     * @return array|bool
+     * @throws DatabaseException
+     * @return array
      */
-    public function getRepositories()
+    public function getRepositories() : array
     {
         $rows = $this->db->prepare("SELECT * FROM repositories ORDER BY `name`")->getResult(false);
         if (empty($rows)) {
@@ -97,9 +100,10 @@ class Repositories extends DatabaseDomain
      * Stores new repository in database.
      *
      * @param array $repositoryData
-     * @return bool|int
+     * @throws DatabaseException
+     * @return int
      */
-    public function addRepository(array $repositoryData)
+    public function addRepository(array $repositoryData) : int
     {
         if (!isset($repositoryData['username'])) {
             $repositoryData['username'] = '';
@@ -111,7 +115,7 @@ class Repositories extends DatabaseDomain
         if ($repositoryData === false) {
             throw new RuntimeException('Data encryption failed.');
         }
-        $result = $this->db->prepare(
+        $this->db->prepare(
             "INSERT INTO repositories
               (`name`, `type`, `url`, `username`, `password`)
               VALUES
@@ -122,9 +126,6 @@ class Repositories extends DatabaseDomain
             $repositoryData['username'],
             $repositoryData['password']
         )->execute();
-        if ($result === false) {
-            return false;
-        }
         return $this->db->getInsertId();
     }
 
@@ -132,9 +133,10 @@ class Repositories extends DatabaseDomain
      * Updates repository.
      *
      * @param array $repositoryData
+     * @throws DatabaseException
      * @return bool
      */
-    public function updateRepository(array $repositoryData)
+    public function updateRepository(array $repositoryData) : bool
     {
         if (!isset($repositoryData['id'])) {
             return false;
@@ -170,9 +172,10 @@ class Repositories extends DatabaseDomain
      * Deletes a repository.
      *
      * @param int $repositoryId
+     * @throws DatabaseException
      * @return bool
      */
-    public function deleteRepository($repositoryId)
+    public function deleteRepository(int $repositoryId) : bool
     {
         $repositoryId = (int)$repositoryId;
         if ($repositoryId === 0) {
@@ -185,9 +188,10 @@ class Repositories extends DatabaseDomain
      * Fetches repository data.
      *
      * @param int $repositoryId
+     * @throws DatabaseException
      * @return array
      */
-    public function getRepositoryData($repositoryId)
+    public function getRepositoryData(int $repositoryId) : array
     {
         $repositoryId = (int)$repositoryId;
         if ($repositoryId === 0) {
@@ -212,7 +216,14 @@ class Repositories extends DatabaseDomain
         return $repositoryData;
     }
 
-    public function repositoryInUse($repositoryId)
+    /**
+     * Checks if relations to given repository id exist in database.
+     *
+     * @param int $repositoryId
+     * @return bool
+     * @throws DatabaseException
+     */
+    public function repositoryInUse(int $repositoryId) : bool
     {
         $repositoryId = (int)$repositoryId;
         if (empty($repositoryId)) {

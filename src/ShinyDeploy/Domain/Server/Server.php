@@ -5,23 +5,24 @@ use ShinyDeploy\Core\Domain;
 
 abstract class Server extends Domain
 {
-    abstract public function getType();
+    abstract public function getType() : string;
 
-    abstract public function connect($host, $user, $pass, $port = 22);
+    abstract public function connect(string $host, string $user, string $pass, int $port = 22) : bool;
 
-    abstract public function getFileContent($path);
+    abstract public function getFileContent(string $path) : string;
 
-    abstract public function upload($localFile, $remoteFile, $mode = 0644);
+    abstract public function upload(string $localFile, string $remoteFile, int $mode = 0644) : bool;
 
-    abstract public function putContent($content, $remoteFile, $mode = 0644);
+    abstract public function putContent(string $content, string $remoteFile, int $mode = 0644) : bool;
 
-    abstract public function delete($remoteFile);
+    abstract public function delete(string $remoteFile) : bool;
 
-    abstract public function listDir($remotePath);
+    abstract public function listDir(string $remotePath) : array;
 
-    abstract public function checkConnectivity();
+    abstract public function checkConnectivity() : bool;
 
-    public function init(array $data) {
+    public function init(array $data) : void
+    {
         parent::init($data);
         $this->connect(
             $this->data['hostname'],
@@ -37,7 +38,7 @@ abstract class Server extends Domain
      * @return string
      * @throws \RuntimeException
      */
-    public function getRootPath()
+    public function getRootPath() : string
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Server data not found. Initialization missing?');

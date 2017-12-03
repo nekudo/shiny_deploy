@@ -1,7 +1,5 @@
 <?php namespace ShinyDeploy\Core\RequestParser;
 
-use ShinyDeploy\Core\RequestParser\RequestParser;
-
 class Github implements RequestParser
 {
     /** @var array $parameters */
@@ -12,7 +10,7 @@ class Github implements RequestParser
      *
      * @return boolean
      */
-    public function parseRequest()
+    public function parseRequest() : bool
     {
         if (empty($_SERVER['HTTP_USER_AGENT'])) {
             return false;
@@ -35,11 +33,11 @@ class Github implements RequestParser
     }
 
     /**
-     * Returns parsed informations.
+     * Returns parsed information.
      *
      * @return array
      */
-    public function getParameters()
+    public function getParameters() : array
     {
         return $this->parameters;
     }

@@ -11,9 +11,10 @@ class GetDeploymentLogs extends WsDataAction
      * Fetches list of deployment logs.
      *
      * @param array $actionPayload
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         $this->authorize($this->clientId);
 

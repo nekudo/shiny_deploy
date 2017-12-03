@@ -6,21 +6,46 @@ use ShinyDeploy\Exceptions\InvalidTokenException;
 
 class WsAction extends Action
 {
+    /**
+     * @var string $clientId
+     */
     protected $clientId = '';
-    
+
+    /**
+     * @var string $token
+     */
     protected $token = '';
 
-    public function setClientId($clientId)
+    /**
+     * Sets the client id.
+     *
+     * @param string $clientId
+     * @return void
+     */
+    public function setClientId(string $clientId) : void
     {
         $this->clientId = $clientId;
     }
 
-    public function setToken($token)
+    /**
+     * Sets the auth token.
+     *
+     * @param string $token
+     * @return void
+     */
+    public function setToken(string $token) : void
     {
         $this->token = $token;
     }
 
-    public function authorize($clientId)
+    /**
+     * Checks if auth token is valid.
+     *
+     * @param string $clientId
+     * @throws InvalidTokenException
+     * @return void
+     */
+    public function authorize(string $clientId) : void
     {
         if (empty($this->token)) {
             throw new InvalidTokenException('Invalid token.');

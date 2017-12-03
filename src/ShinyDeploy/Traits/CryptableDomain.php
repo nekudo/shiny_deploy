@@ -12,7 +12,7 @@ trait CryptableDomain
      *
      * @param string $encryptionKey
      */
-    public function setEnryptionKey($encryptionKey)
+    public function setEnryptionKey(string $encryptionKey) : void
     {
         $this->encryptionKey = $encryptionKey;
     }
@@ -24,8 +24,9 @@ trait CryptableDomain
      * @param array $fields
      * @return array|bool
      * @throws \RuntimeException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function encryptData(array $data, array $fields = [])
+    public function encryptData(array $data, array $fields = []) : array
     {
         if (empty($this->encryptionKey)) {
             throw new \RuntimeException('Encryption key not set.');
@@ -42,10 +43,11 @@ trait CryptableDomain
      *
      * @param array $data
      * @param array $fields
-     * @return array|bool
+     * @return array
      * @throws \RuntimeException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function decryptData(array $data, array $fields = [])
+    public function decryptData(array $data, array $fields = []) : array
     {
         if (empty($this->encryptionKey)) {
             throw new \RuntimeException('Encryption key not set.');

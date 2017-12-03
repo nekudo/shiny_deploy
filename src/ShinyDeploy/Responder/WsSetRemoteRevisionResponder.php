@@ -15,9 +15,11 @@ class WsSetRemoteRevisionResponder extends WsEventResponder
      * Set remote revision.
      *
      * @param string $revision
+     * @return void
      * @throws \RuntimeException
+     * @throws \ZMQException
      */
-    public function respond($revision)
+    public function respond(string $revision) : void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');

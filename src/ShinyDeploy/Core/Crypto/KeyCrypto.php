@@ -3,72 +3,75 @@
 use Defuse\Crypto\Crypto;
 use Defuse\Crypto\Exception\CryptoException;
 use Defuse\Crypto\Key;
+use ShinyDeploy\Exceptions\CryptographyException;
 
 class KeyCrypto
 {
     /**
-     * Encryptes a string using given key.
+     * Encrypts a string using given key.
      *
      * @param string $string
      * @param string $key
-     * @return string|boolean
+     * @throws CryptographyException
+     * @return string
      */
-    public function encryptString($string, $key)
+    public function encryptString(string $string, string $key) : string
     {
         try {
             $defuseKey = Key::loadFromAsciiSafeString($key);
-            $enryptedString = Crypto::encrypt($string, $defuseKey);
+            return Crypto::encrypt($string, $defuseKey);
         } catch (CryptoException $ex) {
-            return false;
+            throw new CryptographyException('Could not encrypt string.');
         }
-        return $enryptedString;
     }
 
     /**
-     * Decryptes a string using given key.
+     * Decrypts a string using given key.
      *
      * @param string $string
      * @param string $key
-     * @return string|boolean
+     * @throws CryptographyException
+     * @return string
      */
-    public function decryptString($string, $key)
+    public function decryptString(string $string, string $key) : string
     {
         try {
             $defuseKey = Key::loadFromAsciiSafeString($key);
-            $decryptedString = Crypto::decrypt($string, $defuseKey);
+            return Crypto::decrypt($string, $defuseKey);
         } catch (CryptoException $ex) {
-            return false;
+            throw new CryptographyException('Could not decrypt string.');
         }
-        return $decryptedString;
     }
 
     /**
-     * Encryptes all fields of an array using given key.
+     * Encrypts all fields of an array using given key.
      *
      * @param array $data
      * @param string $key
-     * @return array|bool
+     * @throws CryptographyException
+     * @return array
      */
-    public function encryptArray(array $data, $key)
+    public function encryptArray(array $data, string $key) : array
     {
         if (empty($data)) {
-            return false;
+            return $data;
         }
         $keys = array_keys($data);
         return $this->encryptArrayParts($data, $keys, $key);
     }
 
     /**
-     * Decryptes all fields of an array using given key.
+     * Decrypts all fields of an array using given key.
      *
      * @param array $data
      * @param string $key
-     * @return bool|array
+     * @throws CryptographyException
+     * @return array
      */
-    public function decryptArray(array $data, $key)
+    public function decryptArray(array $data, string $key) : array
     {
         if (empty($data)) {
-            return false;
+            return $data;
         }
         $keys = array_keys($data);
         return $this->decryptArrayParts($data, $keys, $key);
@@ -80,19 +83,20 @@ class KeyCrypto
      * @param array $data
      * @param array $keys
      * @param string $key
-     * @return array|bool
+     * @throws CryptographyException
+     * @return array
      */
-    public function encryptArrayParts(array $data, array $keys, $key)
+    public function encryptArrayParts(array $data, array $keys, string $key) : array
     {
         if (empty($data) || empty($keys)) {
-            return false;
+            return $data;
         }
         foreach ($keys as $aKey) {
             if (!isset($data[$aKey])) {
-                return false;
+                continue;
             }
             if (is_array($data[$aKey]) || is_object($data[$aKey])) {
-                return false;
+                throw new CryptographyException('Can not encrypt multi-dimensional array or object');
             }
             $data[$aKey] = $this->encryptString($data[$aKey], $key);
         }
@@ -100,24 +104,25 @@ class KeyCrypto
     }
 
     /**
-     * Decryptes specified fields of an array.
+     * Decrypts specified fields of an array.
      *
      * @param array $data
      * @param array $keys
      * @param string $key
-     * @return array|boolean
+     * @throws CryptographyException
+     * @return array
      */
-    public function decryptArrayParts(array $data, array $keys, $key)
+    public function decryptArrayParts(array $data, array $keys, string $key) : array
     {
         if (empty($data) || empty($keys)) {
-            return false;
+            return $data;
         }
         foreach ($keys as $aKey) {
             if (!isset($data[$aKey])) {
-                return false;
+                continue;
             }
             if (is_array($data[$aKey]) || is_object($data[$aKey])) {
-                return false;
+                throw new CryptographyException('Can not decrypt multi-dimensional array or object');
             }
             $data[$aKey] = $this->decryptString($data[$aKey], $key);
         }

@@ -12,13 +12,13 @@ class CloneRepository extends WsWorkerAction
      * Clones a repository to local server.
      *
      * @param int $id
-     * @return boolean
      * @throws MissingDataException
+     * @return bool
      */
-    public function __invoke($id)
+    public function __invoke(int $id) : bool
     {
 
-        $repositoryId = (int)$id;
+        $repositoryId = (int) $id;
         if (empty($repositoryId)) {
             throw new MissingDataException('RepositoryId can not be empty');
         }
@@ -66,7 +66,7 @@ class CloneRepository extends WsWorkerAction
             return true;
         }
 
-        // Someting went wrong, send error notice to client:
+        // Something went wrong, send error notice to client:
         $notificationResponder->send('Could not clone repository to local server.', 'danger');
         return false;
     }

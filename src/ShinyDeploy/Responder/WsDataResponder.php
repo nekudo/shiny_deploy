@@ -29,10 +29,10 @@ class WsDataResponder extends Responder
     /**
      * Sets callback id.
      *
-     * @param string $callbackId
+     * @param int $callbackId
      * @return bool
      */
-    public function setCallbackId($callbackId)
+    public function setCallbackId(int $callbackId) : bool
     {
         if (empty($callbackId)) {
             return false;
@@ -45,9 +45,10 @@ class WsDataResponder extends Responder
      * Sets an error message. Automatically switches type to "error".
      *
      * @param string $msg
+     * @return void
      * @throws WebsocketException
      */
-    public function setError($msg = '')
+    public function setError(string $msg = '') : void
     {
         if (!is_string($msg)) {
             throw new WebsocketException('Error message has to be of type string.');
@@ -62,8 +63,9 @@ class WsDataResponder extends Responder
      * Sets payload data.
      *
      * @param mixed $data
+     * @return void
      */
-    public function setPayload($data)
+    public function setPayload($data) : void
     {
         $this->payload = $data;
     }
@@ -73,7 +75,7 @@ class WsDataResponder extends Responder
      *
      * @return array
      */
-    public function getFrameData()
+    public function getFrameData() : array
     {
         $frameData = [
             'callbackId' => $this->callbackId,

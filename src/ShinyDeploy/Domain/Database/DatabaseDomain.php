@@ -30,14 +30,12 @@ class DatabaseDomain extends Domain
     /**
      * Adds custom validation rules to validator lib.
      */
-    private function addCustomValidationRules()
+    private function addCustomValidationRules() : void
     {
         // add hostname validation:
         Validator::addRule(
             'hostname',
             function ($field, $value, array $params) {
-                $realWorld = (isset($params[0]) && $params[0] === true) ? true : false;
-
                 // lets first transform it to ascii
                 $value = idn_to_ascii((string) $value);
 

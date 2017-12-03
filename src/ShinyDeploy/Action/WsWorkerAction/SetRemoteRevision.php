@@ -15,7 +15,7 @@ class SetRemoteRevision extends WsWorkerAction
      * @param array $params
      * @return bool
      */
-    public function __invoke(array $params)
+    public function __invoke(array $params) : bool
     {
         if (!isset($params['deploymentId'])) {
             throw new MissingDataException('DeploymentId can not be empty.');

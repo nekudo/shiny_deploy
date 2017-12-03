@@ -1,6 +1,7 @@
 <?php
 namespace ShinyDeploy\Domain\Database;
 
+use ShinyDeploy\Exceptions\DatabaseException;
 use ShinyDeploy\Exceptions\MissingDataException;
 
 class DeploymentLogs extends DatabaseDomain
@@ -12,8 +13,9 @@ class DeploymentLogs extends DatabaseDomain
      * @param string $deploymentType
      * @return int
      * @throws MissingDataException
+     * @throws DatabaseException
      */
-    public function logDeploymentStart($deploymentId, $deploymentType)
+    public function logDeploymentStart(int $deploymentId, string $deploymentType) : int
     {
         if (empty($deploymentId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -36,8 +38,9 @@ class DeploymentLogs extends DatabaseDomain
      * @param int $deploymentLogId
      * @return bool
      * @throws MissingDataException
+     * @throws DatabaseException
      */
-    public function logDeploymentSuccess($deploymentLogId)
+    public function logDeploymentSuccess(int $deploymentLogId) : bool
     {
         if (empty($deploymentLogId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -51,8 +54,9 @@ class DeploymentLogs extends DatabaseDomain
      * @param int $deploymentLogId
      * @return bool
      * @throws MissingDataException
+     * @throws DatabaseException
      */
-    public function logDeploymentError($deploymentLogId)
+    public function logDeploymentError(int $deploymentLogId) : bool
     {
         if (empty($deploymentLogId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -65,10 +69,11 @@ class DeploymentLogs extends DatabaseDomain
      *
      * @param int $deploymentLogId
      * @param string $result
-     * @return bool
      * @throws MissingDataException
+     * @throws DatabaseException
+     * @return bool
      */
-    protected function logDeploymentEnd($deploymentLogId, $result)
+    protected function logDeploymentEnd(int $deploymentLogId, string $result) : bool
     {
         if (empty($deploymentLogId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -90,10 +95,11 @@ class DeploymentLogs extends DatabaseDomain
      * Fetches list of deployment logs for given deployment id.
      *
      * @param int $deploymentId
-     * @return array
      * @throws MissingDataException
+     * @throws DatabaseException
+     * @return array
      */
-    public function getDeploymentLogs($deploymentId)
+    public function getDeploymentLogs(int $deploymentId) : array
     {
         if (empty($deploymentId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -122,9 +128,10 @@ class DeploymentLogs extends DatabaseDomain
      * Removes logs keeping only a limit definded in settings.
      *
      * @param int $deploymentId
+     * @throws DatabaseException
      * @return bool
      */
-    public function clearLogs($deploymentId)
+    public function clearLogs(int $deploymentId) : bool
     {
         $keep = (int) $this->config->get('logging.maxDeploymentLogs', 50);
         $statement = "DELETE FROM `deployment_logs`

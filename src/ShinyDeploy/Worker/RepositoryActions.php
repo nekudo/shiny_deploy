@@ -1,7 +1,5 @@
 <?php namespace ShinyDeploy\Worker;
 
-require __DIR__ . '/../../../vendor/autoload.php';
-
 use ShinyDeploy\Action\WsWorkerAction\CloneRepository;
 use ShinyDeploy\Action\WsWorkerAction\DeleteRepositoryFiles;
 use ShinyDeploy\Core\Worker;
@@ -22,10 +20,9 @@ class RepositoryActions extends Worker
      * Clones a repository
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
      * @return bool
      */
-    public function cloneRepository(\GearmanJob $Job)
+    public function cloneRepository(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
@@ -55,10 +52,9 @@ class RepositoryActions extends Worker
      * Physically removes a repository
      *
      * @param \GearmanJob $Job
-     * @throws \Exception
      * @return bool
      */
-    public function deleteRepository(\GearmanJob $Job)
+    public function deleteRepository(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();

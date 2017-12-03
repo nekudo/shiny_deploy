@@ -7,6 +7,7 @@ use ShinyDeploy\Domain\Server\FtpServer;
 use ShinyDeploy\Domain\Server\Server;
 use ShinyDeploy\Domain\Server\SftpServer;
 use ShinyDeploy\Domain\Server\SshServer;
+use ShinyDeploy\Exceptions\DatabaseException;
 use ShinyDeploy\Traits\CryptableDomain;
 
 class Servers extends DatabaseDomain
@@ -47,7 +48,7 @@ class Servers extends DatabaseDomain
      *
      * @return array
      */
-    public function getCreateRules()
+    public function getCreateRules() : array
     {
         return $this->rules;
     }
@@ -57,7 +58,7 @@ class Servers extends DatabaseDomain
      *
      * @return array
      */
-    public function getUpdateRules()
+    public function getUpdateRules() : array
     {
         $rules = $this->rules;
         $rules['required'][] = ['id'];
@@ -67,11 +68,12 @@ class Servers extends DatabaseDomain
     /**
      * Creates and returns a server object.
      *
-     * @param type $serverId
+     * @param int $serverId
      * @return Server
      * @throws RuntimeException
+     * @throws DatabaseException
      */
-    public function getServer($serverId)
+    public function getServer(int $serverId) : Server
     {
         $data = $this->getServerData($serverId);
         if (empty($data)) {
@@ -88,7 +90,7 @@ class Servers extends DatabaseDomain
                 $server = new FtpServer($this->config, $this->logger);
                 break;
             default:
-                throw new \RuntimeException('Invalid server type.');
+                throw new RuntimeException('Invalid server type.');
         }
         $server->init($data);
         return $server;
@@ -97,9 +99,11 @@ class Servers extends DatabaseDomain
     /**
      * Fetches list of servers from database.
      *
-     * @return array|bool
+     * @throws DatabaseException
+     * @throws RuntimeException
+     * @return array
      */
-    public function getServers()
+    public function getServers() : array
     {
         $rows = $this->db->prepare("SELECT * FROM servers ORDER BY `name`")->getResult(false);
         if (empty($rows)) {
@@ -120,8 +124,9 @@ class Servers extends DatabaseDomain
      *
      * @param array $serverData
      * @return bool
+     * @throws DatabaseException
      */
-    public function addServer(array $serverData)
+    public function addServer(array $serverData) : bool
     {
         $serverData = $this->encryptData($serverData, $this->encryptedFields);
         if ($serverData === false) {
@@ -148,8 +153,9 @@ class Servers extends DatabaseDomain
      *
      * @param array $serverData
      * @return bool
+     * @throws DatabaseException
      */
-    public function updateServer(array $serverData)
+    public function updateServer(array $serverData) : bool
     {
         if (!isset($serverData['id'])) {
             return false;
@@ -186,8 +192,9 @@ class Servers extends DatabaseDomain
      *
      * @param int $serverId
      * @return bool
+     * @throws DatabaseException
      */
-    public function deleteServer($serverId)
+    public function deleteServer(int $serverId) : bool
     {
         $serverId = (int)$serverId;
         if ($serverId === 0) {
@@ -201,8 +208,9 @@ class Servers extends DatabaseDomain
      *
      * @param int $serverId
      * @return array
+     * @throws DatabaseException
      */
-    public function getServerData($serverId)
+    public function getServerData(int $serverId) : array
     {
         $serverId = (int)$serverId;
         if ($serverId === 0) {
@@ -226,8 +234,9 @@ class Servers extends DatabaseDomain
      * @param int $serverId
      * @return bool
      * @throws InvalidArgumentException
+     * @throws DatabaseException
      */
-    public function serverInUse($serverId)
+    public function serverInUse(int $serverId) : bool
     {
         $serverId = (int)$serverId;
         if (empty($serverId)) {

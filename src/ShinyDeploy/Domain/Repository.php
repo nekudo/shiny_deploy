@@ -1,7 +1,7 @@
 <?php
 namespace ShinyDeploy\Domain;
 
-use Guzzle\Common\Exception\RuntimeException;
+use RuntimeException;
 use ShinyDeploy\Core\Domain;
 
 class Repository extends Domain
@@ -9,7 +9,7 @@ class Repository extends Domain
     /** @var Git $git */
     protected $git;
 
-    public function init(array $data)
+    public function init(array $data) : void
     {
         $this->data = $data;
         $this->git = new Git($this->config, $this->logger);
@@ -18,14 +18,14 @@ class Repository extends Domain
     /**
      * Returns repository name.
      *
-     * @return string|bool
+     * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         if (!empty($this->data['name'])) {
             return $this->data['name'];
         }
-        return false;
+        return '';
     }
 
     /**
@@ -33,7 +33,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function exists()
+    public function exists() : bool
     {
         $repoPath = $this->getLocalPath();
         if (!file_exists($repoPath)) {
@@ -48,9 +48,9 @@ class Repository extends Domain
     /**
      * Updates a repository by doing a git pull.
      *
-     * @return boolean
+     * @return bool
      */
-    public function doPull()
+    public function doPull() : bool
     {
         $repoUrl = $this->getCredentialsUrl();
         $repoPath = $this->getLocalPath();
@@ -69,7 +69,7 @@ class Repository extends Domain
      *
      * @return boolean
      */
-    public function doClone()
+    public function doClone() : bool
     {
         $repoUrl = $this->getCredentialsUrl();
         $repoPath = $this->createLocalPath();
@@ -83,10 +83,10 @@ class Repository extends Domain
     /**
      * Fetches a list of repository (remote) branches.
      *
-     * @return bool|array
+     * @return array
      * @throws \RuntimeException
      */
-    public function getBranches()
+    public function getBranches() : array
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data missing. Not initialized?');
@@ -102,7 +102,7 @@ class Repository extends Domain
      * @param string $branch
      * @return bool
      */
-    public function switchBranch($branch)
+    public function switchBranch(string $branch) : bool
     {
         $repoPath = $this->getLocalPath();
         $switchResult = $this->git->switchBranch($repoPath, $branch);
@@ -114,19 +114,19 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function doPrune()
+    public function doPrune() : bool
     {
         $repoPath = $this->getLocalPath();
         return $this->git->pruneRemoteBranches($repoPath);
     }
 
     /**
-     * Retuns repository revision for given branch.
+     * Returns repository revision for given branch.
      *
      * @param string $branch
-     * @return string|bool
+     * @return string
      */
-    public function getRevision($branch)
+    public function getRevision(string $branch) : string
     {
         $repoPath = $this->getLocalPath();
         $revision = $this->git->getLocalRepositoryRevision($repoPath, $branch);
@@ -137,9 +137,9 @@ class Repository extends Domain
      * Retuns remote repository revision for given branch.
      *
      * @param string $branch
-     * @return string|bool
+     * @return string
      */
-    public function getRemoteRevision($branch)
+    public function getRemoteRevision(string $branch) : string
     {
         $repoPath = $this->getLocalPath();
         $repoUrl = $this->getCredentialsUrl();
@@ -148,11 +148,11 @@ class Repository extends Domain
     }
 
     /**
-     * Get list of files in repositroy.
+     * Get list of files in repository.
      *
      * @return array
      */
-    public function listFiles()
+    public function listFiles() : array
     {
         $files = [];
         $repoPath = $this->getLocalPath();
@@ -178,7 +178,7 @@ class Repository extends Domain
      * @param string $revisionB
      * @return array
      */
-    public function getDiff($revisionA, $revisionB)
+    public function getDiff(string $revisionA, string $revisionB) : array
     {
         $diff = [];
         $repoPath = $this->getLocalPath();
@@ -213,7 +213,7 @@ class Repository extends Domain
      * @param string $revisionB
      * @return string
      */
-    public function getFileDiff($file, $revisionA, $revisionB)
+    public function getFileDiff(string $file, string $revisionA, string $revisionB) : string
     {
         $repoPath = $this->getLocalPath();
         $diff = $this->git->diffFile($repoPath, $revisionA, $revisionB, $file);
@@ -224,8 +224,9 @@ class Repository extends Domain
      * Gets local repository path.
      *
      * @return string
+     * @throws \RuntimeException
      */
-    public function getLocalPath()
+    public function getLocalPath() : string
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data missing. Not initialized?');
@@ -241,7 +242,7 @@ class Repository extends Domain
      *
      * @return string
      */
-    protected function createLocalPath()
+    protected function createLocalPath() : string
     {
         $localPath = $this->getLocalPath();
         if (file_exists($localPath)) {
@@ -257,8 +258,9 @@ class Repository extends Domain
      * Returns repository url after adding login credentials (if available).
      *
      * @return string
+     * @throws \RuntimeException
      */
-    protected function getCredentialsUrl()
+    protected function getCredentialsUrl() : string
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data missing. Not initialized?');
@@ -281,7 +283,7 @@ class Repository extends Domain
      * @param string $repoPath
      * @return bool
      */
-    public function remove($repoPath = '')
+    public function remove(string $repoPath = '') : bool
     {
         if (empty($repoPath)) {
             $repoPath = $this->getLocalPath();
@@ -298,7 +300,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function checkGit()
+    public function checkGit() : bool
     {
         $versionString = $this->git->getVersion();
         return ($versionString === false) ? false : true;
@@ -308,8 +310,9 @@ class Repository extends Domain
      * Checks if URL responses with status 200.
      *
      * @return bool
+     * @throws \RuntimeException
      */
-    public function checkConnectivity()
+    public function checkConnectivity() : bool
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data not set. Missing inititialization?');
@@ -337,8 +340,9 @@ class Repository extends Domain
      * Recursively removes a not empty directory.
      *
      * @param string $path
+     * @return void
      */
-    private function removeDir($path)
+    private function removeDir(string $path) : void
     {
         if (is_dir($path)) {
             $objects = scandir($path);

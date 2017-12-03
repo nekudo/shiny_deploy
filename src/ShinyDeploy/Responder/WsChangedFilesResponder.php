@@ -15,14 +15,14 @@ class WsChangedFilesResponder extends WsEventResponder
      * Sends list of changed files to websocket server.
      *
      * @param array $changedFiles
+     * @return void
      * @throws \RuntimeException
      */
-    public function respond(array $changedFiles)
+    public function respond(array $changedFiles) : void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');
         }
-
 
         $pushData = [
             'clientId' => $this->clientId,

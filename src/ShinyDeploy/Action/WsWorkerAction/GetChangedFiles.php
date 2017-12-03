@@ -14,10 +14,10 @@ class GetChangedFiles extends WsWorkerAction
      * Fetch a list of changed files between two revisions.
      *
      * @param int $id
-     * @return boolean
      * @throws MissingDataException
+     * @return boolean
      */
-    public function __invoke($id)
+    public function __invoke(int $id) : bool
     {
         $deploymentId = (int)$id;
         if (empty($deploymentId)) {

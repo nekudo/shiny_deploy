@@ -16,14 +16,14 @@ class WsFileDiffResponder extends WsEventResponder
      *
      * @param string $diff
      * @throws \RuntimeException
+     * @throws \ZMQException
      */
-    public function respond($diff)
+    public function respond(string $diff)
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');
         }
-
-
+        
         $pushData = [
             'clientId' => $this->clientId,
             'eventName' => 'showDiff',

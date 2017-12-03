@@ -16,7 +16,7 @@ abstract class Worker extends ShinyGearsWorker
     /** @var  \ZMQContext $zmqContext */
     protected $zmqContext;
 
-    public function __construct(array $config, $poolName, $workerName)
+    public function __construct(array $config, string $poolName, string $workerName)
     {
         // load config:
         $this->config = Config::load(__DIR__ . '/../../../config/config.php');

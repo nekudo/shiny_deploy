@@ -14,9 +14,12 @@ class ApiKeys extends DatabaseDomain
      * Generates new API key and stores it to database.
      *
      * @param int $deploymentId
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @return array
      */
-    public function addApiKey($deploymentId)
+    public function addApiKey(int $deploymentId) : array
     {
         if (empty($this->encryptionKey)) {
             throw new RuntimeException('Encryption key not set.');
@@ -36,7 +39,7 @@ class ApiKeys extends DatabaseDomain
             . " VALUES (%s,%d,%s,%s)";
         $res = $this->db->prepare($statement, $apiKey, $deploymentId, $passwordHash, $encryptionKeySave)->execute();
         if ($res === false) {
-            throw new \RuntimeException('Could not store API key.');
+            throw new RuntimeException('Could not store API key.');
         }
         return [
             'apiKey' => $apiKey,
@@ -48,9 +51,10 @@ class ApiKeys extends DatabaseDomain
      * Deletes all existing API keys for specified deployment.
      *
      * @param int $deploymentId
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @return bool
      */
-    public function deleteApiKeysByDeploymentId($deploymentId)
+    public function deleteApiKeysByDeploymentId(int $deploymentId) : bool
     {
         if (empty($deploymentId)) {
             throw new \InvalidArgumentException('Deployment id can not be empty.');
@@ -65,8 +69,9 @@ class ApiKeys extends DatabaseDomain
      * @param string $apiKey
      * @return array
      * @throws InvalidArgumentException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
-    public function getDataByApiKey($apiKey)
+    public function getDataByApiKey(string $apiKey) : array
     {
         if (empty($apiKey)) {
             throw new \InvalidArgumentException('API key can not be empty.');

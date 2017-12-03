@@ -30,7 +30,7 @@ class WssManager
      *
      * @return bool
      */
-    public function start()
+    public function start() : bool
     {
         if (!empty($this->pid)) {
             return true;
@@ -46,7 +46,7 @@ class WssManager
      *
      * @return bool
      */
-    public function stop()
+    public function stop() : bool
     {
         if (empty($this->pid)) {
             return true;
@@ -57,17 +57,15 @@ class WssManager
     }
 
     /**
-     * Restart workers.
+     * Restart websocket server.
      *
-     * @param string $workerId If given only workers of this type will be started.
      * @return bool
      */
-    public function restart($workerId = '')
+    public function restart() : bool
     {
         $this->stop();
         sleep(2);
-        $this->start();
-        return true;
+        return $this->start();
     }
 
     /**
@@ -75,18 +73,18 @@ class WssManager
      *
      * @return bool
      */
-    public function status()
+    public function status() : bool
     {
         $this->reloadPid();
         return ($this->pid > 0);
     }
 
     /**
-     * Check if WSS is running and restarts if neccessary.
+     * Check if WSS is running and restarts if necessary.
      *
      * @return bool
      */
-    public function keepalive()
+    public function keepalive() : bool
     {
         // if there are no workers at all do a fresh start:
         if (empty($this->pid)) {
@@ -96,11 +94,11 @@ class WssManager
     }
 
     /**
-     * Gets the process-ids for all workers.
+     * Estimates PID of websocket-server process.
      *
      * @return bool
      */
-    protected function loadPid()
+    protected function loadPid() : bool
     {
         $cliOutput = [];
         exec('ps x | grep ' . $this->processIdentifier, $cliOutput);
@@ -111,18 +109,17 @@ class WssManager
             }
             $procInfo = preg_split('#\s+#', $line);
             $pid = $procInfo[0];
-            $command = $procInfo[5];
             $this->pid =  (int)$pid;
         }
         return true;
     }
 
     /**
-     * Reloads the process ids (e.g. during restart)
+     * Reloads the process id of the websocket-server.
      *
      * @return bool
      */
-    protected function reloadPid()
+    protected function reloadPid() : bool
     {
         $this->pid = 0;
         return $this->loadPid();

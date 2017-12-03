@@ -24,7 +24,7 @@ class WsEventResponder extends Responder
      * @param string $clientId
      * @return bool
      */
-    public function setClientId($clientId)
+    public function setClientId(string $clientId) : bool
     {
         if (empty($clientId)) {
             return false;
@@ -37,8 +37,9 @@ class WsEventResponder extends Responder
      * Sends a message to using zqm.
      *
      * @param array $data
+     * @throws \ZMQException
      */
-    protected function zmqSend(array $data)
+    protected function zmqSend(array $data) : void
     {
         $zmqDsn = $this->config->get('zmq.dsn');
         $zmqSocket = $this->zmqContext->getSocket(\ZMQ::SOCKET_PUSH);

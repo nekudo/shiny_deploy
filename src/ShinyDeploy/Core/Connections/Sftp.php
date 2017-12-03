@@ -11,7 +11,7 @@ class Sftp extends Ssh
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function put($localFile, $remoteFile, $mode = 0644)
+    public function put(string $localFile, string $remoteFile, int $mode = 0644) : bool
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $remoteDir = dirname($remoteFile);

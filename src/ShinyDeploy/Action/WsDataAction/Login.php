@@ -7,12 +7,11 @@ class Login extends WsDataAction
     /**
      * Does user login.
      *
-     * @todo Use username from request as soon as multiple users are supported.
-     *
      * @param array $actionPayload
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         if (empty($actionPayload['password'])) {
             $this->responder->setError('Invalid password.');
