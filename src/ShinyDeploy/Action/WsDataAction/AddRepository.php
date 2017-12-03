@@ -12,10 +12,12 @@ class AddRepository extends WsDataAction
      * Adds new repository to database.
      *
      * @param array $actionPayload
-     * @return boolean
      * @throws InvalidPayloadException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
+     * @return boolean
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         $this->authorize($this->clientId);
 
@@ -81,9 +83,11 @@ class AddRepository extends WsDataAction
      * Checks if url is reachable.
      *
      * @param string $url
+     * @param string $username
+     * @param string $password
      * @return boolean
      */
-    private function checkUrl($url, $username = '', $password = '')
+    private function checkUrl(string $url, string $username = '', string $password = '') : bool
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

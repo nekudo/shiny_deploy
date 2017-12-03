@@ -29,7 +29,7 @@
         "apix/log": "1.2.0",
         "vlucas/valitron": "1.4.2",
         "hassankhan/config": "0.11.2",
-        "nekudo/shiny_gears": "1.0.2",
+        "nekudo/shiny_gears": "1.0.3",
         "lcobucci/jwt": "3.2.2",
         "defuse/php-encryption": "2.1.0",
         "nicolab/php-ftp-client": "1.4.1"

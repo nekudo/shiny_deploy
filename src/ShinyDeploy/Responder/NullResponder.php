@@ -12,8 +12,9 @@ class NullResponder extends Responder
      * Sends a log message of type "default".
      *
      * @param string $message
+     * @return bool
      */
-    public function log($message)
+    public function log(string $message) : bool
     {
         return true;
     }
@@ -22,8 +23,9 @@ class NullResponder extends Responder
      * Sends a log message of type "success".
      *
      * @param string $message
+     * @return bool
      */
-    public function success($message)
+    public function success(string $message) : bool
     {
         return true;
     }
@@ -32,8 +34,9 @@ class NullResponder extends Responder
      * Sends a log message of type "info".
      *
      * @param string $message
+     * @return bool
      */
-    public function info($message)
+    public function info(string $message) : bool
     {
         return true;
     }
@@ -42,8 +45,9 @@ class NullResponder extends Responder
      * Sends a log message of type "danger".
      *
      * @param string $message
+     * @return bool
      */
-    public function danger($message)
+    public function danger(string $message) : bool
     {
         return true;
     }
@@ -52,9 +56,9 @@ class NullResponder extends Responder
      * Sends a log message of type "error".
      *
      * @param string $message
-     * @param string $source
+     * @return bool
      */
-    public function error($message)
+    public function error(string $message) : bool
     {
         return true;
     }

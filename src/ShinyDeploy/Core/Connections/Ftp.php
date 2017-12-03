@@ -3,6 +3,7 @@ namespace ShinyDeploy\Core\Connections;
 
 use FtpClient\FtpClient;
 use FtpClient\FtpException;
+use ShinyDeploy\Exceptions\ConnectionException;
 
 class Ftp
 {
@@ -34,7 +35,7 @@ class Ftp
      * @param int $port
      * @return bool True if connection could be established False if not.
      */
-    public function connect($host, $user, $pass, $port = 22)
+    public function connect(string $host, string $user, string $pass, int $port = 22) : bool
     {
         try {
             $this->ftpClient->connect($host, false, $port, 30);
@@ -49,9 +50,9 @@ class Ftp
     /**
      * Closes ftp connection.
      *
-     * @return bool true if connection is closed false on error.
+     * @return void
      */
-    public function disconnect()
+    public function disconnect() : void
     {
         $this->ftpClient->close();
     }
@@ -64,7 +65,7 @@ class Ftp
      * @param bool $recursive On true all parent folders are created too.
      * @return bool True on success false on error.
      */
-    public function mkdir($path, $mode = 0755, $recursive = false)
+    public function mkdir(string $path, int $mode = 0755, bool $recursive = false) : bool
     {
         try {
             if ($this->ftpClient->isDir($path) === false) {
@@ -87,7 +88,7 @@ class Ftp
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function put($localFile, $remoteFile, $mode = 0644)
+    public function put(string $localFile, string $remoteFile, int $mode = 0644) : bool
     {
         try {
             $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
@@ -112,7 +113,7 @@ class Ftp
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function putContent($content, $remoteFile, $mode = 0644)
+    public function putContent(string $content, string $remoteFile, int $mode = 0644) : bool
     {
         try {
             $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
@@ -131,12 +132,12 @@ class Ftp
 
     /**
      * Fetches remote file.
-     * If local file is provided content will be stored to file.
      *
      * @param string $remoteFile
-     * @return bool|string
+     * @throws ConnectionException
+     * @return string
      */
-    public function get($remoteFile)
+    public function get(string $remoteFile) : string
     {
         try {
             $tempHandle = fopen('php://temp', 'r+');
@@ -147,7 +148,7 @@ class Ftp
             return $content;
         } catch (FtpException $e) {
             $this->setError($e->getMessage());
-            return false;
+            throw new ConnectionException('Could not fetch file.');
         }
     }
 
@@ -158,7 +159,7 @@ class Ftp
      * @param string $localFile
      * @return bool
      */
-    public function download($remoteFile, $localFile)
+    public function download(string $remoteFile, string $localFile) : bool
     {
         try {
             $this->ftpClient->get($localFile, $remoteFile, FTP_BINARY, 0);
@@ -175,7 +176,7 @@ class Ftp
      * @param string $file
      * @return bool
      */
-    public function unlink($file)
+    public function unlink(string $file) : bool
     {
         try {
             $this->ftpClient->delete($file);
@@ -189,11 +190,11 @@ class Ftp
     /**
      * Renames a file on remote server.
      *
-     * @param $filenameFrom
-     * @param $filenameTo
+     * @param string $filenameFrom
+     * @param string $filenameTo
      * @return bool
      */
-    public function rename($filenameFrom, $filenameTo)
+    public function rename(string $filenameFrom, string $filenameTo) : bool
     {
         try {
             $this->ftpClient->rename($filenameFrom, $filenameTo);
@@ -208,27 +209,25 @@ class Ftp
      * List directory content.
      *
      * @param string $path Path to directory which should be listed.
-     * @return array $filelist List of directory content.
+     * @return array List of directory content.
      */
-    public function listdir($path = '/')
+    public function listdir(string $path = '/') : array
     {
         try {
             return $this->ftpClient->nlist($path);
         } catch (FtpException $e) {
             $this->setError($e->getMessage());
-            return false;
+            return [];
         }
     }
 
-
-
     /**
-     * Sets an error message by passing an error code.
+     * Sets an error message.
      *
      * @param string $errorMessage The last error message.
-     * @return bool True if massage was set false on error.
+     * @return void
      */
-    protected function setError($errorMessage)
+    protected function setError(string $errorMessage) : void
     {
         $this->errorMsg = $errorMessage;
     }
@@ -238,7 +237,7 @@ class Ftp
      *
      * @return string The error message.
      */
-    public function getErrorMsg()
+    public function getErrorMsg() : string
     {
         return $this->errorMsg;
     }

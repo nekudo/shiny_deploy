@@ -1,6 +1,5 @@
 <?php namespace ShinyDeploy\Action\WsDataAction;
 
-use ShinyDeploy\Action\WsDataAction\WsDataAction;
 use ShinyDeploy\Domain\Database\ApiKeys;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Exceptions\InvalidPayloadException;
@@ -10,13 +9,15 @@ class GenerateApiKey extends WsDataAction
 {
     /**
      * Generates a new API key and stores it to database.
-     * 
+     *
      * @param array $actionPayload
-     * @return boolean
      * @throws InvalidPayloadException
      * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
+     * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         $this->authorize($this->clientId);
 

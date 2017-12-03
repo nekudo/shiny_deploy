@@ -47,7 +47,7 @@ class WsGateway implements WampServerInterface
      * @param string $dataEncoded Json Encode data passed by ZMQ.
      * @return bool
      */
-    public function onApiEvent($dataEncoded)
+    public function onApiEvent(string $dataEncoded) : bool
     {
         try {
             $this->logger->debug('onApiEvent: ' . $dataEncoded);
@@ -109,19 +109,26 @@ class WsGateway implements WampServerInterface
      *
      * @param string $clientId
      * @param string $token
-     * @param string $callbackId
+     * @param int $callbackId
      * @param string $actionName
      * @param array $actionPayload
      * @throws WebsocketException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @return void
      */
-    protected function handleDataRequest($clientId, $token, $callbackId, $actionName, array $actionPayload)
-    {
+    protected function handleDataRequest(
+        string $clientId,
+        string $token,
+        int $callbackId,
+        string $actionName,
+        array $actionPayload
+    ) : void {
         $actionClassName = 'ShinyDeploy\Action\WsDataAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
             throw new WebsocketException('Invalid data action passed to worker gateway. ('.$actionName.')');
         }
-        /** @var \ShinyDeploy\Action\WsDataAction $action */
         $responder = new WsDataResponder($this->config, $this->logger);
+        /** @var \ShinyDeploy\Action\WsDataAction\WsDataAction $action */
         $action = new $actionClassName($this->config, $this->logger);
         $action->setResponder($responder);
         $action->setClientId($clientId);
@@ -143,9 +150,14 @@ class WsGateway implements WampServerInterface
      * @param string $actionName
      * @param array $actionPayload
      * @throws WebsocketException
+     * @return void
      */
-    protected function handleTriggerRequest($clientId, $token, $actionName, $actionPayload)
-    {
+    protected function handleTriggerRequest(
+        string $clientId,
+        string $token,
+        string $actionName,
+        array $actionPayload
+    ) : void {
         $this->wsLog($clientId, 'Triggering job: ' . $actionName);
         $client = new \GearmanClient;
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
@@ -157,7 +169,7 @@ class WsGateway implements WampServerInterface
     }
 
     /**
-     * Closes connection cause "onPublish" event is not used within this application.
+     * Closes connection. ("onPublish" event is not used within this application.)
      *
      * @param ConnectionInterface $conn
      * @param \Ratchet\Wamp\Topic|string $topic
@@ -193,8 +205,9 @@ class WsGateway implements WampServerInterface
      * @param string $msg
      * @param string $type
      * @throws WebsocketException
+     * @return void
      */
-    protected function wsLog($clientId, $msg, $type = 'default')
+    protected function wsLog(string $clientId, string $msg, string $type = 'default') : void
     {
         if (empty($clientId)) {
             throw new WebsocketException('Invalid client id.');
@@ -213,11 +226,12 @@ class WsGateway implements WampServerInterface
     }
 
     /**
-     * Sends "unauthotized" event.
+     * Sends "unauthorized" event.
      *
      * @param string $clientId
+     * @return void
      */
-    protected function onUnauthorized($clientId)
+    protected function onUnauthorized(string $clientId) : void
     {
         $eventData = [
             'clientId' => $clientId,

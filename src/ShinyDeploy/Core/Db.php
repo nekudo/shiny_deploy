@@ -1,6 +1,8 @@
 <?php
 namespace ShinyDeploy\Core;
 
+use ShinyDeploy\Exceptions\DatabaseException;
+
 /**
  * class Db
  *
@@ -49,19 +51,17 @@ class Db
 
 
     /**
-     * Use instead of constructor to get instance of class.
-     *
      * @param string $host DB-Server hostname.
      * @param string $user DB-Server authentication user.
      * @param string $pass DB-Server authentication password.
      * @param string $db Database to use.
      * @param bool $persistent True to open persistent connection.
-     * @throws \Exception
+     * @throws DatabaseException
      */
-    public function __construct($host, $user, $pass, $db, $persistent = false)
+    public function __construct(string $host, string $user, string $pass, string $db, bool $persistent = false)
     {
         if ($this->connect($host, $user, $pass, $db, $persistent) === false) {
-            throw new \Exception('Could not connect to database.');
+            throw new DatabaseException('Could not connect to database.');
         }
     }
 
@@ -83,8 +83,13 @@ class Db
      * @param bool $persistent True to open persistent connection.
      * @return bool True if connected successfully false otherwise.
      */
-    public function connect($host = null, $user = null, $pass = null, $db = null, $persistent = false)
-    {
+    public function connect(
+        string $host = '',
+        string $user = '',
+        string $pass = '',
+        string $db = '',
+        bool $persistent = false
+    ) : bool {
         $this->mysqli = mysqli_init();
         if ($persistent === true) {
             $host = 'p:' . $host;
@@ -104,8 +109,10 @@ class Db
 
     /**
      * Close database connection.
+     *
+     * @return void
      */
-    public function disconnect()
+    public function disconnect() : void
     {
         if ($this->mysqli !== null) {
             $this->mysqli->close();
@@ -115,17 +122,19 @@ class Db
     /**
      * Replaces placeholders in an sql-statement with according values.
      * Supported placeholders are:
-     * %d	= Numeric value. Not quoted.
-     * %s	= Quoted string.
-     * %S	= Unquoted string, e.g. 1,2,3 in IN statement (WHERE foo IN(%S))
+     *
+     * %d = Numeric value. Not quoted.
+     * %s = Quoted string.
+     * %S = Unquoted string, e.g. 1,2,3 in IN statement (WHERE foo IN(%S))
      *
      * @param string $statement The query string.
+     * @throws DatabaseException
      * @return Db Instance of this class.
      */
-    public function prepare($statement = null)
+    public function prepare(string $statement = '') : Db
     {
         if (empty($statement)) {
-            trigger_error('No query given', E_USER_ERROR);
+            throw new DatabaseException('No query given.');
         }
 
         // mask escaped placeholders:
@@ -168,12 +177,13 @@ class Db
      * Executes an sql-statement and returns result as array.
      *
      * @param bool $pop Removes first layer in result array if only one result.
+     * @throws DatabaseException
      * @return array Result of executed sql statement.
      */
-    public function getResult($pop = true)
+    public function getResult(bool $pop = true) : array
     {
         if ($this->executeStatement() === false) {
-            return false;
+            throw new DatabaseException('Could not execute statement.');
         }
 
         $result = array();
@@ -192,20 +202,21 @@ class Db
      *
      * @param string $columnName Name of column to be used as array value.
      * @param string $key Name of column to be used as array key.
-     * @return array|bool
+     * @throws DatabaseException
+     * @return array
      */
-    public function getColumn($columnName, $key = '')
+    public function getColumn(string $columnName, string $key = '') : array
     {
         if ($this->executeStatement() === false) {
-            return false;
+            throw new DatabaseException('Could not execute statement.');
         }
         $result = [];
         while ($row = $this->result->fetch_array(MYSQLI_ASSOC)) {
             if (!isset($row[$columnName])) {
-                return false;
+                throw new DatabaseException('Invalid column name.');
             }
             if (!empty($key) && !isset($row[$key])) {
-                return false;
+                throw new DatabaseException('Invalid key name.');
             }
             if (!empty($key)) {
                 $result[$row[$key]] = $row[$columnName];
@@ -217,14 +228,15 @@ class Db
     }
 
     /**
-     * Exexutes an sql statement and return first column of first row only.
+     * Executes an sql statement and return first column of first row only.
      *
+     * @throws DatabaseException
      * @return mixed
      */
     public function getValue()
     {
         if ($this->executeStatement() === false) {
-            return false;
+            throw new DatabaseException('Could not execute statement.');
         }
         $row = $this->result->fetch_array(MYSQLI_NUM);
         return $row[0];
@@ -233,9 +245,9 @@ class Db
     /**
      * Executes an sql-statement.
      *
-     * @return bool True if statement could be executed, false if an error occoured.
+     * @return bool True if statement could be executed, false on error.
      */
-    public function execute()
+    public function execute() : bool
     {
         return $this->executeStatement();
     }
@@ -245,7 +257,7 @@ class Db
      *
      * @return int Number of results.
      */
-    public function getResultCount()
+    public function getResultCount() : int
     {
         return $this->result->num_rows;
     }
@@ -255,7 +267,7 @@ class Db
      *
      * @return string Error message.
      */
-    public function getError()
+    public function getError() : string
     {
         return $this->mysqli->error;
     }
@@ -265,7 +277,7 @@ class Db
      *
      * @return int Id of last insert operation.
      */
-    public function getInsertId()
+    public function getInsertId() : int
     {
         return $this->mysqli->insert_id;
     }
@@ -275,7 +287,7 @@ class Db
      *
      * @return bool
      */
-    public function ping()
+    public function ping() : bool
     {
         return $this->mysqli->ping();
     }
@@ -285,7 +297,7 @@ class Db
      *
      * @return bool True is statement could be executed, false otherwise.
      */
-    private function executeStatement()
+    private function executeStatement() : bool
     {
         if (empty($this->statement)) {
             trigger_error('No query given.', E_USER_ERROR);

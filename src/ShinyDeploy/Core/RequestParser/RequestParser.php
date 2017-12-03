@@ -7,7 +7,7 @@ interface RequestParser
      *
      * @return bool True if request could be parsed false otherwise.
      */
-    public function parseRequest();
+    public function parseRequest() : bool;
 
-    public function getParameters();
+    public function getParameters() : array;
 }

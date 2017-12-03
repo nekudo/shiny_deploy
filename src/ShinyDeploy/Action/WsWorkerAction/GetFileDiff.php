@@ -12,11 +12,11 @@ class GetFileDiff extends WsWorkerAction
      * Generates a file-diff between two given revisions.
      *
      * @param array $params
-     * @return boolean
      * @throws MissingDataException
      * @throws RuntimeException
+     * @return boolean
      */
-    public function __invoke(array $params)
+    public function __invoke(array $params) : bool
     {
         if (empty($params['file'])) {
             throw new MissingDataException('File can not be empty.');

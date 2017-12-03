@@ -7,9 +7,10 @@ class VerifyToken extends WsDataAction
     /**
      * Fetches a server list
      * @param array $actionPayload
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         if (empty($actionPayload['token'])) {
             $this->responder->setError('Token not provided.');

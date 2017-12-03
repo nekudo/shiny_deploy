@@ -10,6 +10,8 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\ValidationData;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
+use ShinyDeploy\Exceptions\CryptographyException;
+use ShinyDeploy\Exceptions\DatabaseException;
 
 class Auth extends DatabaseDomain
 {
@@ -18,9 +20,10 @@ class Auth extends DatabaseDomain
      *
      * @param string $username
      * @param string $password
+     * @param string $clientId
      * @return string
      */
-    public function generateToken($username, $password, $clientId)
+    public function generateToken(string $username, string $password, string $clientId) : string
     {
         try {
             $signer = new Sha256;
@@ -50,7 +53,7 @@ class Auth extends DatabaseDomain
      * @param string $clientId
      * @return boolean
      */
-    public function validateToken($token, $clientId)
+    public function validateToken(string $token, string $clientId) : bool
     {
         try {
             $parser = new Parser;
@@ -78,9 +81,10 @@ class Auth extends DatabaseDomain
      * Checks whether a user exists in database.
      *
      * @param string $username
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @return bool
      */
-    public function userExists($username)
+    public function userExists(string $username) : bool
     {
         if (empty($username)) {
             throw new InvalidArgumentException('Username can not be empty.');
@@ -96,8 +100,9 @@ class Auth extends DatabaseDomain
      * @param string $username
      * @return string
      * @throws InvalidArgumentException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
-    public function getPasswordHashByUsername($username)
+    public function getPasswordHashByUsername(string $username) : string
     {
         if (empty($username)) {
             throw new InvalidArgumentException('Username can not be empty.');
@@ -113,8 +118,9 @@ class Auth extends DatabaseDomain
      * @param string $username
      * @return string
      * @throws InvalidArgumentException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
-    public function getEncryptionKeyByUsername($username)
+    public function getEncryptionKeyByUsername(string $username) : string
     {
         if (empty($username)) {
             throw new InvalidArgumentException('Username can not be empty.');
@@ -128,42 +134,38 @@ class Auth extends DatabaseDomain
      * Fetches users encryption key using username and password from JWT.
      *
      * @param string $token
-     * @return boolean|string
      * @throws InvalidArgumentException
+     * @throws CryptographyException
+     * @throws DatabaseException
+     * @return string
      */
-    public function getEncryptionKeyFromToken($token)
+    public function getEncryptionKeyFromToken(string $token) : string
     {
         if (empty($token)) {
             throw new InvalidArgumentException('Token can not be empty');
         }
 
-        try {
-            $parser = new Parser;
-            $parsedToken = $parser->parse($token);
-            $username = $parsedToken->getClaim('usr');
-            $passwordEncrypted = $parsedToken->getClaim('pwd');
-            if (empty($username) || empty($passwordEncrypted)) {
-                return false;
-            }
-            $encryptionKey = $this->getEncryptionKeyByUsername($username);
-            if (empty($encryptionKey)) {
-                return false;
-            }
-            $password = $this->decryptPassword($passwordEncrypted);
-            if (empty($password)) {
-                return false;
-            }
-            $encryptionKeyDecrypted = $this->decryptString($encryptionKey, $password);
-            if (empty($encryptionKeyDecrypted)) {
-                return false;
-            }
-            return $encryptionKeyDecrypted;
-        } catch (Exception $e) {
-            $this->logger->error(
-                'Token Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
-            );
-            return false;
+        $parser = new Parser;
+        $parsedToken = $parser->parse($token);
+        $username = $parsedToken->getClaim('usr');
+        $passwordEncrypted = $parsedToken->getClaim('pwd');
+        if (empty($username) || empty($passwordEncrypted)) {
+            throw new CryptographyException('Could not get username from token.');
         }
+        $encryptionKey = $this->getEncryptionKeyByUsername($username);
+        if (empty($encryptionKey)) {
+            throw new DatabaseException('Could not get encryption key.');
+        }
+        $password = $this->decryptPassword($passwordEncrypted);
+        if (empty($password)) {
+            throw new CryptographyException('Could not decrypt password.');
+        }
+        $encryptionKeyDecrypted = $this->decryptString($encryptionKey, $password);
+        if (empty($encryptionKeyDecrypted)) {
+            throw new CryptographyException('Could not decrypt encryption key.');
+        }
+
+        return $encryptionKeyDecrypted;
     }
 
     /**
@@ -173,8 +175,9 @@ class Auth extends DatabaseDomain
      * @param string $password
      * @return bool
      * @throws InvalidArgumentException
+     * @throws DatabaseException
      */
-    public function createUser($username, $password)
+    public function createUser(string $username, string $password) : bool
     {
         if (empty($username)) {
             throw new InvalidArgumentException('Username can not be emtpy.');
@@ -192,9 +195,11 @@ class Auth extends DatabaseDomain
      *
      * @param string $password
      * @return bool
+     * @throws CryptographyException
      * @throws InvalidArgumentException
+     * @throws DatabaseException
      */
-    public function createSystemUser($password)
+    public function createSystemUser(string $password) : bool
     {
         if (empty($password)) {
             throw new InvalidArgumentException('Password can not be empty.');
@@ -205,8 +210,7 @@ class Auth extends DatabaseDomain
             return false;
         }
         $statement = "INSERT INTO users (`username`,`password`,`encryption_key`) VALUES (%s,%s,%s)";
-        $res = $this->db->prepare($statement, 'system', $passwordHash, $encryptionKey)->execute();
-        return $res;
+        return $this->db->prepare($statement, 'system', $passwordHash, $encryptionKey)->execute();
     }
 
     /**
@@ -214,9 +218,10 @@ class Auth extends DatabaseDomain
      *
      * @param string $apiKey
      * @param string $apiPassword
+     * @throws DatabaseException
      * @return bool
      */
-    public function apiPasswordIsValid($apiKey, $apiPassword)
+    public function apiPasswordIsValid(string $apiKey, string $apiPassword) : bool
     {
         if (empty($apiKey) || empty($apiPassword)) {
             return false;
@@ -231,12 +236,13 @@ class Auth extends DatabaseDomain
     }
 
     /**
-     * Generates new encrpytion key and stores it in database.
+     * Generates new encryption key and stores it in database.
      *
      * @param string $password
-     * @return string|bool
+     * @throws CryptographyException
+     * @return string
      */
-    protected function generateEncryptionKey($password)
+    protected function generateEncryptionKey(string $password) : string
     {
         if (empty($password)) {
             throw new InvalidArgumentException('Password can not be empty.');
@@ -246,12 +252,11 @@ class Auth extends DatabaseDomain
         try {
             $key = Key::createNewRandomKey()->saveToAsciiSafeString();
         } catch (CryptoException $ex) {
-            return false;
+            throw new CryptographyException('Could not genereate key.');
         }
 
         // encrypt key:
-        $keyEncryped = $this->encryptString($key, $password);
-        return $keyEncryped;
+        return $this->encryptString($key, $password);
     }
 
     /**
@@ -260,7 +265,7 @@ class Auth extends DatabaseDomain
      * @param string $password
      * @return string
      */
-    protected function encryptPassword($password)
+    protected function encryptPassword(string $password) : string
     {
         $passwordEncrypted = $this->encryptString($password, $this->config->get('auth.secret'));
         $passwordEncryptedEncoded = base64_encode($passwordEncrypted);
@@ -271,9 +276,10 @@ class Auth extends DatabaseDomain
      * Decrypts a password from JWT for usage.
      *
      * @param string $encryptedPassword
+     * @throws CryptographyException
      * @return string
      */
-    protected function decryptPassword($encryptedPassword)
+    protected function decryptPassword(string $encryptedPassword) : string
     {
         $passwordDecoded = base64_decode($encryptedPassword);
         $passwordDecrypted = $this->decryptString($passwordDecoded, $this->config->get('auth.secret'));
@@ -287,7 +293,7 @@ class Auth extends DatabaseDomain
      * @param string $password
      * @return string
      */
-    private function encryptString($string, $password)
+    private function encryptString(string $string, string $password) : string
     {
         if (empty($password)) {
             throw new InvalidArgumentException('Password can not be empty.');
@@ -302,10 +308,11 @@ class Auth extends DatabaseDomain
      *
      * @param string $string
      * @param string $password
-     * @return string
+     * @throws CryptographyException
      * @throws InvalidArgumentException
+     * @return string
      */
-    private function decryptString($string, $password)
+    private function decryptString(string $string, string $password) : string
     {
         if (empty($password)) {
             throw new InvalidArgumentException('Password can not be empty.');

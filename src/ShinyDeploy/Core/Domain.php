@@ -21,7 +21,12 @@ class Domain
         $this->logger = $logger;
     }
 
-    public function init(array $data)
+    /**
+     * Sets data.
+     *
+     * @param array $data
+     */
+    public function init(array $data) : void
     {
         $this->data = $data;
     }

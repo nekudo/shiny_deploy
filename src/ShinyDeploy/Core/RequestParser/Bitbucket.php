@@ -1,7 +1,5 @@
 <?php namespace ShinyDeploy\Core\RequestParser;
 
-use ShinyDeploy\Core\RequestParser\RequestParser;
-
 class Bitbucket implements RequestParser
 {
     /** @var array $parameters */
@@ -10,9 +8,9 @@ class Bitbucket implements RequestParser
     /**
      * Parse useful information out of bitbucket "post" request.
      *
-     * @return boolean
+     * @return bool
      */
-    public function parseRequest()
+    public function parseRequest() : bool
     {
         if (empty($_SERVER['HTTP_USER_AGENT'])) {
             return false;
@@ -21,7 +19,7 @@ class Bitbucket implements RequestParser
             return false;
         }
 
-        // Unfortunatly bitbucket does not send valid POST requests so we need this hack:
+        // Unfortunately bitbucket does not send valid POST requests so we need this hack:
         $requestData = file_get_contents('php://input');
         if (empty($requestData)) {
             return false;
@@ -46,11 +44,11 @@ class Bitbucket implements RequestParser
     }
 
     /**
-     * Returns parsed informations.
+     * Returns parsed information.
      *
      * @return array
      */
-    public function getParameters()
+    public function getParameters() : array
     {
         return $this->parameters;
     }

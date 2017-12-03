@@ -1,4 +1,7 @@
 <?php namespace ShinyDeploy\Core\Crypto;
+
+use ShinyDeploy\Exceptions\CryptographyException;
+
 /**
  * A class to handle secure encryption and decryption of arbitrary data
  *
@@ -37,10 +40,10 @@ class PasswordCrypto
     /**
      *
      * @param string $cipher The MCRYPT_* cypher to use for this instance
-     * @param int    $mode   The MCRYPT_MODE_* mode to use for this instance
-     * @param int    $rounds The number of PBKDF2 rounds to do on the key
+     * @param string $mode The MCRYPT_MODE_* mode to use for this instance
+     * @param int $rounds The number of PBKDF2 rounds to do on the key
      */
-    public function __construct($cipher, $mode, $rounds = 100)
+    public function __construct(string $cipher, string $mode, int $rounds = 100)
     {
         $this->cipher = $cipher;
         $this->mode = $mode;
@@ -51,19 +54,18 @@ class PasswordCrypto
      * Decrypt the data with the provided key
      *
      * @param string $data The encrypted datat to decrypt
-     * @param string $key  The key to use for decryption
-     *
-     * @returns string|false The returned string if decryption is successful
-     *                           false if it is not
+     * @param string $key The key to use for decryption
+     * @throws CryptographyException
+     * @return string The returned string if decryption is successful
      */
-    public function decrypt($data, $key)
+    public function decrypt(string $data, string $key) : string
     {
         $salt = substr($data, 0, 128);
         $enc = substr($data, 128, -64);
         $mac = substr($data, -64);
         list($cipherKey, $macKey, $iv) = $this->getKeys($salt, $key);
         if (!$this->hashEquals(hash_hmac('sha512', $enc, $macKey, true), $mac)) {
-             return false;
+             throw new CryptographyException('Could not decrypt string. Hashes do not match.');
         }
         $dec = mcrypt_decrypt($this->cipher, $cipherKey, $enc, $this->mode, $iv);
         $data = $this->unpad($dec);
@@ -74,11 +76,10 @@ class PasswordCrypto
      * Encrypt the supplied data using the supplied key
      *
      * @param string $data The data to encrypt
-     * @param string $key  The key to encrypt with
-     *
-     * @returns string The encrypted data
+     * @param string $key The key to encrypt with
+     * @return string The encrypted data
      */
-    public function encrypt($data, $key)
+    public function encrypt(string $data, string $key) : string
     {
         $salt = mcrypt_create_iv(128, MCRYPT_DEV_URANDOM);
         list ($cipherKey, $macKey, $iv) = $this->getKeys($salt, $key);
@@ -92,11 +93,10 @@ class PasswordCrypto
      * Generates a set of keys given a random salt and a master key
      *
      * @param string $salt A random string to change the keys each encryption
-     * @param string $key  The supplied key to encrypt with
-     *
-     * @returns array An array of keys (a cipher key, a mac key, and a IV)
+     * @param string $key The supplied key to encrypt with
+     * @return array An array of keys (a cipher key, a mac key, and a IV)
      */
-    protected function getKeys($salt, $key)
+    protected function getKeys(string $salt, string $key) : array
     {
         $ivSize = mcrypt_get_iv_size($this->cipher, $this->mode);
         $keySize = mcrypt_get_key_size($this->cipher, $this->mode);
@@ -105,7 +105,7 @@ class PasswordCrypto
         $cipherKey = substr($key, 0, $keySize);
         $macKey = substr($key, $keySize, $keySize);
         $iv = substr($key, 2 * $keySize);
-        return array($cipherKey, $macKey, $iv);
+        return [$cipherKey, $macKey, $iv];
     }
 
     /**
@@ -113,15 +113,14 @@ class PasswordCrypto
      *
      * @see http://en.wikipedia.org/wiki/PBKDF2
      *
-     * @param string $algo   The algorithm to use
-     * @param string $key    The key to stretch
-     * @param string $salt   A random salt
-     * @param int    $rounds The number of rounds to derive
-     * @param int    $length The length of the output key
-     *
-     * @returns string The derived key.
+     * @param string $algo The algorithm to use
+     * @param string $key The key to stretch
+     * @param string $salt A random salt
+     * @param int $rounds The number of rounds to derive
+     * @param int $length The length of the output key
+     * @return string The derived key.
      */
-    protected function pbkdf2($algo, $key, $salt, $rounds, $length)
+    protected function pbkdf2(string $algo, string $key, string $salt, int $rounds, int $length) : string
     {
         $size = strlen(hash($algo, '', true));
         $len = ceil($length / $size);
@@ -138,7 +137,13 @@ class PasswordCrypto
         return substr($result, 0, $length);
     }
 
-    protected function pad($data)
+    /**
+     * Pads a string to required size.
+     *
+     * @param string $data
+     * @return string
+     */
+    protected function pad(string $data) : string
     {
         $length = mcrypt_get_block_size($this->cipher, $this->mode);
         $padAmount = $length - strlen($data) % $length;
@@ -148,20 +153,34 @@ class PasswordCrypto
         return $data . str_repeat(chr($padAmount), $padAmount);
     }
 
-    protected function unpad($data)
+    /**
+     * Removes "padding" from a string.
+     *
+     * @param string $data
+     * @throws CryptographyException
+     * @return string
+     */
+    protected function unpad(string $data) : string
     {
         $length = mcrypt_get_block_size($this->cipher, $this->mode);
         $last = ord($data[strlen($data) - 1]);
         if ($last > $length) {
-            return false;
+            throw new CryptographyException('Could not unpad string.');
         }
         if (substr($data, -1 * $last) !== str_repeat(chr($last), $last)) {
-            return false;
+            throw new CryptographyException('Could not unpad string.');
         }
         return substr($data, 0, -1 * $last);
     }
 
-    protected function hashEquals($a, $b)
+    /**
+     * Checks if two hashes match.
+     *
+     * @param string $a
+     * @param string $b
+     * @return bool
+     */
+    protected function hashEquals(string $a, string $b) : bool
     {
         if (function_exists('hash_equals')) {
             return hash_equals($a, $b);

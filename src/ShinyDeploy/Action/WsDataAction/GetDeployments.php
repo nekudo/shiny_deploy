@@ -10,9 +10,11 @@ class GetDeployments extends WsDataAction
      * Fetches a deployments list
      *
      * @param array $actionPayload
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         $this->authorize($this->clientId);
 

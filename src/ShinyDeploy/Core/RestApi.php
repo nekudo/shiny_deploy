@@ -38,18 +38,22 @@ class RestApi
     }
 
     /**
-     * Handles incomming REST API requests.
+     * Handles incoming REST API requests.
+     *
+     * @return void
      */
-    public function handleRequest()
+    public function handleRequest() : void
     {
         $this->validateRequest();
         $this->executeRequest();
     }
 
     /**
-     * Triggers gearman job as requested via API.
+     * Triggers Gearman job as requested via API.
+     *
+     * @return void
      */
-    protected function executeRequest()
+    protected function executeRequest() : void
     {
         try {
             $jobName = strtolower($this->action);
@@ -68,8 +72,10 @@ class RestApi
 
     /**
      * Validates request parameters.
+     *
+     * @return void
      */
-    protected function validateRequest()
+    protected function validateRequest() : void
     {
         if (empty($this->action)) {
             $this->responder->respondBadRequest('No action provided.');
@@ -98,8 +104,10 @@ class RestApi
 
     /**
      * Sets known request parameters.
+     *
+     * @return void
      */
-    protected function parseRequest()
+    protected function parseRequest() : void
     {
         $this->action = (isset($_REQUEST['a'])) ? trim($_REQUEST['a']) : 'deploy';
         $this->apiKey = (isset($_REQUEST['ak'])) ? trim($_REQUEST['ak']) : '';
@@ -113,7 +121,7 @@ class RestApi
      *
      * @return bool
      */
-    protected function parseRequestParameters()
+    protected function parseRequestParameters() : bool
     {
         $parserNames = $this->config->get('api.requestParser');
         if (empty($parserNames)) {
@@ -141,7 +149,7 @@ class RestApi
      * @return boolean
      * @throws \RuntimeException
      */
-    protected function triggerBackgroundJob($action)
+    protected function triggerBackgroundJob(string $action) : bool
     {
         $actionClassName = ucfirst($action);
         $jobName = 'api' . $actionClassName;

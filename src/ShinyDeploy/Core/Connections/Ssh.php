@@ -1,6 +1,8 @@
 <?php
 namespace ShinyDeploy\Core\Connections;
 
+use ShinyDeploy\Exceptions\ConnectionException;
+
 class Ssh
 {
     /** @var string $errorMsg */
@@ -15,16 +17,6 @@ class Ssh
     /** @var array $existingFolders */
     protected $existingFolders = [];
 
-    // TODO: Auto connect if server data is passed.
-    public function __construct()
-    {
-    }
-
-    // TODO: Destroy open connections.
-    public function __destruct()
-    {
-    }
-
     /**
      * Opens ssh2 connection and sets sftp handle.
      *
@@ -34,7 +26,7 @@ class Ssh
      * @param int $port
      * @return bool True if connection could be established False if not.
      */
-    public function connect($host, $user, $pass, $port = 22)
+    public function connect(string $host, string $user, string $pass, int $port = 22) : bool
     {
         if (empty($host) || empty($user)) {
             return false;
@@ -61,7 +53,7 @@ class Ssh
      *
      * @return bool true if connection is closed false on error.
      */
-    public function disconnect()
+    public function disconnect() : bool
     {
         if ($this->sshConnection === null || $this->sshConnection === false) {
             $this->setError(4);
@@ -79,7 +71,7 @@ class Ssh
      * @param bool $recursive On true all parent folders are created too.
      * @return bool True on success false on error.
      */
-    public function mkdir($path, $mode = 0755, $recursive = false)
+    public function mkdir(string $path, int $mode = 0755, bool $recursive = false) : bool
     {
         if (ssh2_sftp_mkdir($this->sftpConnection, $path, $mode, $recursive) === false) {
             $this->setError(5);
@@ -97,7 +89,7 @@ class Ssh
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function put($localFile, $remoteFile, $mode = 0644)
+    public function put(string $localFile, string $remoteFile, int $mode = 0644) : bool
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $remoteDir = dirname($remoteFile);
@@ -124,7 +116,7 @@ class Ssh
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function putContent($content, $remoteFile, $mode = 0644)
+    public function putContent(string $content, string $remoteFile, int $mode = 0644) : bool
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $remoteDir = dirname($remoteFile);
@@ -149,15 +141,15 @@ class Ssh
      * If local file is provided content will be store to file.
      *
      * @param string $remoteFile
-     * @return bool|string
+     * @throws ConnectionException
+     * @return string
      */
-    public function get($remoteFile)
+    public function get(string $remoteFile) : string
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $sftpStream = @fopen('ssh2.sftp://' . (int)$this->sftpConnection . $remoteFile, 'r');
         if ($sftpStream === false) {
-            $this->setError(7);
-            return false;
+            throw new ConnectionException('Could not open sftp connection.');
         }
         $content = '';
         while (!feof($sftpStream)) {
@@ -178,7 +170,7 @@ class Ssh
      * @param string $file
      * @return bool
      */
-    public function unlink($file)
+    public function unlink(string $file) : bool
     {
         if (ssh2_sftp_unlink($this->sftpConnection, $file) === false) {
             $this->setError(8);
@@ -194,7 +186,7 @@ class Ssh
      * @param $filenameTo
      * @return bool
      */
-    public function rename($filenameFrom, $filenameTo)
+    public function rename(string $filenameFrom, string $filenameTo) : bool
     {
         if (ssh2_sftp_rename($this->sftpConnection, $filenameFrom, $filenameTo) === false) {
             $this->setError(10);
@@ -207,9 +199,10 @@ class Ssh
      * List directory content.
      *
      * @param string $path Path to directory which should be listed.
+     * @throws ConnectionException
      * @return array $filelist List of directory content.
      */
-    public function listdir($path = '/')
+    public function listdir(string $path = '/') : array
     {
         $dir = 'ssh2.sftp://' . (int)$this->sftpConnection . $path;
         $filelist = [];
@@ -223,7 +216,7 @@ class Ssh
             return $filelist;
         } else {
             $this->setError(9);
-            return false;
+            throw new ConnectionException('Could not open target directory.');
         }
     }
 
@@ -238,16 +231,16 @@ class Ssh
      * @param int $width
      * @param int $height
      * @param int $width_height_type
-     * @return bool|string
+     * @return string
      */
     public function exec(
-        $cmd,
-        $pty = null,
+        string $cmd,
+        string $pty = null,
         array $env = [],
-        $width = 80,
-        $height = 25,
-        $width_height_type = SSH2_TERM_UNIT_CHARS
-    ) {
+        int $width = 80,
+        int $height = 25,
+        int $width_height_type = SSH2_TERM_UNIT_CHARS
+    ) : string {
         $stdout = ssh2_exec($this->sshConnection, $cmd, $pty, $env, $width, $height, $width_height_type);
         $stderr = ssh2_fetch_stream($stdout, SSH2_STREAM_STDERR);
         stream_set_blocking($stderr, true);
@@ -263,7 +256,7 @@ class Ssh
      * @param int $errorCode Numeric value representing an error message.
      * @return bool True if massage was set falseCn error.
      */
-    protected function setError($errorCode)
+    protected function setError(int $errorCode) : bool
     {
         switch ($errorCode) {
             case 1:
@@ -309,7 +302,7 @@ class Ssh
      *
      * @return string The error message.
      */
-    public function getErrorMsg()
+    public function getErrorMsg() : string
     {
         return $this->errorMsg;
     }

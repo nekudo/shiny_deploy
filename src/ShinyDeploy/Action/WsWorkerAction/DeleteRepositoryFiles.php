@@ -13,7 +13,7 @@ class DeleteRepositoryFiles extends WsWorkerAction
      * @return boolean
      * @throws MissingDataException
      */
-    public function __invoke($repoPath)
+    public function __invoke(string $repoPath) : bool
     {
         if (empty($repoPath)) {
             throw new MissingDataException('Repository path can not be empty');
@@ -30,7 +30,7 @@ class DeleteRepositoryFiles extends WsWorkerAction
             return true;
         }
 
-        // Someting went wrong, respond with error message:
+        // Something went wrong, respond with error message:
         $notificationResponder->send('Could not delete local repository files.', 'danger');
         return false;
     }

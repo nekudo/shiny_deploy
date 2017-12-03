@@ -11,7 +11,7 @@ use ShinyDeploy\Responder\NullResponder;
 class Deploy extends ApiAction
 {
 
-    public function __invoke(array $requestParameters = [])
+    public function __invoke(array $requestParameters = []) : bool
     {
         $apiKeys = new ApiKeys($this->config, $this->logger);
         $apiKeyData = $apiKeys->getDataByApiKey($this->apiKey);

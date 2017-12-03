@@ -9,14 +9,14 @@ class Git extends Domain
     /**
      * Gets git version. Used to check if git is available.
      *
-     * @return bool|string
+     * @return string
      */
-    public function getVersion()
+    public function getVersion() : string
     {
         $response = $this->exec('--version');
         $response = trim($response);
         if (strpos($response, 'git version') === false) {
-            return false;
+            return '';
         }
         return $response;
     }
@@ -27,8 +27,9 @@ class Git extends Domain
      * @param string $repositoryUrl
      * @param string $targetPath
      * @return string
+     * @throws \RuntimeException
      */
-    public function gitClone($repositoryUrl, $targetPath)
+    public function gitClone(string $repositoryUrl, string $targetPath) : string
     {
         if (empty($repositoryUrl) || empty($targetPath)) {
             throw new \RuntimeException('Required argument missing.');
@@ -58,8 +59,9 @@ class Git extends Domain
      * @param string $repositoryUrl
      * @param string $targetPath
      * @return string
+     * @throws \RuntimeException
      */
-    public function gitPull($repositoryUrl, $targetPath)
+    public function gitPull(string $repositoryUrl, string $targetPath) : string
     {
         if (empty($repositoryUrl) || empty($targetPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -81,9 +83,10 @@ class Git extends Domain
      *
      * @param string $repoPath
      * @param string $branch
-     * @return bool|string
+     * @return string
+     * @throws \RuntimeException
      */
-    public function getLocalRepositoryRevision($repoPath, $branch)
+    public function getLocalRepositoryRevision(string $repoPath, string $branch) : string
     {
         if (empty($repoPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -99,7 +102,7 @@ class Git extends Domain
         $revision = trim($revision);
         chdir($oldDir);
         if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
-            return false;
+            return '';
         }
         return $revision;
     }
@@ -110,9 +113,10 @@ class Git extends Domain
      * @param string $repoPath
      * @param string $repoUrl
      * @param string $branch
-     * @return bool|string
+     * @return string
+      * @throws \RuntimeException
      */
-    public function getRemoteRepositoryRevision($repoPath, $repoUrl, $branch)
+    public function getRemoteRepositoryRevision(string $repoPath, string $repoUrl, string $branch) : string
     {
         if (empty($repoPath) || empty($repoUrl) || empty($branch)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -130,7 +134,7 @@ class Git extends Domain
         $revision = trim($revision);
         $revision = preg_replace('#[^0-9a-f]#', '', $revision);
         if (preg_match('#[0-9a-f]{40}#', $revision) !== 1) {
-            return false;
+            return '';
         }
         return $revision;
     }
@@ -142,8 +146,9 @@ class Git extends Domain
      * @param string $targetRevision
      * @param string $currentRevision
      * @return string
+     * @throws \RuntimeException
      */
-    public function diff($repoPath, $targetRevision, $currentRevision)
+    public function diff(string $repoPath, string $targetRevision, string $currentRevision) : string
     {
         if (empty($repoPath) || empty($targetRevision) || empty($currentRevision)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -165,8 +170,9 @@ class Git extends Domain
      * @param string $currentRevision
      * @param string $file
      * @return string
+     * @throws \RuntimeException
      */
-    public function diffFile($repoPath, $targetRevision, $currentRevision, $file)
+    public function diffFile(string $repoPath, string $targetRevision, string $currentRevision, string $file) : string
     {
         if (empty($repoPath) || empty($targetRevision) || empty($currentRevision) || empty($file)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -185,8 +191,9 @@ class Git extends Domain
      *
      * @param string $repoPath
      * @return string
+     * @throws \RuntimeException
      */
-    public function listFiles($repoPath)
+    public function listFiles(string $repoPath) : string
     {
         if (empty($repoPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -204,9 +211,10 @@ class Git extends Domain
      * Fetches list of repositories remote branches.
      *
      * @param string $repoPath
-     * @return bool|array
+     * @return array
+     * @throws \RuntimeException
      */
-    public function getRemoteBranches($repoPath)
+    public function getRemoteBranches(string $repoPath) : array
     {
         if (empty($repoPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -220,7 +228,7 @@ class Git extends Domain
         $output = trim($output);
         if (empty($output)) {
             $this->logger->warning('Could not fetch braches of repository: '  . $repoPath);
-            return false;
+            return [];
         }
         $branches = [];
         $lines = explode("\n", $output);
@@ -245,9 +253,10 @@ class Git extends Domain
      * Fetches list of local repository branches.
      *
      * @param string $repoPath
-     * @return string
+     * @return array
+     * @throws \RuntimeException
      */
-    public function getLocalBranches($repoPath)
+    public function getLocalBranches(string $repoPath) : array
     {
         if (empty($repoPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -261,7 +270,7 @@ class Git extends Domain
         $output = trim($output);
         if (empty($output)) {
             $this->logger->warning('Could not fetch local repository branches: '  . $repoPath);
-            return false;
+            return [];
         }
         $branches = [];
         $lines = explode("\n", $output);
@@ -282,8 +291,9 @@ class Git extends Domain
      * @param string $repoPath
      * @param string $branch
      * @return bool
+     * @throws \RuntimeException
      */
-    public function switchBranch($repoPath, $branch)
+    public function switchBranch(string $repoPath, string $branch) : bool
     {
         if (empty($repoPath) || empty($branch)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -324,8 +334,9 @@ class Git extends Domain
      *
      * @param string $repoPath
      * @return bool
+     * @throws \RuntimeException
      */
-    public function pruneRemoteBranches($repoPath)
+    public function pruneRemoteBranches(string $repoPath) : bool
     {
         if (empty($repoPath)) {
             throw new \RuntimeException('Required parameter missing.');
@@ -349,11 +360,11 @@ class Git extends Domain
      * @param $command
      * @return string
      */
-    protected function exec($command)
+    protected function exec(string $command) : string
     {
         $command = 'git ' . $command;
         $command = escapeshellcmd($command) . ' 2>&1';
-        $response = shell_exec($command);
+        $response = (string) shell_exec($command);
         return $response;
     }
 }

@@ -9,12 +9,14 @@ class GetServerData extends WsDataAction
 {
     /**
      * Fetches server data from database.
-     * 
+     *
      * @param array $actionPayload
-     * @return boolean
      * @throws InvalidPayloadException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
+     * @return bool
      */
-    public function __invoke(array $actionPayload)
+    public function __invoke(array $actionPayload) : bool
     {
         $this->authorize($this->clientId);
 

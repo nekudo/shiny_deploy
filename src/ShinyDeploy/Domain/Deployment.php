@@ -6,6 +6,7 @@ use ShinyDeploy\Core\Domain;
 use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Domain\Database\Servers;
+use ShinyDeploy\Exceptions\ConnectionException;
 
 class Deployment extends Domain
 {
@@ -28,7 +29,12 @@ class Deployment extends Domain
     protected $tasksToRun = [];
 
 
-    public function setEncryptionKey($encryptionKey)
+    /**
+     * Sets the encryption key.
+     *
+     * @param string $encryptionKey
+     */
+    public function setEncryptionKey(string $encryptionKey) : void
     {
         if (empty($encryptionKey)) {
             throw new \InvalidArgumentException('Encryption key can not be empty.');
@@ -36,7 +42,12 @@ class Deployment extends Domain
         $this->encryptionKey = $encryptionKey;
     }
 
-    public function init(array $data)
+    /**
+     * @param array $data
+     * @return void
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     */
+    public function init(array $data) : void
     {
         $this->data = $data;
         $servers = new Servers($this->config, $this->logger);
@@ -48,11 +59,12 @@ class Deployment extends Domain
     }
 
     /**
-     * Setter for the websocket log repsonder.
+     * Setter for the websocket log responder.
      *
      * @param Responder $logResponder
+     * @return void
      */
-    public function setLogResponder(Responder $logResponder)
+    public function setLogResponder(Responder $logResponder) : void
     {
         $this->logResponder = $logResponder;
     }
@@ -61,8 +73,9 @@ class Deployment extends Domain
      * Setter for tasksToRun filter.
      *
      * @param array $tasksToRun
+     * @return void
      */
-    public function setTasksToRun(array $tasksToRun)
+    public function setTasksToRun(array $tasksToRun) : void
     {
         $this->tasksToRun = $tasksToRun;
     }
@@ -72,7 +85,7 @@ class Deployment extends Domain
      *
      * @return array
      */
-    public function getChangedFiles()
+    public function getChangedFiles() : array
     {
         return $this->changedFiles;
     }
@@ -80,11 +93,11 @@ class Deployment extends Domain
     /**
      * Executes an actual deployment.
      *
-     * @param bool $listMode If true changed files are only listed but not acutually deployed.
+     * @param bool $listMode If true changed files are only listed but not actually deployed.
      * @throws RuntimeException
      * @return bool
      */
-    public function deploy($listMode = false)
+    public function deploy(bool $listMode = false) : bool
     {
         if (empty($this->data)) {
             throw new RuntimeException('Deployment data not found. Initialization missing?');
@@ -188,7 +201,7 @@ class Deployment extends Domain
      *
      * @return boolean
      */
-    protected function checkPrerequisites()
+    protected function checkPrerequisites() : bool
     {
         $this->logResponder->log('Checking git binary...');
         if ($this->repository->checkGit() === false) {
@@ -213,7 +226,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    protected function prepareRepository()
+    protected function prepareRepository() : bool
     {
         if ($this->repository->exists() === true) {
             $result = $this->repository->doPull();
@@ -238,7 +251,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    protected function filterTasks()
+    protected function filterTasks() : bool
     {
         if (empty($this->data['tasks'])) {
             return true;
@@ -255,7 +268,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    private function filterNonDefaultTasks()
+    private function filterNonDefaultTasks() : bool
     {
         foreach ($this->data['tasks'] as $i => $task) {
             if ((int)$task['run_by_default'] !== 1) {
@@ -271,7 +284,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    private function filterNonSelectedTasks()
+    private function filterNonSelectedTasks() : bool
     {
         // noting to do if task-filter is empty
         if (empty($this->tasksToRun)) {
@@ -303,7 +316,7 @@ class Deployment extends Domain
      * @param string $type
      * @return boolean
      */
-    protected function runTasks($type)
+    protected function runTasks(string $type) : bool
     {
         // Skip if no tasks defined
         if (empty($this->data['tasks'])) {
@@ -347,7 +360,7 @@ class Deployment extends Domain
      *
      * @return string
      */
-    protected function getRemotePath()
+    protected function getRemotePath() : string
     {
         $serverRoot = $this->server->getRootPath();
         $serverRoot = rtrim($serverRoot, '/');
@@ -355,47 +368,53 @@ class Deployment extends Domain
         $targetPath = trim($targetPath, '/');
         $remotePath = $serverRoot . '/' . $targetPath . '/';
         $remotePath = str_replace('//', '/', $remotePath);
+
         return $remotePath;
     }
 
     /**
      * Fetches remote revision from REVISION file in project root.
      *
-     * @return string|bool
+     * @return string
      */
-    public function getRemoteRevision()
+    public function getRemoteRevision() : string
     {
         $targetPath = $this->getRemotePath();
         $targetPath .= 'REVISION';
-        $revision = $this->server->getFileContent($targetPath);
+        try {
+            $revision = $this->server->getFileContent($targetPath);
+        } catch (ConnectionException $e) {
+            $revision = '';
+        }
         $revision = trim($revision);
         if (!empty($revision) && preg_match('#[0-9a-f]{40}#', $revision) === 1) {
             $this->logResponder->info('Remote server is at revision: ' . $revision);
             return $revision;
         }
         $targetDir = dirname($targetPath);
-        $targetDirContent = $this->server->listDir($targetDir);
-        if ($targetDirContent === false) {
+        try {
+            $targetDirContent = $this->server->listDir($targetDir);
+        } catch (ConnectionException $e) {
             $this->logResponder->danger('Target path on remote server not found or not accessible.');
-            return false;
+            return '';
         }
         if (is_array($targetDirContent) && empty($targetDirContent)) {
              $this->logResponder->info('Target path is empty. No revision yet.');
             return '-1';
         }
-        return false;
+        return '';
     }
 
     /**
      * Fetches revision of local repository.
      *
-     * @return bool|string
+     * @return string
      */
-    public function getLocalRevision()
+    public function getLocalRevision() : string
     {
         if ($this->repository->checkConnectivity() === false) {
             $this->logResponder->danger('Could not connect to remote repository.');
-            return false;
+            return '';
         }
         $revision = $this->repository->getRemoteRevision($this->data['branch']);
         if ($revision !== false) {
@@ -411,7 +430,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    protected function switchBranch()
+    protected function switchBranch() : bool
     {
         return $this->repository->switchBranch($this->data['branch']);
     }
@@ -421,9 +440,9 @@ class Deployment extends Domain
      *
      * @param string $localRevision
      * @param string $remoteRevision
-     * @return bool|array
+     * @return array
      */
-    protected function getChangedFilesList($localRevision, $remoteRevision)
+    protected function getChangedFilesList(string $localRevision, string $remoteRevision) : array
     {
         if ($remoteRevision === '-1') {
             $changedFiles = $this->repository->listFiles();
@@ -431,7 +450,7 @@ class Deployment extends Domain
             $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision);
         }
         if (empty($changedFiles)) {
-            return false;
+            return [];
         }
 
         $files = [];
@@ -452,11 +471,11 @@ class Deployment extends Domain
     }
 
     /**
-     * Sort files by opration to do (e.g. upload, delete, ...)
+     * Sort files by operation to do (e.g. upload, delete, ...)
      * @param array $files
      * @return array
      */
-    protected function sortFilesByOperation($files)
+    protected function sortFilesByOperation(array $files) : array
     {
         $sortedFiles = [
             'upload' => [],
@@ -478,7 +497,7 @@ class Deployment extends Domain
      * @param array $changedFiles
      * @return bool
      */
-    protected function processChangedFiles($changedFiles)
+    protected function processChangedFiles(array $changedFiles) : bool
     {
         $repoPath = $this->repository->getLocalPath();
         $repoPath = rtrim($repoPath, '/') . '/';
@@ -529,7 +548,7 @@ class Deployment extends Domain
      * @param string $revision Revision hash
      * @return boolean
      */
-    protected function updateRemoteRevisionFile($revision)
+    protected function updateRemoteRevisionFile(string $revision) : bool
     {
         $remotePath = $this->getRemotePath();
         if ($this->server->putContent($revision, $remotePath.'REVISION') === false) {
@@ -545,7 +564,7 @@ class Deployment extends Domain
      * @param string $checkBranch
      * @return bool
      */
-    public function isBranch($checkBranch)
+    public function isBranch(string $checkBranch) : bool
     {
         if (empty($this->data)) {
             throw new RuntimeException('Deployment data not found. Initialization missing?');

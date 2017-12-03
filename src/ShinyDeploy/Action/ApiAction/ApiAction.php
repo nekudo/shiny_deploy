@@ -18,8 +18,9 @@ abstract class ApiAction extends Action
      *
      * @param string $apiKey
      * @throws MissingDataException
+     * @return void
      */
-    public function setApiKey($apiKey)
+    public function setApiKey(string $apiKey) : void
     {
         if (empty($apiKey)) {
             throw new MissingDataException('API key can not be empty.');
@@ -32,8 +33,9 @@ abstract class ApiAction extends Action
      *
      * @param string $apiPassword
      * @throws MissingDataException
+     * @return void
      */
-    public function setApiPassword($apiPassword)
+    public function setApiPassword(string $apiPassword) : void
     {
         if (empty($apiPassword)) {
             throw new MissingDataException('API password can not be empty');

@@ -15,8 +15,10 @@ class WsLogResponder extends WsEventResponder
      * Sends a log message of type "default".
      *
      * @param string $message
+     * @return void
+     * @throws \ZMQException
      */
-    public function log($message)
+    public function log(string $message) : void
     {
         $this->pushMessage($message, 'default');
     }
@@ -25,8 +27,10 @@ class WsLogResponder extends WsEventResponder
      * Sends a log message of type "success".
      *
      * @param string $message
+     * @return void
+     * @throws \ZMQException
      */
-    public function success($message)
+    public function success(string $message) : void
     {
         $this->pushMessage($message, 'success');
     }
@@ -35,8 +39,10 @@ class WsLogResponder extends WsEventResponder
      * Sends a log message of type "info".
      *
      * @param string $message
+     * @return void
+     * @throws \ZMQException
      */
-    public function info($message)
+    public function info(string $message) : void
     {
         $this->pushMessage($message, 'info');
     }
@@ -45,8 +51,10 @@ class WsLogResponder extends WsEventResponder
      * Sends a log message of type "danger".
      *
      * @param string $message
+     * @return void
+     * @throws \ZMQException
      */
-    public function danger($message)
+    public function danger(string $message) : void
     {
         $this->pushMessage($message, 'danger');
     }
@@ -55,9 +63,10 @@ class WsLogResponder extends WsEventResponder
      * Sends a log message of type "error".
      *
      * @param string $message
-     * @param string $source
+     * @return void
+     * @throws \ZMQException
      */
-    public function error($message)
+    public function error(string $message) : void
     {
         $this->pushMessage($message, 'error');
     }
@@ -67,10 +76,11 @@ class WsLogResponder extends WsEventResponder
      *
      * @param string $msg
      * @param string $type
-     * @param string $source
+     * @return void
      * @throws \RuntimeException
+     * @throws \ZMQException
      */
-    protected function pushMessage($msg, $type = 'default')
+    protected function pushMessage(string $msg, string $type = 'default') : void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');

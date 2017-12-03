@@ -9,12 +9,12 @@ use ShinyDeploy\Action\ApiAction\Deploy as ApiDeploy;
 use ShinyDeploy\Core\Worker;
 use ShinyDeploy\Exceptions\MissingDataException;
 
-require __DIR__ . '/../../../vendor/autoload.php';
-
 class DeploymentActions extends Worker
 {
     /**
      * Calls all "init methods" and waits for jobs from gearman server.
+     *
+     * @return void
      */
     protected function registerCallbacks()
     {
@@ -30,10 +30,9 @@ class DeploymentActions extends Worker
      * Handles deployment related actions.
      *
      * @param \GearmanJob $Job
-     * @throws Exception
      * @return bool
      */
-    public function deploy(\GearmanJob $Job)
+    public function deploy(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
@@ -52,7 +51,7 @@ class DeploymentActions extends Worker
             $action->setClientId($params['clientId']);
             $action->setToken($params['token']);
             $action->__invoke($params['deploymentId'], $tasksToRun);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -64,10 +63,9 @@ class DeploymentActions extends Worker
      * Handles deployment requested by REST API.
      *
      * @param \GearmanJob $Job
-     * @throws Exception
      * @return bool
      */
-    public function apiDeploy(\GearmanJob $Job)
+    public function apiDeploy(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
@@ -86,7 +84,7 @@ class DeploymentActions extends Worker
             $action->setApiKey($params['apiKey']);
             $action->setApiPassword($params['apiPassword']);
             $action->__invoke($requestParameters);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
@@ -98,10 +96,9 @@ class DeploymentActions extends Worker
      * Handles deployment related actions.
      *
      * @param \GearmanJob $Job
-     * @throws Exception
      * @return bool
      */
-    public function getChangedFiles(\GearmanJob $Job)
+    public function getChangedFiles(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
@@ -131,10 +128,9 @@ class DeploymentActions extends Worker
      * Generates a git-diff for given file.
      *
      * @param \GearmanJob $Job
-     * @throws Exception
      * @return bool
      */
-    public function getFileDiff(\GearmanJob $Job)
+    public function getFileDiff(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
@@ -161,10 +157,9 @@ class DeploymentActions extends Worker
      * Fetches local revision of a repository sends it to WSS.
      *
      * @param \GearmanJob $Job
-     * @throws Exception
      * @return bool
      */
-    public function setLocalRevision(\GearmanJob $Job)
+    public function setLocalRevision(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
@@ -191,10 +186,9 @@ class DeploymentActions extends Worker
      * Fetches remote revision of a repository sends it to WSS.
      *
      * @param \GearmanJob $Job
-     * @throws Exception
      * @return bool
      */
-    public function setRemoteRevision(\GearmanJob $Job)
+    public function setRemoteRevision(\GearmanJob $Job) : bool
     {
         try {
             $this->countJob();
