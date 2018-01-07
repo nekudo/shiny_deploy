@@ -61,6 +61,7 @@ class Repositories extends DatabaseDomain
      * @return Repository
      * @throws DatabaseException
      * @throws RuntimeException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function getRepository(int $repositoryId) : Repository
     {
@@ -78,6 +79,7 @@ class Repositories extends DatabaseDomain
      * Fetches list of repositories from database.
      *
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
     public function getRepositories() : array
@@ -101,6 +103,7 @@ class Repositories extends DatabaseDomain
      *
      * @param array $repositoryData
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return int
      */
     public function addRepository(array $repositoryData) : int
@@ -134,6 +137,7 @@ class Repositories extends DatabaseDomain
      *
      * @param array $repositoryData
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return bool
      */
     public function updateRepository(array $repositoryData) : bool
@@ -189,6 +193,7 @@ class Repositories extends DatabaseDomain
      *
      * @param int $repositoryId
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
     public function getRepositoryData(int $repositoryId) : array

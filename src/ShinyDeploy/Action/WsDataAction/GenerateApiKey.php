@@ -7,15 +7,18 @@ use ShinyDeploy\Exceptions\MissingDataException;
 
 class GenerateApiKey extends WsDataAction
 {
+
     /**
      * Generates a new API key and stores it to database.
      *
      * @param array $actionPayload
+     * @return bool
      * @throws InvalidPayloadException
      * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
-     * @return bool
      */
     public function __invoke(array $actionPayload) : bool
     {

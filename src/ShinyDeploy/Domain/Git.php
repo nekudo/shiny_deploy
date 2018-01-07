@@ -3,6 +3,7 @@
 namespace ShinyDeploy\Domain;
 
 use ShinyDeploy\Core\Domain;
+use ShinyDeploy\Exceptions\MissingDataException;
 
 class Git extends Domain
 {
@@ -28,18 +29,16 @@ class Git extends Domain
      * @param string $targetPath
      * @return string
      * @throws \RuntimeException
+     * @throws MissingDataException
      */
     public function gitClone(string $repositoryUrl, string $targetPath) : string
     {
         if (empty($repositoryUrl) || empty($targetPath)) {
-            throw new \RuntimeException('Required argument missing.');
+            throw new MissingDataException('Required argument missing.');
         }
         $oldDir = getcwd();
         if (chdir($targetPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
-        }
-        if (empty($repositoryUrl)) {
-            throw new \RuntimeException('Repository url can not be empty.');
         }
 
         // clone the repo:

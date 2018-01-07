@@ -12,8 +12,12 @@ class CloneRepository extends WsWorkerAction
      * Clones a repository to local server.
      *
      * @param int $id
-     * @throws MissingDataException
      * @return bool
+     * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ZMQException
      */
     public function __invoke(int $id) : bool
     {

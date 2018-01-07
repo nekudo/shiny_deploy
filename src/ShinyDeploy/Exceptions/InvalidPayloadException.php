@@ -1,7 +1,5 @@
 <?php namespace ShinyDeploy\Exceptions;
 
-use InvalidArgumentException;
-
-class InvalidPayloadException extends InvalidArgumentException
+class InvalidPayloadException extends ShinyDeployException
 {
 }

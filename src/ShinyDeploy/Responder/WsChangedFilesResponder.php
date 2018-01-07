@@ -17,6 +17,7 @@ class WsChangedFilesResponder extends WsEventResponder
      * @param array $changedFiles
      * @return void
      * @throws \RuntimeException
+     * @throws \ZMQException
      */
     public function respond(array $changedFiles) : void
     {

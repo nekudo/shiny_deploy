@@ -5,6 +5,7 @@ use Apix\Log\Logger;
 use Noodlehaus\Config;
 use Ratchet\ConnectionInterface;
 use Ratchet\Wamp\WampServerInterface;
+use ShinyDeploy\Exceptions\ClassNotFoundException;
 use ShinyDeploy\Exceptions\InvalidTokenException;
 use ShinyDeploy\Exceptions\MissingDataException;
 use ShinyDeploy\Exceptions\WebsocketException;
@@ -112,7 +113,7 @@ class WsGateway implements WampServerInterface
      * @param int $callbackId
      * @param string $actionName
      * @param array $actionPayload
-     * @throws WebsocketException
+     * @throws ClassNotFoundException
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @return void
      */
@@ -125,7 +126,7 @@ class WsGateway implements WampServerInterface
     ) : void {
         $actionClassName = 'ShinyDeploy\Action\WsDataAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
-            throw new WebsocketException('Invalid data action passed to worker gateway. ('.$actionName.')');
+            throw new ClassNotFoundException('Invalid data action passed to worker gateway. ('.$actionName.')');
         }
         $responder = new WsDataResponder($this->config, $this->logger);
         /** @var \ShinyDeploy\Action\WsDataAction\WsDataAction $action */

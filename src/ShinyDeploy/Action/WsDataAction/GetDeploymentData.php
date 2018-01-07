@@ -11,10 +11,14 @@ class GetDeploymentData extends WsDataAction
      * Fetches deploymant data from database.
      *
      * @param array $actionPayload
-     * @throws InvalidPayloadException
-     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
-     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
+     * @throws InvalidPayloadException
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
     public function __invoke(array $actionPayload) : bool
     {

@@ -7,12 +7,16 @@ use ShinyDeploy\Domain\Database\Repositories;
 class GetRepositories extends WsDataAction
 {
     /**
-     * Fetches a repositories list
+     * Fetches a repositories list.
      *
      * @param array $actionPayload
-     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
-     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
     public function __invoke(array $actionPayload) : bool
     {

@@ -5,10 +5,11 @@ use ShinyDeploy\Domain\Database\Auth;
 class VerifyToken extends WsDataAction
 {
     /**
-     * Fetches a server list
+     * Validates an auth-token.
+     *
      * @param array $actionPayload
-     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
     public function __invoke(array $actionPayload) : bool
     {

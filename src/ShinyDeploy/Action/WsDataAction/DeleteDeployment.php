@@ -6,14 +6,16 @@ use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class DeleteDeployment extends WsDataAction
 {
+
     /**
      * Removes a deployment from database.
      *
      * @param array $actionPayload
+     * @return bool
      * @throws InvalidPayloadException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
-     * @return bool
      */
     public function __invoke(array $actionPayload) : bool
     {
