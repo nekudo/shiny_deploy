@@ -12,9 +12,12 @@ class GetFileDiff extends WsWorkerAction
      * Generates a file-diff between two given revisions.
      *
      * @param array $params
+     * @return bool
      * @throws MissingDataException
-     * @throws RuntimeException
-     * @return boolean
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ZMQException
      */
     public function __invoke(array $params) : bool
     {

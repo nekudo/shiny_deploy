@@ -8,8 +8,9 @@ class Login extends WsDataAction
      * Does user login.
      *
      * @param array $actionPayload
-     * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @return bool
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
     public function __invoke(array $actionPayload) : bool
     {

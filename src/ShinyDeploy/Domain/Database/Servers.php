@@ -72,6 +72,7 @@ class Servers extends DatabaseDomain
      * @return Server
      * @throws RuntimeException
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function getServer(int $serverId) : Server
     {
@@ -101,6 +102,7 @@ class Servers extends DatabaseDomain
      *
      * @throws DatabaseException
      * @throws RuntimeException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
     public function getServers() : array
@@ -125,6 +127,7 @@ class Servers extends DatabaseDomain
      * @param array $serverData
      * @return bool
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function addServer(array $serverData) : bool
     {
@@ -154,6 +157,7 @@ class Servers extends DatabaseDomain
      * @param array $serverData
      * @return bool
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function updateServer(array $serverData) : bool
     {
@@ -209,6 +213,7 @@ class Servers extends DatabaseDomain
      * @param int $serverId
      * @return array
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function getServerData(int $serverId) : array
     {

@@ -57,13 +57,14 @@ class Deployments extends DatabaseDomain
         return $this->rules;
     }
 
+
     /**
      * Creates and returns a deployment object.
      *
      * @param int $deploymentId
-     * @throws RuntimeException
-     * @throws DatabaseException
      * @return Deployment
+     * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function getDeployment(int $deploymentId) : Deployment
     {
@@ -77,11 +78,13 @@ class Deployments extends DatabaseDomain
         return $deployment;
     }
 
+
     /**
      * Fetches list of deployments from database.
      *
-     * @throws DatabaseException
      * @return array
+     * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function getDeployments() : array
     {
@@ -104,6 +107,7 @@ class Deployments extends DatabaseDomain
      *
      * @param array $deploymentData
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return bool
      */
     public function addDeployment(array $deploymentData) : bool
@@ -134,6 +138,7 @@ class Deployments extends DatabaseDomain
      *
      * @param array $deploymentData
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return bool
      */
     public function updateDeployment(array $deploymentData) : bool
@@ -189,6 +194,7 @@ class Deployments extends DatabaseDomain
      *
      * @param int $deploymentId
      * @throws DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
     public function getDeploymentData(int $deploymentId) : array

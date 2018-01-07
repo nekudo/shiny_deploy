@@ -4,12 +4,14 @@ use ShinyDeploy\Domain\Database\Auth;
 
 class CreateUser extends WsDataAction
 {
+
     /**
      * Saves a new user to database.
      *
-     * @param mixed $actionPayload
-     * @throws \ShinyDeploy\Exceptions\WebsocketException
+     * @param array $actionPayload
      * @return bool
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
+     * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
     public function __invoke(array $actionPayload) : bool
     {

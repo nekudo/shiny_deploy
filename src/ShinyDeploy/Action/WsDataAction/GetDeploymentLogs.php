@@ -11,8 +11,11 @@ class GetDeploymentLogs extends WsDataAction
      * Fetches list of deployment logs.
      *
      * @param array $actionPayload
-     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @return bool
+     * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ZMQException
      */
     public function __invoke(array $actionPayload) : bool
     {

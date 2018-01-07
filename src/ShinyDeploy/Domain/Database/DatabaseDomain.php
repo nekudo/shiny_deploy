@@ -29,6 +29,8 @@ class DatabaseDomain extends Domain
 
     /**
      * Adds custom validation rules to validator lib.
+     *
+     * @return void
      */
     private function addCustomValidationRules() : void
     {

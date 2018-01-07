@@ -44,7 +44,7 @@ class Deployment extends Domain
 
     /**
      * @param array $data
-     * @return void
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
     public function init(array $data) : void
@@ -93,9 +93,9 @@ class Deployment extends Domain
     /**
      * Executes an actual deployment.
      *
-     * @param bool $listMode If true changed files are only listed but not actually deployed.
-     * @throws RuntimeException
+     * @param bool $listMode
      * @return bool
+     * @throws \ZMQException
      */
     public function deploy(bool $listMode = false) : bool
     {
@@ -196,10 +196,12 @@ class Deployment extends Domain
         return true;
     }
 
+
     /**
      * Checks various requirements to be fulfilled before stating a deployment.
      *
-     * @return boolean
+     * @return bool
+     * @throws \ZMQException
      */
     protected function checkPrerequisites() : bool
     {
@@ -221,10 +223,12 @@ class Deployment extends Domain
         return true;
     }
 
+
     /**
      * If local repository does not exist it will be pulled from git. It it exists it will be updated.
      *
      * @return bool
+     * @throws \ZMQException
      */
     protected function prepareRepository() : bool
     {
@@ -315,6 +319,7 @@ class Deployment extends Domain
      *
      * @param string $type
      * @return boolean
+     * @throws \ZMQException
      */
     protected function runTasks(string $type) : bool
     {
@@ -376,6 +381,7 @@ class Deployment extends Domain
      * Fetches remote revision from REVISION file in project root.
      *
      * @return string
+     * @throws \ZMQException
      */
     public function getRemoteRevision() : string
     {
@@ -409,6 +415,7 @@ class Deployment extends Domain
      * Fetches revision of local repository.
      *
      * @return string
+     * @throws \ZMQException
      */
     public function getLocalRevision() : string
     {
@@ -496,6 +503,7 @@ class Deployment extends Domain
      *
      * @param array $changedFiles
      * @return bool
+     * @throws \ZMQException
      */
     protected function processChangedFiles(array $changedFiles) : bool
     {
@@ -547,6 +555,7 @@ class Deployment extends Domain
      *
      * @param string $revision Revision hash
      * @return boolean
+     * @throws \ZMQException
      */
     protected function updateRemoteRevisionFile(string $revision) : bool
     {

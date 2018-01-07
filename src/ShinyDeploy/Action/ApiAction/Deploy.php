@@ -11,6 +11,14 @@ use ShinyDeploy\Responder\NullResponder;
 class Deploy extends ApiAction
 {
 
+    /**
+     * @param array $requestParameters
+     * @return bool
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
+     * @throws \ZMQException
+     */
     public function __invoke(array $requestParameters = []) : bool
     {
         $apiKeys = new ApiKeys($this->config, $this->logger);

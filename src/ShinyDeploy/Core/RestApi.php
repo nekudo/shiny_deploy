@@ -1,9 +1,10 @@
 <?php namespace ShinyDeploy\Core;
 
 use Apix\Log\Logger;
-use Exception;
 use Noodlehaus\Config;
 use ShinyDeploy\Domain\Database\Auth;
+use ShinyDeploy\Exceptions\ClassNotFoundException;
+use ShinyDeploy\Exceptions\ShinyDeployException;
 use ShinyDeploy\Responder\RestApiResponder;
 
 class RestApi
@@ -34,7 +35,6 @@ class RestApi
         $this->config = $config;
         $this->logger = $logger;
         $this->responder = new RestApiResponder($this->config, $this->logger);
-        $this->parseRequest();
     }
 
     /**
@@ -44,29 +44,31 @@ class RestApi
      */
     public function handleRequest() : void
     {
-        $this->validateRequest();
-        $this->executeRequest();
+        try {
+            $this->parseRequest();
+            $this->validateRequest();
+            $this->executeRequest();
+        } catch (ShinyDeployException $e) {
+            $this->logger->error(
+                'API Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+            $this->responder->respondError($e->getMessage());
+        }
     }
 
     /**
      * Triggers Gearman job as requested via API.
      *
      * @return void
+     * @throws ClassNotFoundException
      */
     protected function executeRequest() : void
     {
-        try {
-            $jobName = strtolower($this->action);
-            if ($this->triggerBackgroundJob($jobName) === true) {
-                $this->responder->respond('OK');
-            } else {
-                $this->responder->respondError('Could not start job.');
-            }
-        } catch (Exception $e) {
-            $this->logger->error(
-                'API Error: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
-            );
-            $this->responder->respondError($e->getMessage());
+        $jobName = strtolower($this->action);
+        if ($this->triggerBackgroundJob($jobName) === true) {
+            $this->responder->respond('OK');
+        } else {
+            $this->responder->respondError('Could not start job.');
         }
     }
 
@@ -106,6 +108,7 @@ class RestApi
      * Sets known request parameters.
      *
      * @return void
+     * @throws ClassNotFoundException
      */
     protected function parseRequest() : void
     {
@@ -119,6 +122,7 @@ class RestApi
      * Will trigger all activated request-parser to get additonal plattform dependent
      * parameters from request.
      *
+     * @throws ClassNotFoundException
      * @return bool
      */
     protected function parseRequestParameters() : bool
@@ -130,7 +134,7 @@ class RestApi
         foreach ($parserNames as $parserName) {
             $parserClass = '\ShinyDeploy\Core\RequestParser\\' . ucfirst(strtolower($parserName));
             if (!class_exists($parserClass)) {
-                throw new \RuntimeException('Request parser not found. (' . $parserName . ')');
+                throw new ClassNotFoundException('Request parser not found. (' . $parserName . ')');
             }
             /** @var \ShinyDeploy\Core\RequestParser\RequestParser $parser */
             $parser = new $parserClass;
@@ -147,14 +151,14 @@ class RestApi
      *
      * @param string $action
      * @return boolean
-     * @throws \RuntimeException
+     * @throws ClassNotFoundException
      */
     protected function triggerBackgroundJob(string $action) : bool
     {
         $actionClassName = ucfirst($action);
         $jobName = 'api' . $actionClassName;
         if (!class_exists('\ShinyDeploy\Action\ApiAction\\' . $actionClassName)) {
-            throw new \RuntimeException('Invalid API action requested.');
+            throw new ClassNotFoundException('Invalid API action requested.');
         }
         $client = new \GearmanClient;
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));

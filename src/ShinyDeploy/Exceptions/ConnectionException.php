@@ -1,5 +1,5 @@
 <?php namespace ShinyDeploy\Exceptions;
 
-class ConnectionException extends \Exception
+class ConnectionException extends ShinyDeployException
 {
 }

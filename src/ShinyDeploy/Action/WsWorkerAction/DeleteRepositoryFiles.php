@@ -10,8 +10,9 @@ class DeleteRepositoryFiles extends WsWorkerAction
      * Removes local repository files.
      *
      * @param string $repoPath
-     * @return boolean
+     * @return bool
      * @throws MissingDataException
+     * @throws \ZMQException
      */
     public function __invoke(string $repoPath) : bool
     {

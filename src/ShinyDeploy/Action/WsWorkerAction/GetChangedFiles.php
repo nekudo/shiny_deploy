@@ -11,11 +11,15 @@ use ShinyDeploy\Responder\WsNotificationResponder;
 class GetChangedFiles extends WsWorkerAction
 {
     /**
-     * Fetch a list of changed files between two revisions.
+     * Genratess a list of changed files between two revisions.
      *
      * @param int $id
+     * @return bool
      * @throws MissingDataException
-     * @return boolean
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ZMQException
      */
     public function __invoke(int $id) : bool
     {

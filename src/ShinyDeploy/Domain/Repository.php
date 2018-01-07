@@ -67,7 +67,8 @@ class Repository extends Domain
     /**
      * Fetches repository from git by doing a git clone.
      *
-     * @return boolean
+     * @return bool
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
      */
     public function doClone() : bool
     {

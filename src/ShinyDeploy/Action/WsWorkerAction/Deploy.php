@@ -12,12 +12,16 @@ use ShinyDeploy\Responder\WsSetRemoteRevisionResponder;
 class Deploy extends WsWorkerAction
 {
     /**
-     * Deploy file changes from repository to target server.
+     * Deploys file changes from repository to target server.
      *
      * @param int $id
      * @param array $tasksToRun
+     * @return bool
      * @throws MissingDataException
-     * @return boolean
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ZMQException
      */
     public function __invoke(int $id, array $tasksToRun = []) : bool
     {
@@ -67,7 +71,7 @@ class Deploy extends WsWorkerAction
         $remoteRevisionResponder->respond($revision);
         $logResponder->success('Deployment successfully completed.');
 
-        // Send success notfication
+        // Send success notification
         $notificationResponder->send('Deployment successfully completed.', 'success');
         return true;
     }

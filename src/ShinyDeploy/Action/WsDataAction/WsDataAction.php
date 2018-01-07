@@ -11,6 +11,8 @@ abstract class WsDataAction extends WsAction
     protected $responder;
 
     /**
+     * @param array $actionPayload
+     * @return bool
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      */
     abstract public function __invoke(array $actionPayload) : bool;

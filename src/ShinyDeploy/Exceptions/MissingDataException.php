@@ -1,7 +1,5 @@
 <?php namespace ShinyDeploy\Exceptions;
 
-use InvalidArgumentException;
-
-class MissingDataException extends InvalidArgumentException
+class MissingDataException extends ShinyDeployException
 {
 }

@@ -14,6 +14,11 @@ class SetLocalRevision extends WsWorkerAction
      *
      * @param array $params
      * @return bool
+     * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ZMQException
      */
     public function __invoke(array $params) : bool
     {

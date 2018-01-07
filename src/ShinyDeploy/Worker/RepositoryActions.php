@@ -39,7 +39,7 @@ class RepositoryActions extends Worker
             $cloneRepositoryAction = new CloneRepository($this->config, $this->logger);
             $cloneRepositoryAction->setClientId($params['clientId']);
             $cloneRepositoryAction->setToken($params['token']);
-            $cloneRepositoryAction->__invoke($params['repositoryId'], $params['clientId']);
+            $cloneRepositoryAction->__invoke($params['repositoryId']);
         } catch (\Exception $e) {
             $this->logger->alert(
                 'Worker Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'

@@ -8,14 +8,19 @@ use Valitron\Validator;
 
 class AddServer extends WsDataAction
 {
+
     /**
      * Adds new server to database.
      *
      * @param array $actionPayload
+     * @return bool
      * @throws InvalidPayloadException
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
-     * @return boolean
      */
     public function __invoke(array $actionPayload) : bool
     {

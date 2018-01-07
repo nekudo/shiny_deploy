@@ -1,5 +1,5 @@
 <?php namespace ShinyDeploy\Exceptions;
 
-class DatabaseException extends \Exception
+class DatabaseException extends ShinyDeployException
 {
 }
