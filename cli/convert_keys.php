@@ -4,6 +4,8 @@ namespace Nekudo\ShinyDeploy\Cli;
 
 use Apix\Log\Logger;
 use Noodlehaus\Config;
+use ShinyDeploy\Core\Crypto\McryptCrypto;
+use ShinyDeploy\Core\Crypto\PasswordCrypto;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Exceptions\MissingDataException;
 
@@ -25,15 +27,10 @@ class KeyConverter
             $this->checkSapi();
             $this->checkPhpVersion();
             $this->checkMcryptExtension();
-
             $password = $this->readSystemPassword();
             $this->validateSystemPassword($password);
-
-            // @todo Decrypt encryption key with old/deprecated encryption method
-
-            // @todo Encrypt encryption key with new encryption method
-
-
+            $encryptionKey = $this->getEncryptionKey($password);
+            $this->storeEncryptionKey($encryptionKey, $password);
         } catch (\Exception $e) {
             echo 'Error: ' . $e->getMessage() . PHP_EOL;
             echo 'File: ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
@@ -113,6 +110,39 @@ class KeyConverter
         if ($hashFromPassword !== $hashFromDatabase) {
             throw new \RuntimeException('System password is invalid.');
         }
+    }
+
+    /**
+     * Fetches encryption key from database an decrypts it using provided password.
+     *
+     * @param string $password
+     * @return string
+     * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     */
+    private function getEncryptionKey(string $password) : string
+    {
+        $authDomain = new Auth($this->config, $this->logger);
+        $keyEncrypted = $authDomain->getEncryptionKeyByUsername('system');
+        $encryption = new McryptCrypto(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $keyDecrypted = $encryption->decrypt($keyEncrypted, $password);
+        return $keyDecrypted;
+    }
+
+    /**
+     * @param string $key
+     * @param string $password
+     * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
+     */
+    private function storeEncryptionKey(string $key, string $password) : void
+    {
+        $passwordCrypto = new PasswordCrypto;
+        $keyEncrypted = $passwordCrypto->encrypt($key, $password);
+        $authDomain = new Auth($this->config, $this->logger);
+        $authDomain->updateSystemEncryptionKey($keyEncrypted);
     }
 }
 

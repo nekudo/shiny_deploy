@@ -96,6 +96,7 @@ class Deployment extends Domain
      * @param bool $listMode
      * @return bool
      * @throws \ZMQException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
      */
     public function deploy(bool $listMode = false) : bool
     {
@@ -229,6 +230,7 @@ class Deployment extends Domain
      *
      * @return bool
      * @throws \ZMQException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
      */
     protected function prepareRepository() : bool
     {

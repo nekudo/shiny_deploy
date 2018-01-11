@@ -31,7 +31,7 @@ class ApiKeys extends DatabaseDomain
         $passwordForUrl = StringHelper::getRandomString(16);
         $password = $passwordForUrl . $this->config->get('auth.secret');
         $passwordHash = hash('sha256', $password);
-        $encryption = new PasswordCrypto(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $encryption = new PasswordCrypto;
         $encryptionKeySave = $encryption->encrypt($this->encryptionKey, $password);
         $statement = "INSERT INTO api_keys (`api_key`,`deployment_id`,`password`,`encryption_key`)"
             . " VALUES (%s,%d,%s,%s)";

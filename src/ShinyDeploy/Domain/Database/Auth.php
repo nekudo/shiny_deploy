@@ -226,6 +226,7 @@ class Auth extends DatabaseDomain
      * @param string $password
      * @return bool
      * @throws MissingDataException
+     * @throws CryptographyException
      */
     public function createSystemUser(string $password) : bool
     {
@@ -246,6 +247,22 @@ class Auth extends DatabaseDomain
             );
             return false;
         }
+    }
+
+    /**
+     * Updates encryption key for system user.
+     *
+     * @param string $key
+     * @throws DatabaseException
+     * @throws MissingDataException
+     */
+    public function updateSystemEncryptionKey(string $key) : void
+    {
+        if (empty($key)) {
+            throw new MissingDataException('Encryption key can not be empty.');
+        }
+        $statement = "UPDATE users SET `encryption_key` = %s WHERE `username` = 'system'";
+        $this->db->prepare($statement, $key)->execute();
     }
 
     /**
@@ -281,6 +298,7 @@ class Auth extends DatabaseDomain
      *
      * @param string $password
      * @throws MissingDataException
+     * @throws CryptographyException
      * @return string
      */
     private function generateEncryptionKey(string $password) : string
@@ -306,6 +324,7 @@ class Auth extends DatabaseDomain
      * @param string $password
      * @return string
      * @throws MissingDataException
+     * @throws CryptographyException
      */
     private function encryptPassword(string $password) : string
     {
@@ -336,6 +355,7 @@ class Auth extends DatabaseDomain
      * @param string $string
      * @param string $password
      * @throws MissingDataException
+     * @throws CryptographyException
      * @return string
      */
     private function encryptString(string $string, string $password) : string
@@ -343,7 +363,7 @@ class Auth extends DatabaseDomain
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
         }
-        $encryption = new PasswordCrypto(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $encryption = new PasswordCrypto;
         $stringEncrypted = $encryption->encrypt($string, $password);
         return $stringEncrypted;
     }
@@ -362,7 +382,7 @@ class Auth extends DatabaseDomain
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
         }
-        $encryption = new PasswordCrypto(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $encryption = new PasswordCrypto;
         $stringDecrypted = $encryption->decrypt($string, $password);
         return $stringDecrypted;
     }
