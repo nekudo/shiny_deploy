@@ -28,7 +28,7 @@ class Deploy extends ApiAction
         }
 
         // decrypt encryption key:
-        $encryption = new PasswordCrypto(MCRYPT_BLOWFISH, MCRYPT_MODE_CBC);
+        $encryption = new PasswordCrypto;
         $decryptionPassword = $this->apiPassword . $this->config->get('auth.secret');
         $encryptionKey = $encryption->decrypt($apiKeyData['encryption_key'], $decryptionPassword);
 
