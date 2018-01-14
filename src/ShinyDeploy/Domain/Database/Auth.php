@@ -8,6 +8,7 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\ValidationData;
+use ShinyDeploy\Core\Crypto\KeyCrypto;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
 use ShinyDeploy\Exceptions\AuthException;
 use ShinyDeploy\Exceptions\CryptographyException;
@@ -20,11 +21,11 @@ class Auth extends DatabaseDomain
      * Generates JWT.
      *
      * @param string $username
-     * @param string $password
+     * @param string $userEncryptionKey
      * @param string $clientId
      * @return string
      */
-    public function generateToken(string $username, string $password, string $clientId) : string
+    public function generateToken(string $username, string $userEncryptionKey, string $clientId) : string
     {
         try {
             $signer = new Sha256;
@@ -35,7 +36,7 @@ class Auth extends DatabaseDomain
                 ->setNotBefore(time())
                 ->setExpiration(time() + 3600*8)
                 ->set('usr', $username)
-                ->set('pwd', $this->encryptPassword($password))
+                ->set('uek', $userEncryptionKey)
                 ->sign($signer, $this->config->get('auth.secret'));
             $token = (string)$builder->getToken(); // Retrieves the generated token
             return $token;
@@ -127,6 +128,32 @@ class Auth extends DatabaseDomain
     }
 
     /**
+     * Fetches users encryption key and decryptes it with given password.
+     *
+     * @param string $username
+     * @param string $password
+     * @return string
+     * @throws CryptographyException
+     * @throws DatabaseException
+     * @throws MissingDataException
+     */
+    public function getUserKeyByUsername(string $username, string $password) : string
+    {
+        if (empty($username)) {
+            throw new MissingDataException('Username can not be empty.');
+        }
+        if (empty($password)) {
+            throw new MissingDataException('Password can not be empty.');
+        }
+
+        $passwordCrypto = new PasswordCrypto;
+        $statement = "SELECT `user_key` FROM users WHERE `username` = %s";
+        $userKeyEncrypted = $this->db->prepare($statement, $username)->getValue();
+        $userKeyDecrypted = $passwordCrypto->decrypt($userKeyEncrypted, $password);
+        return $userKeyDecrypted;
+    }
+
+    /**
      * Fetches encryption key from database identified by username.
      *
      * @param string $username
@@ -161,19 +188,16 @@ class Auth extends DatabaseDomain
             $parser = new Parser;
             $parsedToken = $parser->parse($token);
             $username = $parsedToken->getClaim('usr');
-            $passwordEncrypted = $parsedToken->getClaim('pwd');
-            if (empty($username) || empty($passwordEncrypted)) {
+            $userEncryptionKey = $parsedToken->getClaim('uek');
+            if (empty($username) || empty($userEncryptionKey)) {
                 throw new AuthException('Could not get username from token.');
             }
             $encryptionKey = $this->getEncryptionKeyByUsername($username);
             if (empty($encryptionKey)) {
                 throw new AuthException('Could not get encryption key.');
             }
-            $password = $this->decryptPassword($passwordEncrypted);
-            if (empty($password)) {
-                throw new AuthException('Could not decrypt password.');
-            }
-            $encryptionKeyDecrypted = $this->decryptString($encryptionKey, $password);
+            $keyCrypto = new KeyCrypto;
+            $encryptionKeyDecrypted = $keyCrypto->decryptString($encryptionKey, $userEncryptionKey);
             if (empty($encryptionKeyDecrypted)) {
                 throw new AuthException('Could not decrypt encryption key.');
             }
@@ -235,12 +259,18 @@ class Auth extends DatabaseDomain
         }
         try {
             $passwordHash = hash('sha256', $password);
-            $encryptionKey = $this->generateEncryptionKey($password);
-            if (empty($encryptionKey)) {
+            $keys = $this->generateSystermUserEncryptionKeys($password);
+            if (empty($keys)) {
                 return false;
             }
-            $statement = "INSERT INTO users (`username`,`password`,`encryption_key`) VALUES (%s,%s,%s)";
-            return $this->db->prepare($statement, 'system', $passwordHash, $encryptionKey)->execute();
+            $statement = "INSERT INTO users (`username`,`password`,`user_key`,`encryption_key`) VALUES (%s,%s,%s,%s)";
+            return $this->db->prepare(
+                $statement,
+                'system',
+                $passwordHash,
+                $keys['user_key'],
+                $keys['encryption_key']
+            )->execute();
         } catch (DatabaseException $e) {
             $this->logger->error(
                 'Database Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -294,96 +324,32 @@ class Auth extends DatabaseDomain
     }
 
     /**
-     * Generates new encryption key and stores it in database.
+     * Generates new encryption key for system user.
      *
      * @param string $password
      * @throws MissingDataException
      * @throws CryptographyException
-     * @return string
+     * @return array
      */
-    private function generateEncryptionKey(string $password) : string
+    private function generateSystermUserEncryptionKeys(string $password) : array
     {
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
         }
         try {
             // generate key:
-            $key = Key::createNewRandomKey()->saveToAsciiSafeString();
+            $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
+            $systemKey = Key::createNewRandomKey()->saveToAsciiSafeString();
 
-            // encrypt key:
-            return $this->encryptString($key, $password);
+            // encrypt keys:
+            $passwordCrypto = new PasswordCrypto;
+            $keyCrypto = new KeyCrypto;
+            return [
+                'user_key' => $passwordCrypto->encrypt($userKey, $password),
+                'encryption_key' => $keyCrypto->encryptString($systemKey, $userKey)
+            ];
         } catch (CryptoException $e) {
-            return '';
+            return [];
         }
-    }
-
-
-    /**
-     * Encrypts a password for storage in JWT.
-     *
-     * @param string $password
-     * @return string
-     * @throws MissingDataException
-     * @throws CryptographyException
-     */
-    private function encryptPassword(string $password) : string
-    {
-        $passwordEncrypted = $this->encryptString($password, $this->config->get('auth.secret'));
-        $passwordEncryptedEncoded = base64_encode($passwordEncrypted);
-        return $passwordEncryptedEncoded;
-    }
-
-
-    /**
-     * Decrypts a password from JWT for usage.
-     *
-     * @param string $encryptedPassword
-     * @return string
-     * @throws CryptographyException
-     * @throws MissingDataException
-     */
-    private function decryptPassword(string $encryptedPassword) : string
-    {
-        $passwordDecoded = base64_decode($encryptedPassword);
-        $passwordDecrypted = $this->decryptString($passwordDecoded, $this->config->get('auth.secret'));
-        return $passwordDecrypted;
-    }
-
-    /**
-     * Encrypts a string using the given password as key.
-     *
-     * @param string $string
-     * @param string $password
-     * @throws MissingDataException
-     * @throws CryptographyException
-     * @return string
-     */
-    private function encryptString(string $string, string $password) : string
-    {
-        if (empty($password)) {
-            throw new MissingDataException('Password can not be empty.');
-        }
-        $encryption = new PasswordCrypto;
-        $stringEncrypted = $encryption->encrypt($string, $password);
-        return $stringEncrypted;
-    }
-
-    /**
-     * Decrypts a string using given password.
-     *
-     * @param string $string
-     * @param string $password
-     * @throws CryptographyException
-     * @throws MissingDataException
-     * @return string
-     */
-    private function decryptString(string $string, string $password) : string
-    {
-        if (empty($password)) {
-            throw new MissingDataException('Password can not be empty.');
-        }
-        $encryption = new PasswordCrypto;
-        $stringDecrypted = $encryption->decrypt($string, $password);
-        return $stringDecrypted;
     }
 }

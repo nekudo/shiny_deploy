@@ -5,10 +5,12 @@ use ShinyDeploy\Domain\Database\Auth;
 class Login extends WsDataAction
 {
     /**
-     * Does user login.
+     * Does user login and returns JWT.
      *
      * @param array $actionPayload
      * @return bool
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
+     * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
@@ -32,7 +34,8 @@ class Login extends WsDataAction
             return false;
         }
 
-        $jwt = $auth->generateToken($username, $actionPayload['password'], $this->clientId);
+        $userKey = $auth->getUserKeyByUsername('system', $actionPayload['password']);
+        $jwt = $auth->generateToken($username, $userKey, $this->clientId);
         if (empty($jwt)) {
             $this->responder->setError('Error during login. Please check logs.');
             return false;
