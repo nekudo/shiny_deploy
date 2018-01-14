@@ -19,6 +19,7 @@ class GenerateApiKey extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
     public function __invoke(array $actionPayload) : bool
     {

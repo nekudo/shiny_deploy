@@ -16,6 +16,7 @@ class ApiKeys extends DatabaseDomain
      * @param int $deploymentId
      * @throws DatabaseException
      * @throws MissingDataException
+     * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
     public function addApiKey(int $deploymentId) : array

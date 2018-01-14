@@ -24,5 +24,6 @@ class VerifyToken extends WsDataAction
         }
 
         $this->responder->setPayload(['success' => true]);
+        return true;
     }
 }
