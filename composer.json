@@ -43,9 +43,6 @@
         "post-create-project-cmd": [
             "cp config/config.sample.php config/config.php",
             "cp www/js/config.js.sample www/js/config.js"
-        ],
-        "post-package-update": [
-            "php cli/scripts/update.php"
         ]
     },
     "minimum-stability": "dev",
