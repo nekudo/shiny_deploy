@@ -123,7 +123,7 @@ class Deployments extends DatabaseDomain
             "INSERT INTO deployments
               (`name`, `repository_id`, `server_id`, `branch`, `target_path`, `tasks`)
               VALUES
-                (%s, %d, %d, %s, %s, %s)",
+                (%s, %i, %i, %s, %s, %s)",
             $deploymentData['name'],
             $deploymentData['repository_id'],
             $deploymentData['server_id'],
@@ -153,12 +153,12 @@ class Deployments extends DatabaseDomain
         return $this->db->prepare(
             "UPDATE deployments
             SET `name` = %s,
-              `repository_id` = %d,
-              `server_id` = %d,
+              `repository_id` = %i,
+              `server_id` = %i,
               `branch` = %s,
               `target_path` = %s,
               `tasks` = %s
-            WHERE id = %d",
+            WHERE id = %i",
             $deploymentData['name'],
             $deploymentData['repository_id'],
             $deploymentData['server_id'],
@@ -183,10 +183,10 @@ class Deployments extends DatabaseDomain
             return false;
         }
         // delete deployment logs:
-        $this->db->prepare("DELETE FROM deployment_logs WHERE `deployment_id` = %d", $deploymentId)->execute();
+        $this->db->prepare("DELETE FROM deployment_logs WHERE `deployment_id` = %i", $deploymentId)->execute();
 
         // delete deployment:
-        return $this->db->prepare("DELETE FROM deployments WHERE `id` = %d LIMIT 1", $deploymentId)->execute();
+        return $this->db->prepare("DELETE FROM deployments WHERE `id` = %i LIMIT 1", $deploymentId)->execute();
     }
 
     /**
@@ -203,7 +203,7 @@ class Deployments extends DatabaseDomain
         if ($deploymentId === 0) {
             return [];
         }
-        $deploymentData = $this->db->prepare("SELECT * FROM deployments WHERE `id` = %d", $deploymentId)
+        $deploymentData = $this->db->prepare("SELECT * FROM deployments WHERE `id` = %i", $deploymentId)
             ->getResult(true);
         if (empty($deploymentData)) {
             return [];
@@ -227,7 +227,7 @@ class Deployments extends DatabaseDomain
      */
     public function targetExists(array $deploymentData) : bool
     {
-        $statement = "SELECT COUNT(id) FROM deployments WHERE `server_id` = %d AND `target_path` = %s";
+        $statement = "SELECT COUNT(id) FROM deployments WHERE `server_id` = %i AND `target_path` = %s";
         $cnt = $this->db->prepare($statement, $deploymentData['server_id'], $deploymentData['target_path'])
             ->getValue();
         return ($cnt > 0);

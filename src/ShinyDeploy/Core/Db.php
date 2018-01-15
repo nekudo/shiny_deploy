@@ -25,7 +25,7 @@ class Db
     private $result = null;
 
     /**
-     * @var string Holds a mysql statement.
+     * @var \mysqli_stmt Holds a mysql statement.
      */
     private $statement = null;
 
@@ -122,10 +122,10 @@ class Db
     /**
      * Replaces placeholders in an sql-statement with according values.
      * Supported placeholders are:
-     *
-     * %d = Numeric value. Not quoted.
-     * %s = Quoted string.
-     * %S = Unquoted string, e.g. 1,2,3 in IN statement (WHERE foo IN(%S))
+     * %i = Integer value.
+     * %d = Double value.
+     * %s = String value.
+     * %b = Blob value.
      *
      * @param string $statement The query string.
      * @throws DatabaseException
@@ -140,35 +140,43 @@ class Db
         // mask escaped placeholders:
         $statement = str_replace('\%', '{#}', $statement);
 
-        // get values and check count:
-        $values = func_get_args();
-        array_shift($values);
-        if (substr_count($statement, '%s') + substr_count($statement, '%S') +
-            substr_count($statement, '%d') != count($values)) {
-            trigger_error('Passed value-count does not match placeholder-count.', E_USER_ERROR);
-        }
+        $possibleType = ['%i', '%d', '%s', '%b'];
 
         // sanitize query:
-        $statement = str_replace("'%s'", '%s', $statement);
-        $statement = str_replace('"%s"', '%s', $statement);
-        $statement = str_replace("'%d'", '%d', $statement);
-        $statement = str_replace('"%d"', '%d', $statement);
-
-        // quote strings (%S is placeholder for unqouted strings):
-        $statement = str_replace('%s', "'%s'", $statement);
-        $statement = str_replace('%S', '%s', $statement);
-
-
-        // prepare values for use in sql statement:
-        foreach (array_keys($values) as $key) {
-            $values[$key] = $this->mysqli->real_escape_string($values[$key]);
+        foreach ($possibleType as $type) {
+            $statement = str_replace("'".$type."'", $type, $statement);
+            $statement = str_replace('"'.$type.'"', $type, $statement);
         }
 
-        // replace placeholders with passed values:
-        $statement = vsprintf($statement, $values);
+        // check if type and value counts match:
+        $values = func_get_args();
+        array_shift($values);
+        $valueCount = count($values);
+        $typeCount = preg_match_all('/%i|%d|%s|%b/sU', $statement, $types);
+        if ($valueCount !== $typeCount) {
+            throw new DatabaseException('Type count does not match value count.');
+        }
+
+        // replace type-placeholders with question-marks for usage in prepared statements:
+        $statement = preg_replace('/%i|%d|%s|%b/sU', '?', $statement);
 
         // unmask:
-        $this->statement = str_replace('{#}', '%', $statement);
+        $statement = str_replace('{#}', '%', $statement);
+
+        // set statement
+        $this->statement = $this->mysqli->prepare($statement);
+
+        // bind values:
+        if ($valueCount > 0) {
+            $typeChars = str_replace('%', '', $types[0]);
+            $typeChars = implode('', $typeChars);
+            $valuesToBind = [];
+            $valuesToBind[0] = &$typeChars;
+            foreach ($values as &$value) {
+                $valuesToBind[] = &$value;
+            }
+            call_user_func_array([$this->statement, 'bind_param'], $valuesToBind);
+        }
 
         return $this;
     }
@@ -246,6 +254,7 @@ class Db
      * Executes an sql-statement.
      *
      * @return bool True if statement could be executed, false on error.
+     * @throws DatabaseException
      */
     public function execute() : bool
     {
@@ -296,16 +305,18 @@ class Db
      * Executes an mysql-statement.
      *
      * @return bool True is statement could be executed, false otherwise.
+     * @throws DatabaseException
      */
     private function executeStatement() : bool
     {
         if (empty($this->statement)) {
-            trigger_error('No query given.', E_USER_ERROR);
+            throw new DatabaseException('No query given.', E_USER_ERROR);
         }
         if ($this->ping() === false) {
             $this->connect($this->host, $this->user, $this->pass, $this->db);
         }
-        $this->result = $this->mysqli->query($this->statement);
+        $this->statement->execute();
+        $this->result = $this->statement->get_result();
         $this->statement = null;
 
         return ($this->result === false) ? false : true;

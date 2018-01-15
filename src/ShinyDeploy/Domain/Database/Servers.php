@@ -179,7 +179,7 @@ class Servers extends DatabaseDomain
               `username` = %s,
               `password` = %s,
               `root_path` = %s
-            WHERE id = %d",
+            WHERE id = %i",
             $serverData['name'],
             $serverData['type'],
             $serverData['hostname'],
@@ -204,7 +204,7 @@ class Servers extends DatabaseDomain
         if ($serverId === 0) {
             return false;
         }
-        return $this->db->prepare("DELETE FROM servers WHERE id = %d LIMIT 1", $serverId)->execute();
+        return $this->db->prepare("DELETE FROM servers WHERE id = %i LIMIT 1", $serverId)->execute();
     }
 
     /**
@@ -221,7 +221,7 @@ class Servers extends DatabaseDomain
         if ($serverId === 0) {
             return [];
         }
-        $serverData = $this->db->prepare("SELECT * FROM servers WHERE id = %d", $serverId)->getResult(true);
+        $serverData = $this->db->prepare("SELECT * FROM servers WHERE id = %i", $serverId)->getResult(true);
         if (empty($serverData)) {
             return [];
         }
@@ -247,7 +247,7 @@ class Servers extends DatabaseDomain
         if (empty($serverId)) {
             throw  new InvalidArgumentException('serverId can not be empty.');
         }
-        $cnt = $this->db->prepare("SELECT COUNT(id) FROM deployments WHERE `server_id` = %d", $serverId)->getValue();
+        $cnt = $this->db->prepare("SELECT COUNT(id) FROM deployments WHERE `server_id` = %i", $serverId)->getValue();
         return ($cnt > 0);
     }
 }

@@ -35,7 +35,7 @@ class ApiKeys extends DatabaseDomain
         $encryption = new PasswordCrypto;
         $encryptionKeySave = $encryption->encrypt($this->encryptionKey, $password);
         $statement = "INSERT INTO api_keys (`api_key`,`deployment_id`,`password`,`encryption_key`)"
-            . " VALUES (%s,%d,%s,%s)";
+            . " VALUES (%s,%i,%s,%s)";
         $result = $this->db->prepare($statement, $apiKey, $deploymentId, $passwordHash, $encryptionKeySave)->execute();
         if ($result === false) {
             throw new DatabaseException('Could not store API key to database.');
@@ -59,7 +59,7 @@ class ApiKeys extends DatabaseDomain
             throw new MissingDataException('Deployment id can not be empty.');
         }
         try {
-            $statement = "DELETE FROM api_keys WHERE `deployment_id` = %d";
+            $statement = "DELETE FROM api_keys WHERE `deployment_id` = %i";
             return $this->db->prepare($statement, $deploymentId)->execute();
         } catch (DatabaseException $e) {
             return false;
