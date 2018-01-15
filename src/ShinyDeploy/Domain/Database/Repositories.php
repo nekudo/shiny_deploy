@@ -162,7 +162,7 @@ class Repositories extends DatabaseDomain
               `url` = %s,
               `username` = %s,
               `password` = %s
-            WHERE id = %d",
+            WHERE id = %i",
             $repositoryData['name'],
             $repositoryData['type'],
             $repositoryData['url'],
@@ -185,7 +185,7 @@ class Repositories extends DatabaseDomain
         if ($repositoryId === 0) {
             return false;
         }
-        return $this->db->prepare("DELETE FROM repositories WHERE id = %d LIMIT 1", $repositoryId)->execute();
+        return $this->db->prepare("DELETE FROM repositories WHERE id = %i LIMIT 1", $repositoryId)->execute();
     }
 
     /**
@@ -203,7 +203,7 @@ class Repositories extends DatabaseDomain
             return [];
         }
         $repositoryData = $this->db
-            ->prepare("SELECT * FROM repositories WHERE id = %d", $repositoryId)
+            ->prepare("SELECT * FROM repositories WHERE id = %i", $repositoryId)
             ->getResult(true);
         if (empty($repositoryData)) {
             return [];
@@ -235,7 +235,7 @@ class Repositories extends DatabaseDomain
             throw new RuntimeException('repositoryId can not be empty.');
         }
         $cnt = $this->db
-            ->prepare("SELECT COUNT(id) FROM deployments WHERE `repository_id` = %d", $repositoryId)
+            ->prepare("SELECT COUNT(id) FROM deployments WHERE `repository_id` = %i", $repositoryId)
             ->getValue();
         return ($cnt > 0);
     }

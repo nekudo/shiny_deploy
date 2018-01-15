@@ -24,7 +24,7 @@ class DeploymentLogs extends DatabaseDomain
             throw new MissingDataException('DeploymentType can not be empty.');
         }
         $statement = "INSERT INTO deployment_logs (`deployment_id`, `deployment_type`, `request_time`)
-            VALUES (%d, %s, NOW())";
+            VALUES (%i, %s, NOW())";
         $queryResult = $this->db->prepare($statement, $deploymentId, $deploymentType)->execute();
         if ($queryResult === false) {
             return 0;
@@ -85,7 +85,7 @@ class DeploymentLogs extends DatabaseDomain
             SET
                 `result` = %s,
                 `end_time` = NOW()
-            WHERE id = %d";
+            WHERE id = %i";
         return $this->db->prepare($statement, $result, $deploymentLogId)->execute();
     }
 
@@ -115,7 +115,7 @@ class DeploymentLogs extends DatabaseDomain
                 dl.request_time,
                 TIMESTAMPDIFF(SECOND, dl.request_time, dl.end_time) AS duration
             FROM deployment_logs dl
-            WHERE dl.deployment_id = %d
+            WHERE dl.deployment_id = %i
             ORDER by dl.id DESC";
         $rows = $this->db->prepare($statement, $deploymentId)->getResult(false);
         if ($rows === false) {
@@ -140,9 +140,9 @@ class DeploymentLogs extends DatabaseDomain
                 FROM (
                     SELECT id
                     FROM `deployment_logs`
-                    WHERE `deployment_id` = %d
+                    WHERE `deployment_id` = %i
                     ORDER BY id DESC
-                    LIMIT 1 OFFSET %d
+                    LIMIT 1 OFFSET %i
                 ) tmp1
             )";
         return $this->db->prepare($statement, $deploymentId, $keep)->execute();
