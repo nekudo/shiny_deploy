@@ -46,6 +46,7 @@ class UpdateRepository extends WsDataAction
         if (!isset($repositoryData['password'])) {
             $repositoryData['password'] = '';
         }
+        $repositoryData['url'] = preg_replace('/\.git$/s', '', $repositoryData['url']);
         $urlCheckResult = $this->checkUrl(
             $repositoryData['url'],
             $repositoryData['username'],
