@@ -310,15 +310,15 @@ class Db
     private function executeStatement() : bool
     {
         if (empty($this->statement)) {
-            throw new DatabaseException('No query given.', E_USER_ERROR);
+            throw new DatabaseException('No query given.');
         }
         if ($this->ping() === false) {
             $this->connect($this->host, $this->user, $this->pass, $this->db);
         }
-        $this->statement->execute();
+        $execResult = $this->statement->execute();
         $this->result = $this->statement->get_result();
         $this->statement = null;
 
-        return ($this->result === false) ? false : true;
+        return $execResult;
     }
 }
