@@ -41,12 +41,17 @@ in any way you like.
 
 ### Requirements
 
-The following packages and php-extensions are required to run this application.
+The following software is required to run this application.
 
+* Webserver (Nginx, Apache, ...)
+* MySQL Server
 * PHP 7.1.*
-* [ZeroMQ](http://zeromq.org/bindings:php)
-* [Gearman](http://gearman.org/download/#php)
-* [SSH2](http://php.net/manual/en/book.ssh2.php)
+  * [ZeroMQ Extension](http://zeromq.org/bindings:php)
+  * [Gearman Extension](http://gearman.org/download/#php)
+  * [SSH2 Extension](http://php.net/manual/en/book.ssh2.php)
+  * Curl extension
+  * Mysqli extension
+  * Mcrypt extension
 
 ### Installation procedure
 
@@ -69,7 +74,25 @@ the following command:
 
 ```php cli/app.php start```
 
-### Optional Steps
+## Updates
+
+To update the application to the latest version simply use the `composer update` command.
+
+#### Updating to 1.2.*
+
+Due to the fact that the mcrypt extension was removed in PHP 7.2 the cryptography routines within this application
+needed to be updated. So after updating to version 1.2 (or later) you will need to execute the update script by running
+the following command:
+
+`php cli/scripts/update.php`
+
+The updater will ask for your system password and than re-encrypt all data to the new standard. This step has to be done
+running PHP 7.1.* with the mcrypt extension installed.
+
+Unfortunately you will have to **generate new api/webhook URLs after this step**. (The old URLs won't work any longer
+after the update.) 
+
+## Developer Hints
 
 In case you want to adjust CSS or JS you can use the robo.phar to rebuild the assets.
 
