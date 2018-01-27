@@ -24,13 +24,13 @@ return [
 
         'pools' => [
             'deploymentactions' => [
-                'worker_file' => __DIR__ . '/Worker/DeploymentActions.php',
+                'worker_file' => __DIR__ . '/../src/ShinyDeploy/Worker/DeploymentActions.php',
                 'worker_class' => '\ShinyDeploy\Worker\DeploymentActions',
                 'instances' => 1,
             ],
 
             'repoactions' => [
-                'worker_file' => __DIR__ . '/Worker/RepositoryActions.php',
+                'worker_file' => __DIR__ . '/../src/ShinyDeploy/Worker/RepositoryActions.php',
                 'worker_class' => '\ShinyDeploy\Worker\RepositoryActions',
                 'instances' => 2,
             ],
