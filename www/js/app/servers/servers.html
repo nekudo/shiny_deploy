@@ -1,12 +1,12 @@
 <section class="content-header">
-    <h1>Repositories</h1>
+    <h1>Servers</h1>
     <div class="header-toolbar">
-        <a href="/repositories/add" class="btn btn-success pull-right">Add Repository</a>
+        <a href="/servers/add" class="btn btn-success pull-right">Add Server</a>
     </div>
 </section>
 
 <section class="content">
-    <div data-ng-include="'/js/app/partials/alerts.html'"></div>
+    <div data-ng-include="'/js/app/shared/views/alerts.html'"></div>
     <div class="row">
         <div class="col-xs-12">
             <div class="box">
@@ -14,21 +14,21 @@
                     <table class="table table-hover">
                         <tr>
                             <th>ID</th>
-                            <th>Repository</th>
+                            <th>Server</th>
                             <th></th>
                         </tr>
-                        <tr data-ng-repeat="repository in vm.getRepositories()">
-                            <td>{{repository.id}}</td>
-                            <td>{{repository.name}}</td>
+                        <tr data-ng-repeat="server in vm.getServers()">
+                            <td>{{server.id}}</td>
+                            <td>{{server.name}}</td>
                             <td class="text-right">
-                                <a href="/repositories/edit/{{repository.id}}" type="button" class="btn btn-sm btn-primary">
+                                <a href="/servers/edit/{{server.id}}" type="button" class="btn btn-sm btn-primary">
                                     <i class="fa fa-pencil"></i> Edit
                                 </a>
                                 <button
-                                        data-ng-really-message="Are you sure you want to delete this repository?"
-                                        data-ng-really-click="vm.deleteRepository(repository.id)"
-                                        type="button"
-                                        class="btn btn-sm btn-danger">
+                                    data-ng-really-message="Are you sure you want to delete this server?"
+                                    data-ng-really-click="vm.deleteServer(server.id)"
+                                    type="button"
+                                    class="btn btn-sm btn-danger">
                                     <i class="fa fa-times"></i> Delete
                                 </button>
                             </td>

@@ -10,62 +10,62 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
             .when('/', {
                 controller: 'HomeController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/home.html'
+                templateUrl: '/js/app/home/home.html'
             })
             .when('/login', {
                 controller: 'LoginController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/login.html'
+                templateUrl: '/js/app/login/login.html'
             })
             .when('/servers', {
                 controller: 'ServersController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/servers.html'
+                templateUrl: '/js/app/servers/servers.html'
             })
             .when('/servers/add', {
                 controller: 'ServersAddController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/servers_form.html'
+                templateUrl: '/js/app/servers/servers_form.html'
             })
             .when('/servers/edit/:serverId', {
                 controller: 'ServersEditController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/servers_form.html'
+                templateUrl: '/js/app/servers/servers_form.html'
             })
             .when('/repositories', {
                 controller: 'RepositoriesController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/repositories.html'
+                templateUrl: '/js/app/repositories/repositories.html'
             })
             .when('/repositories/add', {
                 controller: 'RepositoriesAddController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/repositories_form.html'
+                templateUrl: '/js/app/repositories/repositories_form.html'
             })
             .when('/repositories/edit/:repositoryId', {
                 controller: 'RepositoriesEditController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/repositories_form.html'
+                templateUrl: '/js/app/repositories/repositories_form.html'
             })
             .when('/deployments', {
                 controller: 'DeploymentsController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/deployments.html'
+                templateUrl: '/js/app/deployments/deployments.html'
             })
             .when('/deployments/add', {
                 controller: 'DeploymentsAddController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/deployments_form.html'
+                templateUrl: '/js/app/deployments/deployments_form.html'
             })
             .when('/deployments/edit/:deploymentId', {
                 controller: 'DeploymentsEditController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/deployments_form.html'
+                templateUrl: '/js/app/deployments/deployments_form.html'
             })
             .when('/deployments/run/:deploymentId', {
                 controller: 'DeploymentsRunController',
                 controllerAs: 'vm',
-                templateUrl: '/js/app/views/deployments_run.html'
+                templateUrl: '/js/app/deployments/deployments_run.html'
             })
             .otherwise({ redirectTo: '/login' });
     }
