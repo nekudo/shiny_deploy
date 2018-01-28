@@ -115,6 +115,7 @@ class WsGateway implements WampServerInterface
      * @param array $actionPayload
      * @throws ClassNotFoundException
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
+     * @throws WebsocketException
      * @return void
      */
     protected function handleDataRequest(
@@ -136,6 +137,10 @@ class WsGateway implements WampServerInterface
         $action->setToken($token);
         $action->__invoke($actionPayload);
         $actionResponse = $action->getResponse($callbackId);
+
+        if (!isset($this->subscriptions[$clientId])) {
+            throw new WebsocketException('Invalid client-id.');
+        }
 
         /** @var \Ratchet\Wamp\Topic|string $topic **/
         $topic = $this->subscriptions[$clientId];
