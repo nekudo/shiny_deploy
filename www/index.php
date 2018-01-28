@@ -59,7 +59,7 @@
 
 </div><!-- /wrapper -->
 
-<div data-ng-include="'/js/app/partials/notifications.html'"></div>
+<div data-ng-include="'/js/app/shared/views/notifications.html'"></div>
 
 <script src="/js/vendor.min.js"></script>
 <script src="/js/config.js"></script>
