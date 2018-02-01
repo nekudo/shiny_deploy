@@ -3,11 +3,11 @@
 
     angular
         .module('shinyDeploy')
-        .controller('RepositoriesController', RepositoriesController);
+        .controller('RepositoriesListController', RepositoriesListController);
 
-    RepositoriesController.$inject = ['repositoriesService', 'alertsService'];
+    RepositoriesListController.$inject = ['repositoriesService', 'alertsService'];
 
-    function RepositoriesController(repositoriesService, alertsService) {
+    function RepositoriesListController(repositoriesService, alertsService) {
         /*jshint validthis: true */
         var vm = this;
 

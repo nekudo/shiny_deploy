@@ -18,7 +18,7 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
                 templateUrl: '/js/app/login/login.html'
             })
             .when('/servers', {
-                controller: 'ServersController',
+                controller: 'ServersListController',
                 controllerAs: 'vm',
                 templateUrl: '/js/app/servers/servers.html'
             })
@@ -33,7 +33,7 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
                 templateUrl: '/js/app/servers/servers_form.html'
             })
             .when('/repositories', {
-                controller: 'RepositoriesController',
+                controller: 'RepositoriesListController',
                 controllerAs: 'vm',
                 templateUrl: '/js/app/repositories/repositories.html'
             })
@@ -48,7 +48,7 @@ app.config(['$routeProvider', '$locationProvider', 'wsProvider', 'shinyDeployCon
                 templateUrl: '/js/app/repositories/repositories_form.html'
             })
             .when('/deployments', {
-                controller: 'DeploymentsController',
+                controller: 'DeploymentsListController',
                 controllerAs: 'vm',
                 templateUrl: '/js/app/deployments/deployments.html'
             })
