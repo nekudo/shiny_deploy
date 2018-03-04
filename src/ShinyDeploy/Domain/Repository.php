@@ -56,6 +56,7 @@ class Repository extends Domain
         $repoPath = $this->getLocalPath();
         $response = $this->git->gitPull($repoUrl, $repoPath);
         if (strpos($response, 'up-to-date') !== false ||
+            stripos($response, 'up to date') !== false ||
             strpos($response, 'done.') !== false ||
             stripos($response, 'Fast-forward') !== false) {
             return true;
