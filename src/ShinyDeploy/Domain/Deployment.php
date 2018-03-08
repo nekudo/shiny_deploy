@@ -387,6 +387,10 @@ class Deployment extends Domain
      */
     public function getRemoteRevision() : string
     {
+        if ($this->server->checkConnectivity() === false) {
+            return '';
+        }
+
         $targetPath = $this->getRemotePath();
         $targetPath .= 'REVISION';
         try {
