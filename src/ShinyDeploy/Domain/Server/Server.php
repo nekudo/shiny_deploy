@@ -21,15 +21,25 @@ abstract class Server extends Domain
 
     abstract public function checkConnectivity() : bool;
 
+    /**
+     * Connects to remote server.
+     *
+     * @param array $data
+     */
     public function init(array $data) : void
     {
         parent::init($data);
-        $this->connect(
+
+        $connected = $this->connect(
             $this->data['hostname'],
             $this->data['username'],
             $this->data['password'],
             $this->data['port']
         );
+
+        if ($connected === false) {
+            $this->logger->warning('Could not connect to remote server.');
+        }
     }
 
     /**

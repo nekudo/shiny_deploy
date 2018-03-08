@@ -93,7 +93,9 @@ class Servers extends DatabaseDomain
             default:
                 throw new RuntimeException('Invalid server type.');
         }
+
         $server->init($data);
+
         return $server;
     }
 
