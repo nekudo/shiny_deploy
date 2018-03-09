@@ -18,13 +18,13 @@
         }
     ],
     "require": {
-        "php": "7.1.*",
+        "php": "^7.1",
         "ext-curl": "*",
         "ext-gearman": "*",
-        "ext-mcrypt": "*",
         "ext-ssh2": "*",
         "ext-zmq": "*",
-        "cboden/ratchet": "0.4.0",
+        "ext-mysqli": "*",
+        "cboden/ratchet": "0.4.1",
         "react/zmq": "0.3.0",
         "apix/log": "1.2.0",
         "vlucas/valitron": "1.4.2",

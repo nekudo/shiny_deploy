@@ -78,6 +78,14 @@ the following command:
 
 To update the application to the latest version simply use the `composer update` command.
 
+#### Updating to 1.3 or higher
+
+If you want to update to version 1.3.0 or higher you have to convert the encrypted database when you come from a
+version that is 1.1 or lower. (See the update guide below.)
+
+Please note that is process is only possible running PHP 7.1 with the mcrypt extension installed. Once your data
+is converted you can update to the latest PHP version and the mcrypt extension is not required any longer. 
+
 #### Updating to 1.2.*
 
 Due to the fact that the mcrypt extension was removed in PHP 7.2 the cryptography routines within this application
