@@ -37,9 +37,10 @@ class WsGateway implements WampServerInterface
     public function onSubscribe(ConnectionInterface $conn, $Topic)
     {
         $clientId = $Topic->getId();
-        if (!array_key_exists($clientId, $this->subscriptions)) {
-            $this->subscriptions[$clientId] = $Topic;
+        if (isset($this->subscriptions[$clientId])) {
+            unset($this->subscriptions[$clientId]);
         }
+        $this->subscriptions[$clientId] = $Topic;
     }
 
     /**
