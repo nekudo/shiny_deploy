@@ -32,7 +32,8 @@
         "nekudo/shiny_gears": "1.0.3",
         "lcobucci/jwt": "3.2.2",
         "defuse/php-encryption": "2.1.0",
-        "nicolab/php-ftp-client": "1.4.1"
+        "nicolab/php-ftp-client": "1.4.1",
+        "phpseclib/phpseclib": "2.0.11"
     },
     "autoload": {
         "psr-4": {
