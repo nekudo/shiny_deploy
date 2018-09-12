@@ -156,7 +156,7 @@ class Git extends Domain
         if (chdir($repoPath) === false) {
             throw new \RuntimeException('Could not change to repository directory.');
         }
-        $changes = $this->exec('diff --name-status ' . $currentRevision . ' ' .  $targetRevision);
+        $changes = $this->exec('diff --name-status --no-renames ' . $currentRevision . ' ' .  $targetRevision);
         chdir($oldDir);
         return $changes;
     }
