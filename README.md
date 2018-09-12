@@ -48,7 +48,6 @@ The following software is required to run this application.
 * PHP >= 7.1
   * [ZeroMQ Extension](http://zeromq.org/bindings:php)
   * [Gearman Extension](http://gearman.org/download/#php)
-  * [SSH2 Extension](http://php.net/manual/en/book.ssh2.php)
   * Curl extension
   * Mysqli extension
 
