@@ -4,6 +4,7 @@ namespace ShinyDeploy\Action\WsDataAction;
 use RuntimeException;
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
+use ShinyDeploy\Exceptions\GitException;
 use ShinyDeploy\Exceptions\InvalidPayloadException;
 
 class GetRepositoryBranches extends WsDataAction
@@ -54,7 +55,11 @@ class GetRepositoryBranches extends WsDataAction
             }
 
             // get repository branches:
-            $branches = $repository->getBranches();
+            try {
+                $branches = $repository->getBranches();
+            } catch (GitException $e) {
+                $this->logger->error('Could not fetch git branches: ' . $e->getMessage());
+            }
             if (empty($branches)) {
                 $this->responder->setError('Could not load branches.');
                 return false;

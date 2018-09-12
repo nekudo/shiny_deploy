@@ -73,7 +73,6 @@ class SshServer extends Server
      *
      * @param string $path
      * @return string
-     * @throws ConnectionException
      */
     public function getFileContent(string $path) : string
     {
