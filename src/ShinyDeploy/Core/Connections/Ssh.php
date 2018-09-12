@@ -163,6 +163,10 @@ class Ssh
         if ($filelist === false) {
             throw new ConnectionException('Could not open target directory.');
         }
+
+        // remove dot-directories:
+        $filelist = array_diff($filelist, ['.', '..']);
+
         return $filelist;
     }
 

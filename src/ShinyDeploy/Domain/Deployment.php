@@ -140,14 +140,14 @@ class Deployment extends Domain
 
         $this->logResponder->log('Estimating remote revision...');
         $remoteRevision = $this->getRemoteRevision();
-        if ($remoteRevision === false) {
+        if ($remoteRevision === '') {
             $this->logResponder->error('Could not estimate remote revision. Aborting job.');
             return false;
         }
 
         $this->logResponder->log('Estimating local revision...');
         $localRevision = $this->getLocalRevision();
-        if ($localRevision === false) {
+        if ($localRevision === '') {
             $this->logResponder->error('Could not estimate local revision. Aborting job.');
             return false;
         }
