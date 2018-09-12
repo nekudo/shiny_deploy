@@ -3,6 +3,7 @@ namespace ShinyDeploy\Domain;
 
 use RuntimeException;
 use ShinyDeploy\Core\Domain;
+use ShinyDeploy\Exceptions\GitException;
 
 class Repository extends Domain
 {
@@ -54,14 +55,12 @@ class Repository extends Domain
     {
         $repoUrl = $this->getCredentialsUrl();
         $repoPath = $this->getLocalPath();
-        $response = $this->git->gitPull($repoUrl, $repoPath);
-        if (strpos($response, 'up-to-date') !== false ||
-            stripos($response, 'up to date') !== false ||
-            strpos($response, 'done.') !== false ||
-            stripos($response, 'Fast-forward') !== false) {
+        try {
+            $this->git->gitPull($repoUrl, $repoPath);
             return true;
+        } catch (GitException $e) {
+            $this->logger->error('Git pull failed. ' . $e->getMessage());
         }
-        $this->logger->error('Git pull failed. Git response was: ' . $response);
         return false;
     }
 
@@ -75,10 +74,13 @@ class Repository extends Domain
     {
         $repoUrl = $this->getCredentialsUrl();
         $repoPath = $this->createLocalPath();
-        $response = $this->git->gitClone($repoUrl, $repoPath);
-        if (strpos($response, 'done.') !== false) {
+        try {
+            $this->git->gitClone($repoUrl, $repoPath);
             return true;
+        } catch (GitException $e) {
+            $this->logger->error('Git clone failed: ' . $e->getMessage());
         }
+
         return false;
     }
 
@@ -87,6 +89,7 @@ class Repository extends Domain
      *
      * @return array
      * @throws \RuntimeException
+     * @throws GitException
      */
     public function getBranches() : array
     {
@@ -104,11 +107,17 @@ class Repository extends Domain
      * @param string $branch
      * @return bool
      */
-    public function switchBranch(string $branch) : bool
+    public function switchBranch(string $branch): bool
     {
         $repoPath = $this->getLocalPath();
-        $switchResult = $this->git->switchBranch($repoPath, $branch);
-        return $switchResult;
+        try {
+            $this->git->switchBranch($repoPath, $branch);
+            return true;
+        } catch (GitException $e) {
+            $this->logger->error('Switching git branch failed: ' . $e->getMessage());
+        }
+
+        return false;
     }
 
     /**
@@ -153,6 +162,7 @@ class Repository extends Domain
      * Get list of files in repository.
      *
      * @return array
+     * @throws GitException
      */
     public function listFiles() : array
     {
@@ -179,6 +189,7 @@ class Repository extends Domain
      * @param string $revisionA
      * @param string $revisionB
      * @return array
+     * @throws GitException
      */
     public function getDiff(string $revisionA, string $revisionB) : array
     {
@@ -214,6 +225,7 @@ class Repository extends Domain
      * @param string $revisionA
      * @param string $revisionB
      * @return string
+     * @throws GitException
      */
     public function getFileDiff(string $file, string $revisionA, string $revisionB) : string
     {

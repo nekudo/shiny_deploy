@@ -7,6 +7,7 @@ use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Domain\Database\Repositories;
 use ShinyDeploy\Domain\Database\Servers;
 use ShinyDeploy\Exceptions\ConnectionException;
+use ShinyDeploy\Exceptions\GitException;
 
 class Deployment extends Domain
 {
@@ -457,11 +458,16 @@ class Deployment extends Domain
      */
     protected function getChangedFilesList(string $localRevision, string $remoteRevision) : array
     {
-        if ($remoteRevision === '-1') {
-            $changedFiles = $this->repository->listFiles();
-        } else {
-            $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision);
+        try {
+            if ($remoteRevision === '-1') {
+                $changedFiles = $this->repository->listFiles();
+            } else {
+                $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision);
+            }
+        } catch (GitException $e) {
+            $this->logger->error('Git diff/list-files failed: ' .$e->getMessage());
         }
+
         if (empty($changedFiles)) {
             return [];
         }

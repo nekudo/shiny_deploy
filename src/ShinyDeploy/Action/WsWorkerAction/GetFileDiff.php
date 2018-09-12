@@ -17,6 +17,7 @@ class GetFileDiff extends WsWorkerAction
      * @throws \ShinyDeploy\Exceptions\AuthException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @throws \ShinyDeploy\Exceptions\DatabaseException
+     * @throws \ShinyDeploy\Exceptions\GitException
      * @throws \ZMQException
      */
     public function __invoke(array $params) : bool
