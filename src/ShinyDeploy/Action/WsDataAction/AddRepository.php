@@ -3,6 +3,7 @@ namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Domain\Database\Auth;
 use ShinyDeploy\Domain\Database\Repositories;
+use ShinyDeploy\Domain\Git;
 use ShinyDeploy\Exceptions\InvalidPayloadException;
 use Valitron\Validator;
 
@@ -95,21 +96,13 @@ class AddRepository extends WsDataAction
      */
     private function checkUrl(string $url, string $username = '', string $password = '') : bool
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-        if (!empty($username)) {
-            curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+        $credentials = $username ?? '';
+        if (!empty($password)) {
+            $credentials .= ':' . $password;
         }
-        $headers = curl_exec($ch);
-        curl_close($ch);
-        if (stripos($headers, 'HTTP/1.1 200') !== false) {
-            return true;
-        }
-        return false;
+        $url = str_replace('://', '://' . $credentials . '@', $url);
+
+        $gitDomain = new Git($this->config, $this->logger);
+        return $gitDomain->checkRemoteConnectivity($url);
     }
 }
