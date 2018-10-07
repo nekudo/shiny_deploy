@@ -367,6 +367,27 @@ class Git extends Domain
     }
 
     /**
+     * Check if a remote url is accessible.
+     *
+     * @param string $repoUrl
+     * @return bool
+     */
+    public function checkRemoteConnectivity(string $repoUrl): bool
+    {
+        if (empty($repoUrl)) {
+            return false;
+        }
+        $command = 'ls-remote -q -h --exit-code ' . $repoUrl;
+        try {
+            $this->exec($command);
+            return true;
+        } catch (GitException $e) {
+            $this->logger->error('Remote Repository URL not accessible.');
+            return false;
+        }
+    }
+
+    /**
      * Executes a git command and returns response.
      *
      * @param $command
@@ -375,7 +396,7 @@ class Git extends Domain
      */
     protected function exec(string $command): string
     {
-        $command = 'git ' . $command;
+        $command = 'GIT_TERMINAL_PROMPT=0 git ' . $command;
         $command = escapeshellcmd($command) . ' 2>&1';
         exec($command, $output, $exitCode);
         $response = implode("\n", $output) ?? '';

@@ -324,30 +324,11 @@ class Repository extends Domain
      * Checks if URL responses with status 200.
      *
      * @return bool
-     * @throws \RuntimeException
      */
     public function checkConnectivity() : bool
     {
-        if (empty($this->data)) {
-            throw new \RuntimeException('Repository data not set. Missing inititialization?');
-        }
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->data['url']);
-        curl_setopt($ch, CURLOPT_HEADER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-        if (!empty($this->data['username'])) {
-            curl_setopt($ch, CURLOPT_USERPWD, $this->data['username'].':'.$this->data['password']);
-        }
-        $headers = curl_exec($ch);
-        curl_close($ch);
-        if (stripos($headers, 'HTTP/1.1 200') !== false) {
-            return true;
-        }
-        return false;
+        $url = $this->getCredentialsUrl();
+        return $this->git->checkRemoteConnectivity($url);
     }
 
     /**
