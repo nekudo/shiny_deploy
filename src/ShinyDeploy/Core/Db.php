@@ -165,6 +165,9 @@ class Db
 
         // set statement
         $this->statement = $this->mysqli->prepare($statement);
+        if ($this->statement === false) {
+            throw new DatabaseException($this->mysqli->error);
+        }
 
         // bind values:
         if ($valueCount > 0) {
