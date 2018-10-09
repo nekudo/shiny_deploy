@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` int(8) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `password` blob NOT NULL,
+  `user_key` blob NOT NULL,
   `encryption_key` blob NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
