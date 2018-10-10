@@ -70,6 +70,7 @@ return [
         'requestParser' => [
             'github',
             'bitbucket',
+            'gitea',
         ],
     ],
 ];
