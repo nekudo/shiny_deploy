@@ -29,7 +29,7 @@ useful to re-start applications, build css/js or do whatever is necessary to dep
 ##### Webhook support
 
 Once a Deployment is created you can generate an API-URL. Using this URL you can trigger deployments directly from
-GitHub or Bitbucket as soon as you push changes to your repositories.
+GitHub, Bitbucket or Gitea as soon as you push changes to your repositories.
 
 ##### Open source
 
@@ -73,8 +73,6 @@ the following command:
 ```php cli/app.php start```
 
 ## Updates
-
-To update the application to the latest version simply use the `composer update` command.
 
 #### Updating to 1.3 or higher
 
