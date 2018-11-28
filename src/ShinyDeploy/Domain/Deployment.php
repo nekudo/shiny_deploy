@@ -163,10 +163,6 @@ class Deployment extends Domain
 
         $this->logResponder->log('Collecting changed files...');
         $changedFiles = $this->getChangedFilesList($localRevision, $remoteRevision);
-        if (empty($changedFiles)) {
-            $this->logResponder->error('Could not estimate changed files.');
-            return false;
-        }
 
         // If we are in list mode we can now respond with the list of changed files:
         if ($listMode === true) {
