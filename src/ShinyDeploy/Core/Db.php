@@ -3,15 +3,6 @@ namespace ShinyDeploy\Core;
 
 use ShinyDeploy\Exceptions\DatabaseException;
 
-/**
- * class Db
- *
- * Simple MySQLi Wrapper.
- *
- * @author Simon Samtleben <simon@nekudo.com>
- * @license MIT
- */
-
 class Db
 {
     /**
