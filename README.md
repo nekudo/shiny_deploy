@@ -3,7 +3,7 @@
 _ShinyDeploy_ is a deployment tool written in PHP and JavaScript. It's main goal is to provide an easy way to deploy
 files from your GIT repositories to your servers.
 
-![ShinyDeploy Screenshot](https://static.geekservice.de/github/shinydeploy01.png)
+![ShinyDeploy Screenshot](https://static.samtleben.me/github/shinydeploy01.png)
 
 ## Features
 
