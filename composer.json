@@ -24,15 +24,15 @@
         "ext-zmq": "*",
         "ext-mysqli": "*",
         "cboden/ratchet": "0.4.1",
-        "react/zmq": "0.3.0",
-        "apix/log": "1.2.0",
-        "vlucas/valitron": "1.4.2",
-        "hassankhan/config": "0.11.2",
+        "react/zmq": "0.4.0",
+        "apix/log": "1.2.1",
+        "vlucas/valitron": "1.4.7",
+        "hassankhan/config": "2.1.0",
         "nekudo/shiny_gears": "1.0.3",
-        "lcobucci/jwt": "3.2.2",
-        "defuse/php-encryption": "2.1.0",
-        "nicolab/php-ftp-client": "1.4.1",
-        "phpseclib/phpseclib": "2.0.11"
+        "lcobucci/jwt": "3.3.1",
+        "defuse/php-encryption": "2.2.1",
+        "nicolab/php-ftp-client": "1.5.1",
+        "phpseclib/phpseclib": "2.0.23"
     },
     "autoload": {
         "psr-4": {
