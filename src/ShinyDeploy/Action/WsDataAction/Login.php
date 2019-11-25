@@ -16,26 +16,29 @@ class Login extends WsDataAction
      */
     public function __invoke(array $actionPayload) : bool
     {
+        if (empty($actionPayload['username'])) {
+            $this->responder->setError('Invalid username or password.');
+            return false;
+        }
         if (empty($actionPayload['password'])) {
-            $this->responder->setError('Invalid password.');
+            $this->responder->setError('Invalid username or password.');
             return false;
         }
 
-        $username = 'system';
         $auth = new Auth($this->config, $this->logger);
         $inputHash = hash('sha256', $actionPayload['password']);
-        $storedHash = $auth->getPasswordHashByUsername($username);
+        $storedHash = $auth->getPasswordHashByUsername($actionPayload['username']);
         if (empty($storedHash)) {
-            $this->responder->setError('No master password set.');
+            $this->responder->setError('Invalid username or password.');
             return false;
         }
         if ($inputHash !== $storedHash) {
-            $this->responder->setError('Invalid password.');
+            $this->responder->setError('Invalid username or password.');
             return false;
         }
 
-        $userKey = $auth->getUserKeyByUsername('system', $actionPayload['password']);
-        $jwt = $auth->generateToken($username, $userKey, $this->clientId);
+        $userKey = $auth->getUserKeyByUsername($actionPayload['username'], $actionPayload['password']);
+        $jwt = $auth->generateToken($actionPayload['username'], $userKey, $this->clientId);
         if (empty($jwt)) {
             $this->responder->setError('Error during login. Please check logs.');
             return false;

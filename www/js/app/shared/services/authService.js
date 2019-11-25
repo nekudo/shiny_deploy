@@ -107,11 +107,13 @@
         /**
          * Sends login request to WS server.
          *
-         * @param {type} password
+         * @param {String} username
+         * @param {String} password
          * @returns {Promise}
          */
-        function login(password) {
+        function login(username, password) {
             var requestParams = {
+                username: username,
                 password: password
             };
             return ws.sendDataRequest('login', requestParams);

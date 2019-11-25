@@ -12,6 +12,7 @@
         var vm = this;
 
         // Properties
+        vm.username = '';
         vm.password = '';
         vm.password_verify = '';
         vm.systemUserExists = true;
@@ -41,7 +42,7 @@
          * Check login credentials.
          */
         function login() {
-            authService.login(vm.password).then(function(response) {
+            authService.login(vm.username, vm.password).then(function(response) {
                 if (response.hasOwnProperty('success') && response.success === true) {
                     authService.setToken(response.token);
                     $location.path('/');

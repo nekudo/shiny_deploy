@@ -118,7 +118,7 @@ class Auth extends DatabaseDomain
         try {
             $statement = "SELECT `password` FROM users WHERE `username` = %s";
             $passwordHash = $this->db->prepare($statement, $username)->getValue();
-            return $passwordHash;
+            return $passwordHash ?? '';
         } catch (DatabaseException $e) {
             $this->logger->error(
                 'Database Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
