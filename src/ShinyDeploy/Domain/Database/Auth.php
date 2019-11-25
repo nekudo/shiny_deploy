@@ -173,6 +173,43 @@ class Auth extends DatabaseDomain
     }
 
     /**
+     * Fetches encryption key for given user.
+     *
+     * @param string $username
+     * @param string $password
+     * @return string
+     * @throws AuthException
+     * @throws MissingDataException
+     */
+    public function getEncryptionKeyByUsernameAndPassword(string $username, string $password): string
+    {
+        try {
+            $userKey = $this->getUserKeyByUsername($username, $password);
+            $encryptionKey = $this->getEncryptionKeyByUsername($username);
+            if (empty($encryptionKey)) {
+                throw new AuthException('Could not fetch encryption key for given username.');
+            }
+            $keyCrypto = new KeyCrypto;
+            $encryptionKeyDecrypted = $keyCrypto->decryptString($encryptionKey, $userKey);
+            if (empty($encryptionKeyDecrypted)) {
+                throw new AuthException('Could not decrypt encryption key.');
+            }
+
+            return $encryptionKeyDecrypted;
+        } catch (CryptographyException $e) {
+            $this->logger->error(
+                'Cryptography Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+            throw new AuthException('Could not get encryption key for username. Cryptography error.');
+        } catch (DatabaseException $e) {
+            $this->logger->error(
+                'Database Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+            throw new AuthException('Could not get encryption key for username. Database error.');
+        }
+    }
+
+    /**
      * Fetches users encryption key using username and password from JWT.
      *
      * @param string $token
@@ -219,14 +256,16 @@ class Auth extends DatabaseDomain
     }
 
     /**
-     * Saves new user to database.
+     * Creates a new user and saves item to database.
      *
      * @param string $username
      * @param string $password
+     * @param string $systemPassword
      * @return bool
+     * @throws AuthException
      * @throws MissingDataException
      */
-    public function createUser(string $username, string $password) : bool
+    public function createUser(string $username, string $password, string $systemPassword) : bool
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -234,14 +273,53 @@ class Auth extends DatabaseDomain
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
         }
+        if (empty($systemPassword)) {
+            throw new MissingDataException('System password can not be empty.');
+        }
         try {
+            // get system encryption key
+            $systemKey = $this->getEncryptionKeyByUsernameAndPassword('system', $systemPassword);
+
+            // generate new user key
+            $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
+
+            // encrypt system key with user key:
+            $keyCrypto = new KeyCrypto;
+            $systemKeyEncrypted = $keyCrypto->encryptString($systemKey, $userKey);
+
+            // encrypt user key with password:
+            $passwordCrypto = new PasswordCrypto;
+            $userKeyEncrypted = $passwordCrypto->encrypt($userKey, $password);
+
+            // hash password
             $passwordHash = hash('sha256', $password);
-            $statement = "INSERT INTO users (`username`,`password`) VALUES (%s,%s)";
-            return $this->db->prepare($statement, $username, $passwordHash)->execute();
+
+            // store new user in database
+            $statement = "INSERT INTO users (`username`,`password`,`user_key`,`encryption_key`) VALUES (%s,%s,%s,%s)";
+            return $this->db->prepare(
+                $statement,
+                $username,
+                $passwordHash,
+                $userKeyEncrypted,
+                $systemKeyEncrypted
+            )->execute();
+        } catch (CryptoException $e) {
+            $this->logger->error(
+                'Crypto Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+
+            return false;
+        } catch (CryptographyException $e) {
+            $this->logger->error(
+                'Cryptography Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+
+            return false;
         } catch (DatabaseException $e) {
             $this->logger->error(
                 'Database Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
             );
+
             return false;
         }
     }

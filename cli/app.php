@@ -5,11 +5,21 @@
  * Call it like e.g.: php control.php start
  */
 
+$validActions = [
+    'start',
+    'stop',
+    'restart',
+    'status',
+    'keepalive',
+    'update',
+    'add-user',
+];
+
 if (empty($argv)) {
     exit('Script can only be run in cli mode.' . PHP_EOL);
 }
 if (empty($argv[1])) {
-    exit('No action given. Valid actions are: start|stop|restart|status|keepalive' . PHP_EOL);
+    exit(sprintf('No action given. Valid actions are: %s', implode($validActions, '|')) . PHP_EOL);
 }
 
 try {
@@ -32,7 +42,7 @@ try {
             echo (($wssManager->stop() === true) ? '[OK]' : '[FAILED]') . PHP_EOL;
 
             $manager->stop();
-            echo 'Worker processes successfully stopped.' .PHP_EOL;
+            echo 'Worker processes successfully stopped.' . PHP_EOL;
             break;
         case 'restart':
             echo "Restarting websocket server...";
@@ -44,6 +54,14 @@ try {
         case 'keepalive':
             $wssManager->keepalive();
             $manager->keepalive();
+            break;
+        case 'update':
+            $action = new \ShinyDeploy\Action\CliAction\Update($config, $logger);
+            $action->__invoke();
+            break;
+        case 'add-user':
+            $action = new \ShinyDeploy\Action\CliAction\AddUser($config, $logger);
+            $action->__invoke();
             break;
         case 'status':
             if ($wssManager->status() === true) {
@@ -79,8 +97,8 @@ try {
                         echo "| \033[0;32mI\033[0m ";
                         echo '| ' . str_pad($workerInfo['jobs_total'], 11);
                         echo '| ' . str_pad($workerInfo['avg_jobs_min'], 11);
-                        echo '| ' . str_pad(round($workerInfo['uptime_seconds'] / 3600).'h', 7);
-                        echo '| ' . str_pad(round($workerInfo['ping'], 3).'s', 8) . '|' . PHP_EOL;
+                        echo '| ' . str_pad(round($workerInfo['uptime_seconds'] / 3600) . 'h', 7);
+                        echo '| ' . str_pad(round($workerInfo['ping'], 3) . 's', 8) . '|' . PHP_EOL;
                     } else {
                         echo "| \033[0;31mB\033[0m ";
                         echo '| ' . str_pad('n/a', 11);
@@ -94,7 +112,7 @@ try {
             echo PHP_EOL;
             break;
         default:
-            exit('Invalid action. Valid actions are: start|stop|restart|status|keepalive' . PHP_EOL);
+            exit(sprintf('Invalid action. Valid actions are: %s', implode($validActions, '|')) . PHP_EOL);
     }
 } catch (\Nekudo\ShinyGears\Exceptions\ManagerException $e) {
     echo 'Error: ' . $e->getMessage() . PHP_EOL;
