@@ -7,6 +7,7 @@ use Exception;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key as SignerKey;
 use Lcobucci\JWT\ValidationData;
 use ShinyDeploy\Core\Crypto\KeyCrypto;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
@@ -29,16 +30,17 @@ class Auth extends DatabaseDomain
     {
         try {
             $signer = new Sha256;
+            $key = new SignerKey($this->config->get('auth.secret'));
             $builder = new Builder;
-            $builder->setIssuer('ShinyDeploy')
-                ->setId($clientId, true)
-                ->setIssuedAt(time())
-                ->setNotBefore(time())
-                ->setExpiration(time() + 3600*8)
-                ->set('usr', $username)
-                ->set('uek', $userEncryptionKey)
-                ->sign($signer, $this->config->get('auth.secret'));
-            $token = (string)$builder->getToken(); // Retrieves the generated token
+            $token = (string) $builder->issuedBy('ShinyDeploy')
+                ->identifiedBy($clientId, true)
+                ->issuedAt(time())
+                ->canOnlyBeUsedAfter(time())
+                ->expiresAt(time() + 3600*8)
+                ->withClaim('usr', $username)
+                ->withClaim('uek', $userEncryptionKey)
+                ->getToken($signer, $key);
+
             return $token;
         } catch (Exception $e) {
             $this->logger->error(
