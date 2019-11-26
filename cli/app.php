@@ -12,7 +12,8 @@ $validActions = [
     'status',
     'keepalive',
     'update',
-    'add-user',
+    'user-add',
+    'user-change-password',
 ];
 
 if (empty($argv)) {
@@ -59,8 +60,12 @@ try {
             $action = new \ShinyDeploy\Action\CliAction\Update($config, $logger);
             $action->__invoke();
             break;
-        case 'add-user':
+        case 'user-add':
             $action = new \ShinyDeploy\Action\CliAction\AddUser($config, $logger);
+            $action->__invoke();
+            break;
+        case 'user-change-password':
+            $action = new \ShinyDeploy\Action\CliAction\ChangeUserPassword($config, $logger);
             $action->__invoke();
             break;
         case 'status':
@@ -114,6 +119,6 @@ try {
         default:
             exit(sprintf('Invalid action. Valid actions are: %s', implode($validActions, '|')) . PHP_EOL);
     }
-} catch (\Nekudo\ShinyGears\Exceptions\ManagerException $e) {
+} catch (\Exception $e) {
     echo 'Error: ' . $e->getMessage() . PHP_EOL;
 }

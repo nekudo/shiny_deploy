@@ -360,6 +360,67 @@ class Auth extends DatabaseDomain
     }
 
     /**
+     * Update password for given user.
+     *
+     * @param string $username
+     * @param string $password
+     * @param string $systemKey
+     * @return bool
+     */
+    public function updateUserPassword(string $username, string $password, string $systemKey): bool
+    {
+        try {
+            // generate new user key
+            $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
+
+            // encrypt system key with user key:
+            $keyCrypto = new KeyCrypto;
+            $systemKeyEncrypted = $keyCrypto->encryptString($systemKey, $userKey);
+
+            // encrypt user key with password:
+            $passwordCrypto = new PasswordCrypto;
+            $userKeyEncrypted = $passwordCrypto->encrypt($userKey, $password);
+
+            // hash password
+            $passwordHash = hash('sha256', $password);
+
+            // update user
+            $statement = "UPDATE users
+                SET
+                    `password` = %s,
+                    `user_key` = %s,
+                    `encryption_key` = %s 
+                WHERE `username` = %s 
+                LIMIT 1";
+            return $this->db->prepare(
+                $statement,
+                $passwordHash,
+                $userKeyEncrypted,
+                $systemKeyEncrypted,
+                $username
+            )->execute();
+        } catch (CryptoException $e) {
+            $this->logger->error(
+                'Crypto Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+
+            return false;
+        } catch (CryptographyException $e) {
+            $this->logger->error(
+                'Cryptography Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+
+            return false;
+        } catch (DatabaseException $e) {
+            $this->logger->error(
+                'Database Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
+            );
+
+            return false;
+        }
+    }
+
+    /**
      * Updates encryption key for system user.
      *
      * @param string $key

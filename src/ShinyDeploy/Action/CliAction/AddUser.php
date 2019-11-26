@@ -9,6 +9,12 @@ use ShinyDeploy\Domain\Database\Auth;
 
 class AddUser extends CliAction
 {
+    /**
+     * Adds new user to database.
+     *
+     * @throws \ShinyDeploy\Exceptions\AuthException
+     * @throws \ShinyDeploy\Exceptions\MissingDataException
+     */
     public function __invoke()
     {
         // request system password
