@@ -260,12 +260,12 @@ class Auth extends DatabaseDomain
      *
      * @param string $username
      * @param string $password
-     * @param string $systemPassword
+     * @param string $systemKey
      * @return bool
      * @throws AuthException
      * @throws MissingDataException
      */
-    public function createUser(string $username, string $password, string $systemPassword) : bool
+    public function createUser(string $username, string $password, string $systemKey) : bool
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -273,13 +273,10 @@ class Auth extends DatabaseDomain
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
         }
-        if (empty($systemPassword)) {
+        if (empty($systemKey)) {
             throw new MissingDataException('System password can not be empty.');
         }
         try {
-            // get system encryption key
-            $systemKey = $this->getEncryptionKeyByUsernameAndPassword('system', $systemPassword);
-
             // generate new user key
             $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
 

@@ -52,7 +52,8 @@ class AddUser extends CliAction
         }
 
         // create the new user
-        $result = $auth->createUser($username, $password, $systemPassword);
+        $systemKey = $auth->getEncryptionKeyByUsernameAndPassword('system', $systemPassword);
+        $result = $auth->createUser($username, $password, $systemKey);
         if ($result === false) {
             $this->error('Error: Could not create new user. Check logfile for details.');
             exit;

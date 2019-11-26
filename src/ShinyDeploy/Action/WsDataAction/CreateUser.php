@@ -33,8 +33,6 @@ class CreateUser extends WsDataAction
         // store hash of master password in database:
         if ($actionPayload['username'] === 'system') {
             $result = $auth->createSystemUser($actionPayload['password']);
-        } else {
-            $result = $auth->createUser($actionPayload['username'], $actionPayload['password']);
         }
         if ($result === false) {
             $this->responder->setError('Could not save user to database.');
