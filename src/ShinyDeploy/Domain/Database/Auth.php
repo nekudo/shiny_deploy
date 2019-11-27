@@ -336,7 +336,7 @@ class Auth extends DatabaseDomain
         }
         try {
             $passwordHash = hash('sha256', $password);
-            $keys = $this->generateSystermUserEncryptionKeys($password);
+            $keys = $this->generateSystemUserEncryptionKeys($password);
             if (empty($keys)) {
                 return false;
             }
@@ -469,7 +469,7 @@ class Auth extends DatabaseDomain
      * @throws CryptographyException
      * @return array
      */
-    private function generateSystermUserEncryptionKeys(string $password) : array
+    private function generateSystemUserEncryptionKeys(string $password) : array
     {
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');

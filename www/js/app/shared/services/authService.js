@@ -13,9 +13,7 @@
         var service = {
             init: init,
             login: login,
-            setToken: setToken,
-            systemUserExists: systemUserExists,
-            createSystemUser: createSystemUser
+            setToken: setToken
         };
 
         return service;
@@ -136,34 +134,6 @@
          */
         function getToken() {
             return sessionStorage.getItem('token');
-        }
-
-        /**
-         * Checks if system user was already created.
-         *
-         * @returns {Promise}
-         */
-        function systemUserExists() {
-            var requestParams = {
-                username: 'system'
-            };
-            return ws.sendDataRequest('userExists', requestParams);
-        }
-
-        /**
-         * Triggers creation of system user.
-         *
-         * @param {String} password
-         * @param {String} password_verify
-         * @returns {Promise}
-         */
-        function createSystemUser(password, password_verify) {
-            var requestParams = {
-                username: 'system',
-                password: password,
-                password_verify: password_verify
-            };
-            return ws.sendDataRequest('createUser', requestParams);
         }
     }
 })();
