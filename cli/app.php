@@ -11,6 +11,7 @@ $validActions = [
     'restart',
     'status',
     'keepalive',
+    'install',
     'update',
     'user-add',
     'user-change-password',
@@ -55,6 +56,10 @@ try {
         case 'keepalive':
             $wssManager->keepalive();
             $manager->keepalive();
+            break;
+        case 'install':
+            $action = new \ShinyDeploy\Action\CliAction\Install($config, $logger);
+            $action->__invoke();
             break;
         case 'update':
             $action = new \ShinyDeploy\Action\CliAction\Update($config, $logger);

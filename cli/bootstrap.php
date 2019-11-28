@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+const PROJECT_ROOT = __DIR__ . '/../';
+
 // load config:
 $config = \Noodlehaus\Config::load(__DIR__ . '/../config/config.php');
 
