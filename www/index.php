@@ -53,7 +53,7 @@
     </div>
 
     <footer class="main-footer">
-        <small>another shiny project by <a href="https://nekudo.com">nekudo.com</a></small>
+        <small>another shiny project by <a href="https://bloatless.org">bloatless.org</a></small>
         <div class="pull-right"><span data-wsc-status=""></span></div>
     </footer>
 

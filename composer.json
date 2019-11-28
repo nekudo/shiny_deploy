@@ -13,8 +13,8 @@
     "authors": [
         {
             "name": "Simon Samtleben",
-            "email": "simon@samtleben.me",
-            "homepage": "https://samtleben.me"
+            "email": "foo@bloatless.org",
+            "homepage": "https://bloatless.org"
         }
     ],
     "require": {
