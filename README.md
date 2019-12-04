@@ -45,7 +45,7 @@ The following software is required to run this application.
 
 * Webserver (Nginx, Apache, ...)
 * MySQL Server
-* PHP >= 7.1
+* PHP >= 7.3
   * [ZeroMQ Extension](http://zeromq.org/bindings:php)
   * [Gearman Extension](http://gearman.org/download/#php)
   * Curl extension
@@ -53,48 +53,39 @@ The following software is required to run this application.
 
 ### Installation procedure
 
-* Install project using composer.
+1. Install project using composer.
 
-  ```composer create-project nekudo/shiny_deploy myshinydeploy```
+    ```composer create-project nekudo/shiny_deploy myshinydeploy```
 
-* Create MySQL tables using db_structure.sql in project root.
+2. Adjust config files in the following folders:
 
-* Adjust config files in the following folders:
+    ```config/config.php```
 
-  ```config/config.php```
+    ```www/js/config.js```
 
-  ```www/js/config.js```
+3. Run the installation script using the following command:
 
-### Start application
+    ```php cli/app.php install```
+    
+4. Point your virtual host document root to the `www` directory and rewrite requests to the index.php file.
 
-To use this application you need to start up the websocket server and worker processes. This can be done by executing
+5. To use this application you need to start up the websocket server and worker processes. This can be done by executing
 the following command:
 
-```php cli/app.php start```
+    ```php cli/app.php start```
 
-## Updates
+### Update procedure
 
-#### Updating to 1.3 or higher
+To update an existing instance of ShinyDeploy the first step is to update the files. You can either use a simple
+`git pull` to do this (in case you installed the application trough composer) or just override all the files with
+a fresh copy downloaded from the project website.
 
-If you want to update to version 1.3.0 or higher you have to convert the encrypted database when you come from a
-version that is 1.1 or lower. (See the update guide below.)
+Once the files are update you need to execution the update command which will execute all necessary migrations:
 
-Please note that is process is only possible running PHP 7.1 with the mcrypt extension installed. Once your data
-is converted you can update to the latest PHP version and the mcrypt extension is not required any longer. 
+`php cli/app.php update`
 
-#### Updating to 1.2.*
-
-Due to the fact that the mcrypt extension was removed in PHP 7.2 the cryptography routines within this application
-needed to be updated. So after updating to version 1.2 (or later) you will need to execute the update script by running
-the following command:
-
-`php cli/scripts/update.php`
-
-The updater will ask for your system password and than re-encrypt all data to the new standard. This step has to be done
-running PHP 7.1.* with the mcrypt extension installed.
-
-Unfortunately you will have to **generate new api/webhook URLs after this step**. (The old URLs won't work any longer
-after the update.) 
+Hint: Please have a look into the release notes before update you installation of ShinyDeploy to prevent any
+problems.
 
 ## Developer Hints
 
