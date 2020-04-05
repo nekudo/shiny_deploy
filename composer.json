@@ -23,7 +23,7 @@
         "ext-gearman": "*",
         "ext-zmq": "*",
         "ext-mysqli": "*",
-        "cboden/ratchet": "0.4.1",
+        "cboden/ratchet": "0.4.2",
         "react/zmq": "0.4.0",
         "apix/log": "1.2.1",
         "vlucas/valitron": "1.4.7",
@@ -31,8 +31,8 @@
         "nekudo/shiny_gears": "1.0.3",
         "lcobucci/jwt": "3.3.1",
         "defuse/php-encryption": "2.2.1",
-        "nicolab/php-ftp-client": "1.5.1",
-        "phpseclib/phpseclib": "2.0.23"
+        "nicolab/php-ftp-client": "1.5.3",
+        "phpseclib/phpseclib": "2.0.26"
     },
     "autoload": {
         "psr-4": {
