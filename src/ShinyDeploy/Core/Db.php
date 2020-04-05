@@ -241,6 +241,10 @@ class Db
             throw new DatabaseException('Could not execute statement.');
         }
         $row = $this->result->fetch_array(MYSQLI_NUM);
+        if (empty($row)) {
+            return null;
+        }
+
         return $row[0];
     }
 
