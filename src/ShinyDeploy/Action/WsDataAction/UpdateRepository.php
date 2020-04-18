@@ -39,12 +39,23 @@ class UpdateRepository extends WsDataAction
             return false;
         }
 
+        // get users encryption key:
+        $auth = new Auth($this->config, $this->logger);
+        $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
+        if (empty($encryptionKey)) {
+            $this->responder->setError('Could not get encryption key.');
+            return false;
+        }
+        $repositories->setEnryptionKey($encryptionKey);
+
         // check if url is okay:
         if (!isset($repositoryData['username'])) {
             $repositoryData['username'] = '';
         }
-        if (!isset($repositoryData['password'])) {
-            $repositoryData['password'] = '';
+        if (empty($repositoryData['password'])) {
+            $repositoryId = (int) $repositoryData['id'];
+            $currentRepoData = $repositories->getRepositoryData($repositoryId);
+            $repositoryData['password'] = $currentRepoData['password'] ?? '';
         }
         $repositoryData['url'] = preg_replace('/\.git$/s', '', $repositoryData['url']);
         $urlCheckResult = $this->checkUrl(
@@ -57,16 +68,7 @@ class UpdateRepository extends WsDataAction
             return false;
         }
 
-        // get users encryption key:
-        $auth = new Auth($this->config, $this->logger);
-        $encryptionKey = $auth->getEncryptionKeyFromToken($this->token);
-        if (empty($encryptionKey)) {
-            $this->responder->setError('Could not get encryption key.');
-            return false;
-        }
-
         // update repository:
-        $repositories->setEnryptionKey($encryptionKey);
         $addResult = $repositories->updateRepository($repositoryData);
         if ($addResult === false) {
             $this->responder->setError('Could not update repository.');

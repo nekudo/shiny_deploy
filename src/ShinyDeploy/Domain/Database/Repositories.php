@@ -155,21 +155,33 @@ class Repositories extends DatabaseDomain
         if ($repositoryData === false) {
             throw new RuntimeException('Data encryption failed.');
         }
-        return $this->db->prepare(
-            "UPDATE repositories
-            SET `name` = %s,
-              `type` = %s,
-              `url` = %s,
-              `username` = %s,
-              `password` = %s
-            WHERE id = %i",
-            $repositoryData['name'],
-            $repositoryData['type'],
-            $repositoryData['url'],
-            $repositoryData['username'],
-            $repositoryData['password'],
-            $repositoryData['id']
-        )->execute();
+
+        $statement = "UPDATE repositories
+                SET `name` = %s, `type` = %s, `url` = %s, `username` = %s, `password` = %s
+                WHERE id = %i";
+        if (empty($repositoryData['password'])) {
+            $statement = str_replace(', `password` = %s', '', $statement);
+            $result = $this->db->prepare(
+                $statement,
+                $repositoryData['name'],
+                $repositoryData['type'],
+                $repositoryData['url'],
+                $repositoryData['username'],
+                $repositoryData['id']
+            )->execute();
+        } else {
+            $result = $this->db->prepare(
+                $statement,
+                $repositoryData['name'],
+                $repositoryData['type'],
+                $repositoryData['url'],
+                $repositoryData['username'],
+                $repositoryData['password'],
+                $repositoryData['id']
+            )->execute();
+        }
+
+        return $result;
     }
 
     /**
