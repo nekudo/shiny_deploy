@@ -84,8 +84,40 @@ class WsDataResponder extends Responder
         if ($this->responseType === 'error') {
             $frameData['reason'] = $this->errorMsg;
         } else {
-            $frameData['payload'] = $this->payload;
+            $frameData['payload'] = $this->getSecurePayload();
         }
         return $frameData;
+    }
+
+    /**
+     * Returns payload with all protected/secure fields removed.
+     *
+     * @return array
+     */
+    protected function getSecurePayload(): array
+    {
+        $protectedFields = ['password'];
+        $securePayload = $this->payload;
+        foreach ($protectedFields as $protectedField) {
+            $this->unsetProtectedField($securePayload, $protectedField);
+        }
+
+        return $securePayload;
+    }
+
+    /**
+     * Recursively removes given field/key from an array.
+     *
+     * @param array $payload
+     * @param string $protectedField
+     */
+    private function unsetProtectedField(array &$payload, string $protectedField): void
+    {
+        unset($payload[$protectedField]);
+        foreach ($payload as &$value) {
+            if (is_array($value)) {
+                $this->unsetProtectedField($value, $protectedField);
+            }
+        }
     }
 }

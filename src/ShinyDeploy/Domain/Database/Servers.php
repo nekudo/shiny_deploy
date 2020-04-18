@@ -172,25 +172,43 @@ class Servers extends DatabaseDomain
             throw new RuntimeException('Data encryption failed.');
         }
 
-        return $this->db->prepare(
-            "UPDATE servers
-            SET `name` = %s,
+        $statement = "UPDATE servers
+            SET 
+              `name` = %s,
               `type` = %s,
               `hostname` = %s,
               `port` = %s,
               `username` = %s,
               `password` = %s,
               `root_path` = %s
-            WHERE id = %i",
-            $serverData['name'],
-            $serverData['type'],
-            $serverData['hostname'],
-            $serverData['port'],
-            $serverData['username'],
-            $serverData['password'],
-            $serverData['root_path'],
-            $serverData['id']
-        )->execute();
+            WHERE id = %i";
+        if (empty($serverData['password'])) {
+            $statement = str_replace('`password` = %s,', '', $statement);
+            $result = $this->db->prepare(
+                $statement,
+                $serverData['name'],
+                $serverData['type'],
+                $serverData['hostname'],
+                $serverData['port'],
+                $serverData['username'],
+                $serverData['root_path'],
+                $serverData['id']
+            )->execute();
+        } else {
+            $result = $this->db->prepare(
+                $statement,
+                $serverData['name'],
+                $serverData['type'],
+                $serverData['hostname'],
+                $serverData['port'],
+                $serverData['username'],
+                $serverData['password'],
+                $serverData['root_path'],
+                $serverData['id']
+            )->execute();
+        }
+
+        return $result;
     }
 
     /**
