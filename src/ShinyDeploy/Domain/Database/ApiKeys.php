@@ -42,7 +42,7 @@ class ApiKeys extends DatabaseDomain
         }
         return [
             'apiKey' => $apiKey,
-            'password' => $passwordForUrl
+            'apiPassword' => $passwordForUrl
         ];
     }
 

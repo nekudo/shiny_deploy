@@ -146,7 +146,7 @@
                     return false;
                 }
                 var webhookUrl = location.protocol+'//'+location.hostname;
-                webhookUrl += '/api.php?ak='+data.apiKey+'&ap='+data.password;
+                webhookUrl += '/api.php?ak='+data.apiKey+'&ap='+data.apiPassword;
                 vm.apiUrl = webhookUrl;
             }, function (reason) {
                 alertsService.pushAlert(reason, 'warning');
