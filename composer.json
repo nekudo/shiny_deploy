@@ -32,7 +32,7 @@
         "lcobucci/jwt": "3.3.1",
         "defuse/php-encryption": "2.2.1",
         "nicolab/php-ftp-client": "1.5.3",
-        "phpseclib/phpseclib": "2.0.26"
+        "phpseclib/phpseclib": "2.0.31"
     },
     "autoload": {
         "psr-4": {
