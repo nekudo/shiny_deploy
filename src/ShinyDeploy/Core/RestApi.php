@@ -10,25 +10,25 @@ use ShinyDeploy\Responder\RestApiResponder;
 class RestApi
 {
     /** @var Config $config */
-    protected $config;
+    protected Config $config;
 
     /** @var Logger $logger */
-    protected $logger;
+    protected Logger $logger;
 
     /** @var string $action */
-    protected $action = '';
+    protected string $action = '';
 
     /** @var string $apiKey */
-    protected $apiKey = '';
+    protected string $apiKey = '';
 
     /** @var string $apiPassword */
-    protected $apiPassword = '';
+    protected string $apiPassword = '';
 
     /** @var array $requestParams */
-    protected $requestParams = [];
+    protected array $requestParams = [];
 
     /** @var RestApiResponder $responder */
-    protected $responder;
+    protected RestApiResponder $responder;
 
     public function __construct(Config $config, Logger $logger)
     {
@@ -42,7 +42,7 @@ class RestApi
      *
      * @return void
      */
-    public function handleRequest() : void
+    public function handleRequest(): void
     {
         try {
             $this->parseRequest();
@@ -62,7 +62,7 @@ class RestApi
      * @return void
      * @throws ClassNotFoundException
      */
-    protected function executeRequest() : void
+    protected function executeRequest(): void
     {
         $jobName = strtolower($this->action);
         if ($this->triggerBackgroundJob($jobName) === true) {
@@ -77,7 +77,7 @@ class RestApi
      *
      * @return void
      */
-    protected function validateRequest() : void
+    protected function validateRequest(): void
     {
         if (empty($this->action)) {
             $this->responder->respondBadRequest('No action provided.');
@@ -110,7 +110,7 @@ class RestApi
      * @return void
      * @throws ClassNotFoundException
      */
-    protected function parseRequest() : void
+    protected function parseRequest(): void
     {
         $this->action = (isset($_REQUEST['a'])) ? trim($_REQUEST['a']) : 'deploy';
         $this->apiKey = (isset($_REQUEST['ak'])) ? trim($_REQUEST['ak']) : '';
@@ -125,7 +125,7 @@ class RestApi
      * @throws ClassNotFoundException
      * @return bool
      */
-    protected function parseRequestParameters() : bool
+    protected function parseRequestParameters(): bool
     {
         $parserNames = $this->config->get('api.requestParser');
         if (empty($parserNames)) {
@@ -153,14 +153,14 @@ class RestApi
      * @return boolean
      * @throws ClassNotFoundException
      */
-    protected function triggerBackgroundJob(string $action) : bool
+    protected function triggerBackgroundJob(string $action): bool
     {
         $actionClassName = ucfirst($action);
         $jobName = 'api' . $actionClassName;
         if (!class_exists('\ShinyDeploy\Action\ApiAction\\' . $actionClassName)) {
             throw new ClassNotFoundException('Invalid API action requested.');
         }
-        $client = new \GearmanClient;
+        $client = new \GearmanClient();
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $jobPayload = [
             'apiKey' => $this->apiKey,

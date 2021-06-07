@@ -5,7 +5,6 @@ use ShinyDeploy\Core\Crypto\PasswordCrypto;
 use ShinyDeploy\Domain\Database\ApiKeys;
 use ShinyDeploy\Domain\Database\DeploymentLogs;
 use ShinyDeploy\Domain\Database\Deployments;
-use ShinyDeploy\Domain\Deployment;
 use ShinyDeploy\Responder\NullResponder;
 
 class Deploy extends ApiAction
@@ -19,7 +18,7 @@ class Deploy extends ApiAction
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ZMQException
      */
-    public function __invoke(array $requestParameters = []) : bool
+    public function __invoke(array $requestParameters = []): bool
     {
         $apiKeys = new ApiKeys($this->config, $this->logger);
         $apiKeyData = $apiKeys->getDataByApiKey($this->apiKey);
@@ -28,14 +27,13 @@ class Deploy extends ApiAction
         }
 
         // decrypt encryption key:
-        $encryption = new PasswordCrypto;
+        $encryption = new PasswordCrypto();
         $decryptionPassword = $this->apiPassword . $this->config->get('auth.secret');
         $encryptionKey = $encryption->decrypt($apiKeyData['encryption_key'], $decryptionPassword);
 
         // get deployment:
         $deployments = new Deployments($this->config, $this->logger);
         $deployments->setEnryptionKey($encryptionKey);
-        /** @var Deployment $deployment */
         $deployment = $deployments->getDeployment($apiKeyData['deployment_id']);
 
         // check if branches match

@@ -16,7 +16,7 @@ class DeleteServer extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         $this->authorize($this->clientId);
 

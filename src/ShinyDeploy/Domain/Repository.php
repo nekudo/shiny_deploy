@@ -8,9 +8,9 @@ use ShinyDeploy\Exceptions\GitException;
 class Repository extends Domain
 {
     /** @var Git $git */
-    protected $git;
+    protected Git $git;
 
-    public function init(array $data) : void
+    public function init(array $data): void
     {
         $this->data = $data;
         $this->git = new Git($this->config, $this->logger);
@@ -21,7 +21,7 @@ class Repository extends Domain
      *
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         if (!empty($this->data['name'])) {
             return $this->data['name'];
@@ -34,7 +34,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function exists() : bool
+    public function exists(): bool
     {
         $repoPath = $this->getLocalPath();
         if (!file_exists($repoPath)) {
@@ -51,7 +51,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function doPull() : bool
+    public function doPull(): bool
     {
         $repoUrl = $this->getCredentialsUrl();
         $repoPath = $this->getLocalPath();
@@ -70,7 +70,7 @@ class Repository extends Domain
      * @return bool
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      */
-    public function doClone() : bool
+    public function doClone(): bool
     {
         $repoUrl = $this->getCredentialsUrl();
         $repoPath = $this->createLocalPath();
@@ -91,7 +91,7 @@ class Repository extends Domain
      * @throws \RuntimeException
      * @throws GitException
      */
-    public function getBranches() : array
+    public function getBranches(): array
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data missing. Not initialized?');
@@ -125,7 +125,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function doPrune() : bool
+    public function doPrune(): bool
     {
         $repoPath = $this->getLocalPath();
         return $this->git->pruneRemoteBranches($repoPath);
@@ -137,7 +137,7 @@ class Repository extends Domain
      * @param string $branch
      * @return string
      */
-    public function getRevision(string $branch) : string
+    public function getRevision(string $branch): string
     {
         $repoPath = $this->getLocalPath();
         $revision = $this->git->getLocalRepositoryRevision($repoPath, $branch);
@@ -150,7 +150,7 @@ class Repository extends Domain
      * @param string $branch
      * @return string
      */
-    public function getRemoteRevision(string $branch) : string
+    public function getRemoteRevision(string $branch): string
     {
         $repoPath = $this->getLocalPath();
         $repoUrl = $this->getCredentialsUrl();
@@ -164,7 +164,7 @@ class Repository extends Domain
      * @return array
      * @throws GitException
      */
-    public function listFiles() : array
+    public function listFiles(): array
     {
         $files = [];
         $repoPath = $this->getLocalPath();
@@ -191,7 +191,7 @@ class Repository extends Domain
      * @return array
      * @throws GitException
      */
-    public function getDiff(string $revisionA, string $revisionB) : array
+    public function getDiff(string $revisionA, string $revisionB): array
     {
         $diff = [];
         $repoPath = $this->getLocalPath();
@@ -227,7 +227,7 @@ class Repository extends Domain
      * @return string
      * @throws GitException
      */
-    public function getFileDiff(string $file, string $revisionA, string $revisionB) : string
+    public function getFileDiff(string $file, string $revisionA, string $revisionB): string
     {
         $repoPath = $this->getLocalPath();
         $diff = $this->git->diffFile($repoPath, $revisionA, $revisionB, $file);
@@ -240,7 +240,7 @@ class Repository extends Domain
      * @return string
      * @throws \RuntimeException
      */
-    public function getLocalPath() : string
+    public function getLocalPath(): string
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data missing. Not initialized?');
@@ -256,7 +256,7 @@ class Repository extends Domain
      *
      * @return string
      */
-    protected function createLocalPath() : string
+    protected function createLocalPath(): string
     {
         $localPath = $this->getLocalPath();
         if (file_exists($localPath)) {
@@ -274,7 +274,7 @@ class Repository extends Domain
      * @return string
      * @throws \RuntimeException
      */
-    protected function getCredentialsUrl() : string
+    protected function getCredentialsUrl(): string
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Repository data missing. Not initialized?');
@@ -297,7 +297,7 @@ class Repository extends Domain
      * @param string $repoPath
      * @return bool
      */
-    public function remove(string $repoPath = '') : bool
+    public function remove(string $repoPath = ''): bool
     {
         if (empty($repoPath)) {
             $repoPath = $this->getLocalPath();
@@ -314,7 +314,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function checkGit() : bool
+    public function checkGit(): bool
     {
         $versionString = $this->git->getVersion();
         return ($versionString === false) ? false : true;
@@ -325,7 +325,7 @@ class Repository extends Domain
      *
      * @return bool
      */
-    public function checkConnectivity() : bool
+    public function checkConnectivity(): bool
     {
         $url = $this->getCredentialsUrl();
         return $this->git->checkRemoteConnectivity($url);
@@ -337,19 +337,19 @@ class Repository extends Domain
      * @param string $path
      * @return void
      */
-    private function removeDir(string $path) : void
+    private function removeDir(string $path): void
     {
         if (is_dir($path)) {
             $objects = scandir($path);
             foreach ($objects as $object) {
                 if ($object !== '.' && $object !== '..') {
-                    if (is_link($path.'/'.$object)) {
+                    if (is_link($path . '/' . $object)) {
                         continue;
                     }
-                    if (filetype($path.'/'.$object) === 'dir') {
-                        $this->removeDir($path.'/'.$object);
+                    if (filetype($path . '/' . $object) === 'dir') {
+                        $this->removeDir($path . '/' . $object);
                     } else {
-                        unlink($path.'/'.$object);
+                        unlink($path . '/' . $object);
                     }
                 }
             }

@@ -22,7 +22,7 @@ class WsAction extends Action
      * @param string $clientId
      * @return void
      */
-    public function setClientId(string $clientId) : void
+    public function setClientId(string $clientId): void
     {
         $this->clientId = $clientId;
     }
@@ -33,7 +33,7 @@ class WsAction extends Action
      * @param string $token
      * @return void
      */
-    public function setToken(string $token) : void
+    public function setToken(string $token): void
     {
         $this->token = $token;
     }
@@ -45,7 +45,7 @@ class WsAction extends Action
      * @throws InvalidTokenException
      * @return void
      */
-    public function authorize(string $clientId) : void
+    public function authorize(string $clientId): void
     {
         if (empty($this->token)) {
             throw new InvalidTokenException('Invalid token.');

@@ -10,14 +10,14 @@ use ShinyDeploy\Exceptions\ConnectionException;
 class FtpServer extends Server
 {
     /** @var Ftp $connection */
-    protected $connection;
+    protected Ftp $connection;
 
-    protected $connectionHash = '';
+    protected string $connectionHash = '';
 
     public function __construct(Config $config, Logger $logger)
     {
         parent::__construct($config, $logger);
-        $this->connection = new Ftp;
+        $this->connection = new Ftp();
     }
 
     /**
@@ -25,7 +25,7 @@ class FtpServer extends Server
      *
      * @return string
      */
-    public function getType() : string
+    public function getType(): string
     {
         return 'ssh';
     }
@@ -39,7 +39,7 @@ class FtpServer extends Server
      * @param int $port
      * @return bool
      */
-    public function connect(string $host, string $user, string $pass, int $port = 22) : bool
+    public function connect(string $host, string $user, string $pass, int $port = 22): bool
     {
         $hash = md5($host . $user . $pass . $port);
         if ($hash === $this->connectionHash) {
@@ -58,7 +58,7 @@ class FtpServer extends Server
      *
      * @return bool
      */
-    public function disconnect() : bool
+    public function disconnect(): bool
     {
         $this->connection->disconnect();
         $this->connectionHash = '';
@@ -72,7 +72,7 @@ class FtpServer extends Server
      * @return string
      * @throws ConnectionException
      */
-    public function getFileContent(string $path) : string
+    public function getFileContent(string $path): string
     {
         if (empty($path)) {
             throw new RuntimeException('Path can not be empty.');
@@ -88,7 +88,7 @@ class FtpServer extends Server
      * @param int $mode
      * @return bool
      */
-    public function upload(string $localFile, string $remoteFile, int $mode = 0644) : bool
+    public function upload(string $localFile, string $remoteFile, int $mode = 0644): bool
     {
         if (empty($localFile) || empty($remoteFile)) {
             throw new RuntimeException('Required parameter missing.');
@@ -107,7 +107,7 @@ class FtpServer extends Server
      * @param int $mode
      * @return bool
      */
-    public function putContent(string $content, string $remoteFile, int $mode = 0644) : bool
+    public function putContent(string $content, string $remoteFile, int $mode = 0644): bool
     {
         if (empty($remoteFile)) {
             throw new RuntimeException('Required parameter missing.');
@@ -121,7 +121,7 @@ class FtpServer extends Server
      * @param string $remoteFile
      * @return bool
      */
-    public function delete(string $remoteFile) : bool
+    public function delete(string $remoteFile): bool
     {
         if (empty($remoteFile)) {
             throw new RuntimeException('Required parameter missing.');
@@ -135,7 +135,7 @@ class FtpServer extends Server
      * @param string $remotePath
      * @return array
      */
-    public function listDir(string $remotePath) : array
+    public function listDir(string $remotePath): array
     {
         if (empty($remotePath)) {
             throw new RuntimeException('Required parameter missing.');
@@ -148,7 +148,7 @@ class FtpServer extends Server
      *
      * @return bool
      */
-    public function checkConnectivity() : bool
+    public function checkConnectivity(): bool
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Server data empty. Initialization missing?');

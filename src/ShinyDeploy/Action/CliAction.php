@@ -15,7 +15,7 @@ abstract class CliAction extends Action
      * @param bool $hidden If true user input will not be displayed.
      * @return string
      */
-    protected function requestUserInput(string $prompt, bool $hidden = false) : string
+    protected function requestUserInput(string $prompt, bool $hidden = false): string
     {
         $this->out($prompt);
 

@@ -11,7 +11,7 @@ class Repositories extends DatabaseDomain
     use CryptableDomain;
 
     /** @var array $rules Validation rules */
-    protected $rules = [
+    protected array $rules = [
         'required' => [
             ['name'],
             ['type'],
@@ -26,7 +26,7 @@ class Repositories extends DatabaseDomain
     ];
 
     /** @var array $encryptedFields Fields that are encrypted in database. */
-    protected $encryptedFields = [
+    protected array $encryptedFields = [
         'url',
         'username',
         'password',
@@ -37,7 +37,7 @@ class Repositories extends DatabaseDomain
      *
      * @return array
      */
-    public function getCreateRules() : array
+    public function getCreateRules(): array
     {
         return $this->rules;
     }
@@ -47,7 +47,7 @@ class Repositories extends DatabaseDomain
      *
      * @return array
      */
-    public function getUpdateRules() : array
+    public function getUpdateRules(): array
     {
         $rules = $this->rules;
         $rules['required'][] = ['id'];
@@ -63,7 +63,7 @@ class Repositories extends DatabaseDomain
      * @throws RuntimeException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function getRepository(int $repositoryId) : Repository
+    public function getRepository(int $repositoryId): Repository
     {
         $data = $this->getRepositoryData($repositoryId);
         if (empty($data)) {
@@ -82,7 +82,7 @@ class Repositories extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
-    public function getRepositories() : array
+    public function getRepositories(): array
     {
         $rows = $this->db->prepare("SELECT * FROM repositories ORDER BY `name`")->getResult(false);
         if (empty($rows)) {
@@ -106,7 +106,7 @@ class Repositories extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return int
      */
-    public function addRepository(array $repositoryData) : int
+    public function addRepository(array $repositoryData): int
     {
         if (!isset($repositoryData['username'])) {
             $repositoryData['username'] = '';
@@ -140,7 +140,7 @@ class Repositories extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return bool
      */
-    public function updateRepository(array $repositoryData) : bool
+    public function updateRepository(array $repositoryData): bool
     {
         if (!isset($repositoryData['id'])) {
             return false;
@@ -191,7 +191,7 @@ class Repositories extends DatabaseDomain
      * @throws DatabaseException
      * @return bool
      */
-    public function deleteRepository(int $repositoryId) : bool
+    public function deleteRepository(int $repositoryId): bool
     {
         $repositoryId = (int)$repositoryId;
         if ($repositoryId === 0) {
@@ -208,7 +208,7 @@ class Repositories extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
-    public function getRepositoryData(int $repositoryId) : array
+    public function getRepositoryData(int $repositoryId): array
     {
         $repositoryId = (int)$repositoryId;
         if ($repositoryId === 0) {
@@ -221,7 +221,7 @@ class Repositories extends DatabaseDomain
             return [];
         }
         $repositoryData = $this->decryptData($repositoryData, $this->encryptedFields);
-        if ($repositoryData === false) {
+        if ($repositoryData === []) {
             throw new RuntimeException('Data decryption failed.');
         }
         if (!isset($repositoryData['username'])) {
@@ -240,7 +240,7 @@ class Repositories extends DatabaseDomain
      * @return bool
      * @throws DatabaseException
      */
-    public function repositoryInUse(int $repositoryId) : bool
+    public function repositoryInUse(int $repositoryId): bool
     {
         $repositoryId = (int)$repositoryId;
         if (empty($repositoryId)) {

@@ -14,7 +14,7 @@ class Login extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         if (empty($actionPayload['username'])) {
             $this->responder->setError('Invalid username or password.');

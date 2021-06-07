@@ -21,7 +21,7 @@ class GenerateApiKey extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         $this->authorize($this->clientId);
 

@@ -13,7 +13,7 @@ class Install extends CliAction
      *
      * @return void
      */
-    public function __invoke() : void
+    public function __invoke(): void
     {
         try {
             $this->line('Testing connection to database...');

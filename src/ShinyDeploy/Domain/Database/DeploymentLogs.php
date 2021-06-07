@@ -15,7 +15,7 @@ class DeploymentLogs extends DatabaseDomain
      * @throws MissingDataException
      * @throws DatabaseException
      */
-    public function logDeploymentStart(int $deploymentId, string $deploymentType) : int
+    public function logDeploymentStart(int $deploymentId, string $deploymentType): int
     {
         if (empty($deploymentId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -40,7 +40,7 @@ class DeploymentLogs extends DatabaseDomain
      * @throws MissingDataException
      * @throws DatabaseException
      */
-    public function logDeploymentSuccess(int $deploymentLogId) : bool
+    public function logDeploymentSuccess(int $deploymentLogId): bool
     {
         if (empty($deploymentLogId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -56,7 +56,7 @@ class DeploymentLogs extends DatabaseDomain
      * @throws MissingDataException
      * @throws DatabaseException
      */
-    public function logDeploymentError(int $deploymentLogId) : bool
+    public function logDeploymentError(int $deploymentLogId): bool
     {
         if (empty($deploymentLogId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -73,7 +73,7 @@ class DeploymentLogs extends DatabaseDomain
      * @throws DatabaseException
      * @return bool
      */
-    protected function logDeploymentEnd(int $deploymentLogId, string $result) : bool
+    protected function logDeploymentEnd(int $deploymentLogId, string $result): bool
     {
         if (empty($deploymentLogId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -99,7 +99,7 @@ class DeploymentLogs extends DatabaseDomain
      * @throws DatabaseException
      * @return array
      */
-    public function getDeploymentLogs(int $deploymentId) : array
+    public function getDeploymentLogs(int $deploymentId): array
     {
         if (empty($deploymentId)) {
             throw new MissingDataException('DeploymentId can not be empty.');
@@ -117,11 +117,8 @@ class DeploymentLogs extends DatabaseDomain
             FROM deployment_logs dl
             WHERE dl.deployment_id = %i
             ORDER by dl.id DESC";
-        $rows = $this->db->prepare($statement, $deploymentId)->getResult(false);
-        if ($rows === false) {
-            return [];
-        }
-        return $rows;
+
+        return $this->db->prepare($statement, $deploymentId)->getResult(false);
     }
 
     /**
@@ -131,7 +128,7 @@ class DeploymentLogs extends DatabaseDomain
      * @throws DatabaseException
      * @return bool
      */
-    public function clearLogs(int $deploymentId) : bool
+    public function clearLogs(int $deploymentId): bool
     {
         $keep = (int) $this->config->get('logging.maxDeploymentLogs', 50);
         $statement = "DELETE FROM `deployment_logs`

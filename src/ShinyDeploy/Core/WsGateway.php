@@ -14,13 +14,13 @@ use ShinyDeploy\Responder\WsDataResponder;
 class WsGateway implements WampServerInterface
 {
     /** @var Config $config */
-    protected $config;
+    protected Config $config;
 
     /** @var  Logger $logger */
-    protected $logger;
+    protected Logger $logger;
 
     /** @var array $subscriptions */
-    protected $subscriptions = [];
+    protected array $subscriptions = [];
 
     public function __construct(Config $config, Logger $logger)
     {
@@ -49,7 +49,7 @@ class WsGateway implements WampServerInterface
      * @param string $dataEncoded Json Encode data passed by ZMQ.
      * @return bool
      */
-    public function onApiEvent(string $dataEncoded) : bool
+    public function onApiEvent(string $dataEncoded): bool
     {
         try {
             $this->logger->debug('onApiEvent: ' . $dataEncoded);
@@ -125,10 +125,10 @@ class WsGateway implements WampServerInterface
         int $callbackId,
         string $actionName,
         array $actionPayload
-    ) : void {
+    ): void {
         $actionClassName = 'ShinyDeploy\Action\WsDataAction\\' . ucfirst($actionName);
         if (!class_exists($actionClassName)) {
-            throw new ClassNotFoundException('Invalid data action passed to worker gateway. ('.$actionName.')');
+            throw new ClassNotFoundException('Invalid data action passed to worker gateway. (' . $actionName . ')');
         }
         $responder = new WsDataResponder($this->config, $this->logger);
         /** @var \ShinyDeploy\Action\WsDataAction\WsDataAction $action */
@@ -164,9 +164,9 @@ class WsGateway implements WampServerInterface
         string $token,
         string $actionName,
         array $actionPayload
-    ) : void {
+    ): void {
         $this->wsLog($clientId, 'Triggering job: ' . $actionName);
-        $client = new \GearmanClient;
+        $client = new \GearmanClient();
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $actionPayload['clientId'] = $clientId;
         $actionPayload['token'] = $token;
@@ -214,7 +214,7 @@ class WsGateway implements WampServerInterface
      * @throws WebsocketException
      * @return void
      */
-    protected function wsLog(string $clientId, string $msg, string $type = 'default') : void
+    protected function wsLog(string $clientId, string $msg, string $type = 'default'): void
     {
         if (empty($clientId)) {
             throw new WebsocketException('Invalid client id.');
@@ -238,7 +238,7 @@ class WsGateway implements WampServerInterface
      * @param string $clientId
      * @return void
      */
-    protected function onUnauthorized(string $clientId) : void
+    protected function onUnauthorized(string $clientId): void
     {
         $eventData = [
             'clientId' => $clientId,

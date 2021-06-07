@@ -19,7 +19,7 @@ class ApiKeys extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
-    public function addApiKey(int $deploymentId) : array
+    public function addApiKey(int $deploymentId): array
     {
         if (empty($this->encryptionKey)) {
             throw new MissingDataException('Encryption key not set.');
@@ -32,7 +32,7 @@ class ApiKeys extends DatabaseDomain
         $passwordForUrl = StringHelper::getRandomString(16);
         $password = $passwordForUrl . $this->config->get('auth.secret');
         $passwordHash = hash('sha256', $password);
-        $encryption = new PasswordCrypto;
+        $encryption = new PasswordCrypto();
         $encryptionKeySave = $encryption->encrypt($this->encryptionKey, $password);
         $statement = "INSERT INTO api_keys (`api_key`,`deployment_id`,`password`,`encryption_key`)"
             . " VALUES (%s,%i,%s,%s)";
@@ -53,7 +53,7 @@ class ApiKeys extends DatabaseDomain
      * @throws MissingDataException
      * @return bool
      */
-    public function deleteApiKeysByDeploymentId(int $deploymentId) : bool
+    public function deleteApiKeysByDeploymentId(int $deploymentId): bool
     {
         if (empty($deploymentId)) {
             throw new MissingDataException('Deployment id can not be empty.');
@@ -74,7 +74,7 @@ class ApiKeys extends DatabaseDomain
      * @throws MissingDataException
      * @throws DatabaseException
      */
-    public function getDataByApiKey(string $apiKey) : array
+    public function getDataByApiKey(string $apiKey): array
     {
         if (empty($apiKey)) {
             throw new MissingDataException('API key can not be empty.');

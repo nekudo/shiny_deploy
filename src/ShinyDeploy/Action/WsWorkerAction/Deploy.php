@@ -23,7 +23,7 @@ class Deploy extends WsWorkerAction
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ZMQException
      */
-    public function __invoke(int $id, array $tasksToRun = []) : bool
+    public function __invoke(int $id, array $tasksToRun = []): bool
     {
         $deploymentId = (int)$id;
         if (empty($deploymentId)) {

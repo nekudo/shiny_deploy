@@ -10,7 +10,7 @@ use Valitron\Validator;
 class DatabaseDomain extends Domain
 {
     /** @var \ShinyDeploy\Core\Db $db */
-    protected $db;
+    protected Db $db;
 
     public function __construct(Config $config, Logger $logger)
     {
@@ -32,7 +32,7 @@ class DatabaseDomain extends Domain
      *
      * @return void
      */
-    private function addCustomValidationRules() : void
+    private function addCustomValidationRules(): void
     {
         // add hostname validation:
         Validator::addRule(

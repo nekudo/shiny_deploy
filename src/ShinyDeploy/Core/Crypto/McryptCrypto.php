@@ -59,7 +59,7 @@ class McryptCrypto
      * @return string The returned string if decryption is successful
      * @deprecated Use class PasswordCrypto instead.
      */
-    public function decrypt(string $data, string $key) : string
+    public function decrypt(string $data, string $key): string
     {
         $salt = substr($data, 0, 128);
         $enc = substr($data, 128, -64);
@@ -81,7 +81,7 @@ class McryptCrypto
      * @return string The encrypted data
      * @deprecated Use class PasswordCrypto instead.
      */
-    public function encrypt(string $data, string $key) : string
+    public function encrypt(string $data, string $key): string
     {
         $salt = mcrypt_create_iv(128, MCRYPT_DEV_URANDOM);
         list ($cipherKey, $macKey, $iv) = $this->getKeys($salt, $key);
@@ -98,7 +98,7 @@ class McryptCrypto
      * @param string $key The supplied key to encrypt with
      * @return array An array of keys (a cipher key, a mac key, and a IV)
      */
-    protected function getKeys(string $salt, string $key) : array
+    protected function getKeys(string $salt, string $key): array
     {
         $ivSize = mcrypt_get_iv_size($this->cipher, $this->mode);
         $keySize = mcrypt_get_key_size($this->cipher, $this->mode);
@@ -122,7 +122,7 @@ class McryptCrypto
      * @param int $length The length of the output key
      * @return string The derived key.
      */
-    protected function pbkdf2(string $algo, string $key, string $salt, int $rounds, int $length) : string
+    protected function pbkdf2(string $algo, string $key, string $salt, int $rounds, int $length): string
     {
         $size = strlen(hash($algo, '', true));
         $len = ceil($length / $size);
@@ -145,7 +145,7 @@ class McryptCrypto
      * @param string $data
      * @return string
      */
-    protected function pad(string $data) : string
+    protected function pad(string $data): string
     {
         $length = mcrypt_get_block_size($this->cipher, $this->mode);
         $padAmount = $length - strlen($data) % $length;
@@ -162,7 +162,7 @@ class McryptCrypto
      * @throws CryptographyException
      * @return string
      */
-    protected function unpad(string $data) : string
+    protected function unpad(string $data): string
     {
         $length = mcrypt_get_block_size($this->cipher, $this->mode);
         $last = ord($data[strlen($data) - 1]);
@@ -182,7 +182,7 @@ class McryptCrypto
      * @param string $b
      * @return bool
      */
-    protected function hashEquals(string $a, string $b) : bool
+    protected function hashEquals(string $a, string $b): bool
     {
         if (function_exists('hash_equals')) {
             return hash_equals($a, $b);

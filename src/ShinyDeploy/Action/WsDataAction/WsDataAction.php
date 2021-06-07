@@ -15,7 +15,7 @@ abstract class WsDataAction extends WsAction
      * @return bool
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      */
-    abstract public function __invoke(array $actionPayload) : bool;
+    abstract public function __invoke(array $actionPayload): bool;
 
     /**
      * Sets a responder.
@@ -23,7 +23,7 @@ abstract class WsDataAction extends WsAction
      * @param Responder $responder
      * @return void
      */
-    public function setResponder(Responder $responder) : void
+    public function setResponder(Responder $responder): void
     {
         $this->responder = $responder;
     }
@@ -34,7 +34,7 @@ abstract class WsDataAction extends WsAction
      * @param int $callbackId
      * @return array
      */
-    public function getResponse(int $callbackId) : array
+    public function getResponse(int $callbackId): array
     {
         $this->responder->setCallbackId($callbackId);
         return $this->responder->getFrameData();

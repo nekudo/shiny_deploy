@@ -10,17 +10,17 @@ use ShinyDeploy\Exceptions\ConnectionException;
 class SshServer extends Server
 {
     /** @var Ssh $connection */
-    protected $connection;
+    protected Ssh $connection;
 
     /**
      * @var string $connectionHash
      */
-    protected $connectionHash = '';
+    protected string $connectionHash = '';
 
     public function __construct(Config $config, Logger $logger)
     {
         parent::__construct($config, $logger);
-        $this->connection = new Ssh;
+        $this->connection = new Ssh();
     }
 
     /**
@@ -28,7 +28,7 @@ class SshServer extends Server
      *
      * @return string
      */
-    public function getType() : string
+    public function getType(): string
     {
         return 'ssh';
     }
@@ -42,7 +42,7 @@ class SshServer extends Server
      * @param int $port
      * @return bool
      */
-    public function connect(string $host, string $user, string $pass, int $port = 22) : bool
+    public function connect(string $host, string $user, string $pass, int $port = 22): bool
     {
         $hash = md5($host . $user . $pass . $port);
         if ($hash === $this->connectionHash) {
@@ -61,7 +61,7 @@ class SshServer extends Server
      *
      * @return bool
      */
-    public function disconnect() : bool
+    public function disconnect(): bool
     {
         $this->connection->disconnect();
         $this->connectionHash = '';
@@ -74,16 +74,13 @@ class SshServer extends Server
      * @param string $path
      * @return string
      */
-    public function getFileContent(string $path) : string
+    public function getFileContent(string $path): string
     {
         if (empty($path)) {
             throw new RuntimeException('Path can not be empty.');
         }
-        $fileContent = $this->connection->get($path);
-        if ($fileContent === false) {
-            return false;
-        }
-        return $fileContent;
+
+        return $this->connection->get($path);
     }
 
     /**
@@ -94,7 +91,7 @@ class SshServer extends Server
      * @param int $mode
      * @return bool
      */
-    public function upload(string $localFile, string $remoteFile, int $mode = 0644) : bool
+    public function upload(string $localFile, string $remoteFile, int $mode = 0644): bool
     {
         if (empty($localFile) || empty($remoteFile)) {
             throw new RuntimeException('Required parameter missing.');
@@ -113,7 +110,7 @@ class SshServer extends Server
      * @param int $mode
      * @return bool
      */
-    public function putContent(string $content, string $remoteFile, int $mode = 0644) : bool
+    public function putContent(string $content, string $remoteFile, int $mode = 0644): bool
     {
         if (empty($remoteFile)) {
             throw new RuntimeException('Required parameter missing.');
@@ -127,7 +124,7 @@ class SshServer extends Server
      * @param string $remoteFile
      * @return bool
      */
-    public function delete(string $remoteFile) : bool
+    public function delete(string $remoteFile): bool
     {
         if (empty($remoteFile)) {
             throw new RuntimeException('Required parameter missing.');
@@ -142,7 +139,7 @@ class SshServer extends Server
      * @return array
      * @throws ConnectionException
      */
-    public function listDir(string $remotePath) : array
+    public function listDir(string $remotePath): array
     {
         if (empty($remotePath)) {
             throw new RuntimeException('Required parameter missing.');
@@ -156,7 +153,7 @@ class SshServer extends Server
      * @param string $command
      * @return string
      */
-    public function executeCommand(string $command) : string
+    public function executeCommand(string $command): string
     {
         if (empty($command)) {
             throw new RuntimeException('Required parameter missing.');
@@ -169,7 +166,7 @@ class SshServer extends Server
      *
      * @return bool
      */
-    public function checkConnectivity() : bool
+    public function checkConnectivity(): bool
     {
         if (empty($this->data)) {
             throw new \RuntimeException('Server data empty. Initialization missing?');

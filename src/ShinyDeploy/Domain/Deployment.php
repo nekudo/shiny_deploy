@@ -15,19 +15,19 @@ class Deployment extends Domain
     protected $server;
 
     /** @var Repository $repository */
-    protected $repository;
+    protected Repository $repository;
 
     /** @var \ShinyDeploy\Responder\WsLogResponder $logResponder */
-    protected $logResponder;
+    protected Responder $logResponder;
 
     /** @var array $changedFiles */
-    protected $changedFiles = [];
+    protected array $changedFiles = [];
 
     /** @var string $encryptionKey */
-    protected $encryptionKey;
+    protected string $encryptionKey;
 
     /** @var array $tasksToRun */
-    protected $tasksToRun = [];
+    protected array $tasksToRun = [];
 
 
     /**
@@ -35,7 +35,7 @@ class Deployment extends Domain
      *
      * @param string $encryptionKey
      */
-    public function setEncryptionKey(string $encryptionKey) : void
+    public function setEncryptionKey(string $encryptionKey): void
     {
         if (empty($encryptionKey)) {
             throw new \InvalidArgumentException('Encryption key can not be empty.');
@@ -48,7 +48,7 @@ class Deployment extends Domain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
-    public function init(array $data) : void
+    public function init(array $data): void
     {
         $this->data = $data;
         $servers = new Servers($this->config, $this->logger);
@@ -65,7 +65,7 @@ class Deployment extends Domain
      * @param Responder $logResponder
      * @return void
      */
-    public function setLogResponder(Responder $logResponder) : void
+    public function setLogResponder(Responder $logResponder): void
     {
         $this->logResponder = $logResponder;
     }
@@ -76,7 +76,7 @@ class Deployment extends Domain
      * @param array $tasksToRun
      * @return void
      */
-    public function setTasksToRun(array $tasksToRun) : void
+    public function setTasksToRun(array $tasksToRun): void
     {
         $this->tasksToRun = $tasksToRun;
     }
@@ -86,7 +86,7 @@ class Deployment extends Domain
      *
      * @return array
      */
-    public function getChangedFiles() : array
+    public function getChangedFiles(): array
     {
         return $this->changedFiles;
     }
@@ -99,7 +99,7 @@ class Deployment extends Domain
      * @throws \ZMQException
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      */
-    public function deploy(bool $listMode = false) : bool
+    public function deploy(bool $listMode = false): bool
     {
         if (empty($this->data)) {
             throw new RuntimeException('Deployment data not found. Initialization missing?');
@@ -201,7 +201,7 @@ class Deployment extends Domain
      * @return bool
      * @throws \ZMQException
      */
-    protected function checkPrerequisites() : bool
+    protected function checkPrerequisites(): bool
     {
         $this->logResponder->log('Checking git binary...');
         if ($this->repository->checkGit() === false) {
@@ -229,7 +229,7 @@ class Deployment extends Domain
      * @throws \ZMQException
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      */
-    protected function prepareRepository() : bool
+    protected function prepareRepository(): bool
     {
         if ($this->repository->exists() === true) {
             $result = $this->repository->doPull();
@@ -254,7 +254,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    protected function filterTasks() : bool
+    protected function filterTasks(): bool
     {
         if (empty($this->data['tasks'])) {
             return true;
@@ -271,7 +271,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    private function filterNonDefaultTasks() : bool
+    private function filterNonDefaultTasks(): bool
     {
         foreach ($this->data['tasks'] as $i => $task) {
             if ((int)$task['run_by_default'] !== 1) {
@@ -287,7 +287,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    private function filterNonSelectedTasks() : bool
+    private function filterNonSelectedTasks(): bool
     {
         // noting to do if task-filter is empty
         if (empty($this->tasksToRun)) {
@@ -320,7 +320,7 @@ class Deployment extends Domain
      * @return boolean
      * @throws \ZMQException
      */
-    protected function runTasks(string $type) : bool
+    protected function runTasks(string $type): bool
     {
         // Skip if no tasks defined
         if (empty($this->data['tasks'])) {
@@ -364,7 +364,7 @@ class Deployment extends Domain
      *
      * @return string
      */
-    protected function getRemotePath() : string
+    protected function getRemotePath(): string
     {
         $serverRoot = $this->server->getRootPath();
         $serverRoot = rtrim($serverRoot, '/');
@@ -382,7 +382,7 @@ class Deployment extends Domain
      * @return string
      * @throws \ZMQException
      */
-    public function getRemoteRevision() : string
+    public function getRemoteRevision(): string
     {
         if ($this->server->checkConnectivity() === false) {
             return '';
@@ -420,14 +420,14 @@ class Deployment extends Domain
      * @return string
      * @throws \ZMQException
      */
-    public function getLocalRevision() : string
+    public function getLocalRevision(): string
     {
         if ($this->repository->checkConnectivity() === false) {
             $this->logResponder->danger('Could not connect to remote repository.');
             return '';
         }
         $revision = $this->repository->getRemoteRevision($this->data['branch']);
-        if ($revision !== false) {
+        if ($revision !== '') {
             $this->logResponder->info('Local repository is at revision: ' . $revision);
         } else {
             $this->logResponder->danger('Local revision not found.');
@@ -440,7 +440,7 @@ class Deployment extends Domain
      *
      * @return bool
      */
-    protected function switchBranch() : bool
+    protected function switchBranch(): bool
     {
         return $this->repository->switchBranch($this->data['branch']);
     }
@@ -452,7 +452,7 @@ class Deployment extends Domain
      * @param string $remoteRevision
      * @return array
      */
-    protected function getChangedFilesList(string $localRevision, string $remoteRevision) : array
+    protected function getChangedFilesList(string $localRevision, string $remoteRevision): array
     {
         try {
             if ($remoteRevision === '-1') {
@@ -461,7 +461,7 @@ class Deployment extends Domain
                 $changedFiles = $this->repository->getDiff($localRevision, $remoteRevision);
             }
         } catch (GitException $e) {
-            $this->logger->error('Git diff/list-files failed: ' .$e->getMessage());
+            $this->logger->error('Git diff/list-files failed: ' . $e->getMessage());
         }
 
         if (empty($changedFiles)) {
@@ -490,7 +490,7 @@ class Deployment extends Domain
      * @param array $files
      * @return array
      */
-    protected function sortFilesByOperation(array $files) : array
+    protected function sortFilesByOperation(array $files): array
     {
         $sortedFiles = [
             'upload' => [],
@@ -513,7 +513,7 @@ class Deployment extends Domain
      * @return bool
      * @throws \ZMQException
      */
-    protected function processChangedFiles(array $changedFiles) : bool
+    protected function processChangedFiles(array $changedFiles): bool
     {
         $repoPath = $this->repository->getLocalPath();
         $repoPath = rtrim($repoPath, '/') . '/';
@@ -525,17 +525,17 @@ class Deployment extends Domain
             return true;
         }
         $this->logResponder->info(
-            'Files to upload: '.$uploadCount.' - Files to delete: ' . $deleteCount . ' - processing...'
+            'Files to upload: ' . $uploadCount . ' - Files to delete: ' . $deleteCount . ' - processing...'
         );
 
         if ($uploadCount > 0) {
             foreach ($changedFiles['upload'] as $file) {
                 $uploadStart = microtime(true);
-                $result = $this->server->upload($repoPath.$file, $remotePath.$file);
+                $result = $this->server->upload($repoPath . $file, $remotePath . $file);
                 $uploadEnd = microtime(true);
                 $uploadDuration = round($uploadEnd - $uploadStart, 2);
                 if ($result === true) {
-                    $this->logResponder->info('Uploading ' . $file . ': success ('.$uploadDuration.'s)');
+                    $this->logResponder->info('Uploading ' . $file . ': success (' . $uploadDuration . 's)');
                 } else {
                     $this->logResponder->danger('Uploading ' . $file . ': failed');
                 }
@@ -544,7 +544,7 @@ class Deployment extends Domain
         if ($deleteCount > 0) {
             $this->logResponder->log('Removing files...');
             foreach ($changedFiles['delete'] as $file) {
-                $result = $this->server->delete($remotePath.$file);
+                $result = $this->server->delete($remotePath . $file);
                 if ($result === true) {
                     $this->logResponder->info('Deleting ' . $file . ': success');
                 } else {
@@ -565,10 +565,10 @@ class Deployment extends Domain
      * @return boolean
      * @throws \ZMQException
      */
-    protected function updateRemoteRevisionFile(string $revision) : bool
+    protected function updateRemoteRevisionFile(string $revision): bool
     {
         $remotePath = $this->getRemotePath();
-        if ($this->server->putContent($revision, $remotePath.'REVISION') === false) {
+        if ($this->server->putContent($revision, $remotePath . 'REVISION') === false) {
             $this->logResponder->error('Could not update remote revision file.');
             return false;
         }
@@ -581,7 +581,7 @@ class Deployment extends Domain
      * @param string $checkBranch
      * @return bool
      */
-    public function isBranch(string $checkBranch) : bool
+    public function isBranch(string $checkBranch): bool
     {
         if (empty($this->data)) {
             throw new RuntimeException('Deployment data not found. Initialization missing?');

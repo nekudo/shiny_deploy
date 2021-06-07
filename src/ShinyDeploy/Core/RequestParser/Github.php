@@ -3,14 +3,14 @@
 class Github implements RequestParser
 {
     /** @var array $parameters */
-    protected $parameters = [];
+    protected array $parameters = [];
 
     /**
      * Parse useful information out of github post request.
      *
      * @return boolean
      */
-    public function parseRequest() : bool
+    public function parseRequest(): bool
     {
         if (empty($_SERVER['HTTP_USER_AGENT'])) {
             return false;
@@ -37,7 +37,7 @@ class Github implements RequestParser
      *
      * @return array
      */
-    public function getParameters() : array
+    public function getParameters(): array
     {
         return $this->parameters;
     }

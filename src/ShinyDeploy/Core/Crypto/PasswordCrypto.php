@@ -14,7 +14,7 @@ class PasswordCrypto
      * @return string Decrypted data
      * @throws CryptographyException
      */
-    public function decrypt(string $data, string $password) : string
+    public function decrypt(string $data, string $password): string
     {
         try {
             return Crypto::decryptWithPassword($data, $password);
@@ -31,7 +31,7 @@ class PasswordCrypto
      * @return string The encrypted data
      * @throws CryptographyException
      */
-    public function encrypt(string $data, string $password) : string
+    public function encrypt(string $data, string $password): string
     {
         try {
             return Crypto::encryptWithPassword($data, $password);

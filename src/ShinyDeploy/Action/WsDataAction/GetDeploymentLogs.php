@@ -17,7 +17,7 @@ class GetDeploymentLogs extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\InvalidTokenException
      * @throws \ZMQException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         $this->authorize($this->clientId);
 

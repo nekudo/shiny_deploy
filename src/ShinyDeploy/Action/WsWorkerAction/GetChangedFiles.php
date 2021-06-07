@@ -21,7 +21,7 @@ class GetChangedFiles extends WsWorkerAction
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ZMQException
      */
-    public function __invoke(int $id) : bool
+    public function __invoke(int $id): bool
     {
         $deploymentId = (int)$id;
         if (empty($deploymentId)) {

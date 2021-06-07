@@ -4,11 +4,11 @@ namespace ShinyDeploy\Domain\Database;
 use Defuse\Crypto\Exception\CryptoException;
 use Defuse\Crypto\Key;
 use Exception;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key as SignerKey;
-use Lcobucci\JWT\ValidationData;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Validation\Constraint\IdentifiedBy;
+use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use ShinyDeploy\Core\Crypto\KeyCrypto;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
 use ShinyDeploy\Exceptions\AuthException;
@@ -26,22 +26,24 @@ class Auth extends DatabaseDomain
      * @param string $clientId
      * @return string
      */
-    public function generateToken(string $username, string $userEncryptionKey, string $clientId) : string
+    public function generateToken(string $username, string $userEncryptionKey, string $clientId): string
     {
         try {
-            $signer = new Sha256;
-            $key = new SignerKey($this->config->get('auth.secret'));
-            $builder = new Builder;
-            $token = (string) $builder->issuedBy('ShinyDeploy')
-                ->identifiedBy($clientId, true)
-                ->issuedAt(time())
-                ->canOnlyBeUsedAfter(time())
-                ->expiresAt(time() + 3600*8)
+            $signer = new Sha256();
+            $key = InMemory::plainText($this->config->get('auth.secret'));
+            $config = Configuration::forSymmetricSigner($signer, $key);
+            $now = new \DateTimeImmutable();
+            $builder = $config->builder();
+            $token = $builder->issuedBy('ShinyDeploy')
+                ->identifiedBy($clientId)
+                ->issuedAt($now)
+                ->canOnlyBeUsedAfter($now)
+                ->expiresAt($now->modify('+8 hour'))
                 ->withClaim('usr', $username)
                 ->withClaim('uek', $userEncryptionKey)
                 ->getToken($signer, $key);
 
-            return $token;
+            return $token->toString();
         } catch (Exception $e) {
             $this->logger->error(
                 'Token Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -57,22 +59,19 @@ class Auth extends DatabaseDomain
      * @param string $clientId
      * @return boolean
      */
-    public function validateToken(string $token, string $clientId) : bool
+    public function validateToken(string $token, string $clientId): bool
     {
         try {
-            $parser = new Parser;
-            $parsedToken = $parser->parse($token);
-            $data = new ValidationData();
-            $data->setIssuer('ShinyDeploy');
-            $data->setId($clientId);
-            $validationResult = $parsedToken->validate($data);
-            if ($validationResult !== true) {
-                return false;
-            }
+            $signer = new Sha256();
+            $key = InMemory::plainText($this->config->get('auth.secret'));
+            $config = Configuration::forSymmetricSigner($signer, $key);
+            $parsedToken = $config->parser()->parse($token);
+            $config->setValidationConstraints(
+                new IssuedBy('ShinyDeploy'),
+                new IdentifiedBy($clientId)
+            );
 
-            $signer = new Sha256;
-            $verificationResult = $parsedToken->verify($signer, $this->config->get('auth.secret'));
-            return $verificationResult;
+            return $config->validator()->validate($parsedToken, ...$config->validationConstraints());
         } catch (Exception $e) {
             $this->logger->error(
                 'Token Exception: ' . $e->getMessage() . ' (' . $e->getFile() . ': ' . $e->getLine() . ')'
@@ -88,7 +87,7 @@ class Auth extends DatabaseDomain
      * @throws MissingDataException
      * @return bool
      */
-    public function userExists(string $username) : bool
+    public function userExists(string $username): bool
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -112,7 +111,7 @@ class Auth extends DatabaseDomain
      * @return string
      * @throws MissingDataException
      */
-    public function getPasswordHashByUsername(string $username) : string
+    public function getPasswordHashByUsername(string $username): string
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -139,7 +138,7 @@ class Auth extends DatabaseDomain
      * @throws DatabaseException
      * @throws MissingDataException
      */
-    public function getUserKeyByUsername(string $username, string $password) : string
+    public function getUserKeyByUsername(string $username, string $password): string
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -148,11 +147,11 @@ class Auth extends DatabaseDomain
             throw new MissingDataException('Password can not be empty.');
         }
 
-        $passwordCrypto = new PasswordCrypto;
+        $passwordCrypto = new PasswordCrypto();
         $statement = "SELECT `user_key` FROM users WHERE `username` = %s";
         $userKeyEncrypted = $this->db->prepare($statement, $username)->getValue();
-        $userKeyDecrypted = $passwordCrypto->decrypt($userKeyEncrypted, $password);
-        return $userKeyDecrypted;
+
+        return $passwordCrypto->decrypt($userKeyEncrypted, $password);
     }
 
     /**
@@ -163,7 +162,7 @@ class Auth extends DatabaseDomain
      * @throws MissingDataException
      * @throws DatabaseException
      */
-    public function getEncryptionKeyByUsername(string $username) : string
+    public function getEncryptionKeyByUsername(string $username): string
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -189,7 +188,7 @@ class Auth extends DatabaseDomain
             if (empty($encryptionKey)) {
                 throw new AuthException('Could not fetch encryption key for given username.');
             }
-            $keyCrypto = new KeyCrypto;
+            $keyCrypto = new KeyCrypto();
             $encryptionKeyDecrypted = $keyCrypto->decryptString($encryptionKey, $userKey);
             if (empty($encryptionKeyDecrypted)) {
                 throw new AuthException('Could not decrypt encryption key.');
@@ -217,17 +216,21 @@ class Auth extends DatabaseDomain
      * @throws AuthException
      * @return string
      */
-    public function getEncryptionKeyFromToken(string $token) : string
+    public function getEncryptionKeyFromToken(string $token): string
     {
         if (empty($token)) {
             throw new MissingDataException('Token can not be empty');
         }
 
         try {
-            $parser = new Parser;
-            $parsedToken = $parser->parse($token);
-            $username = $parsedToken->getClaim('usr');
-            $userEncryptionKey = $parsedToken->getClaim('uek');
+            $signer = new Sha256();
+            $key = InMemory::plainText($this->config->get('auth.secret'));
+            $config = Configuration::forSymmetricSigner($signer, $key);
+            $parsedToken = $config->parser()->parse($token);
+
+
+            $username = $parsedToken->claims()->get('usr');
+            $userEncryptionKey = $parsedToken->claims()->get('uek');
             if (empty($username) || empty($userEncryptionKey)) {
                 throw new AuthException('Could not get username from token.');
             }
@@ -235,7 +238,7 @@ class Auth extends DatabaseDomain
             if (empty($encryptionKey)) {
                 throw new AuthException('Could not get encryption key.');
             }
-            $keyCrypto = new KeyCrypto;
+            $keyCrypto = new KeyCrypto();
             $encryptionKeyDecrypted = $keyCrypto->decryptString($encryptionKey, $userEncryptionKey);
             if (empty($encryptionKeyDecrypted)) {
                 throw new AuthException('Could not decrypt encryption key.');
@@ -262,10 +265,9 @@ class Auth extends DatabaseDomain
      * @param string $password
      * @param string $systemKey
      * @return bool
-     * @throws AuthException
      * @throws MissingDataException
      */
-    public function createUser(string $username, string $password, string $systemKey) : bool
+    public function createUser(string $username, string $password, string $systemKey): bool
     {
         if (empty($username)) {
             throw new MissingDataException('Username can not be empty.');
@@ -281,11 +283,11 @@ class Auth extends DatabaseDomain
             $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
 
             // encrypt system key with user key:
-            $keyCrypto = new KeyCrypto;
+            $keyCrypto = new KeyCrypto();
             $systemKeyEncrypted = $keyCrypto->encryptString($systemKey, $userKey);
 
             // encrypt user key with password:
-            $passwordCrypto = new PasswordCrypto;
+            $passwordCrypto = new PasswordCrypto();
             $userKeyEncrypted = $passwordCrypto->encrypt($userKey, $password);
 
             // hash password
@@ -329,7 +331,7 @@ class Auth extends DatabaseDomain
      * @throws MissingDataException
      * @throws CryptographyException
      */
-    public function createSystemUser(string $password) : bool
+    public function createSystemUser(string $password): bool
     {
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
@@ -371,11 +373,11 @@ class Auth extends DatabaseDomain
             $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
 
             // encrypt system key with user key:
-            $keyCrypto = new KeyCrypto;
+            $keyCrypto = new KeyCrypto();
             $systemKeyEncrypted = $keyCrypto->encryptString($systemKey, $userKey);
 
             // encrypt user key with password:
-            $passwordCrypto = new PasswordCrypto;
+            $passwordCrypto = new PasswordCrypto();
             $userKeyEncrypted = $passwordCrypto->encrypt($userKey, $password);
 
             // hash password
@@ -424,7 +426,7 @@ class Auth extends DatabaseDomain
      * @throws DatabaseException
      * @throws MissingDataException
      */
-    public function updateSystemEncryptionKey(string $key) : void
+    public function updateSystemEncryptionKey(string $key): void
     {
         if (empty($key)) {
             throw new MissingDataException('Encryption key can not be empty.');
@@ -440,7 +442,7 @@ class Auth extends DatabaseDomain
      * @param string $apiPassword
      * @return bool
      */
-    public function apiPasswordIsValid(string $apiKey, string $apiPassword) : bool
+    public function apiPasswordIsValid(string $apiKey, string $apiPassword): bool
     {
         if (empty($apiKey) || empty($apiPassword)) {
             return false;
@@ -469,7 +471,7 @@ class Auth extends DatabaseDomain
      * @throws CryptographyException
      * @return array
      */
-    private function generateSystemUserEncryptionKeys(string $password) : array
+    private function generateSystemUserEncryptionKeys(string $password): array
     {
         if (empty($password)) {
             throw new MissingDataException('Password can not be empty.');
@@ -480,8 +482,8 @@ class Auth extends DatabaseDomain
             $systemKey = Key::createNewRandomKey()->saveToAsciiSafeString();
 
             // encrypt keys:
-            $passwordCrypto = new PasswordCrypto;
-            $keyCrypto = new KeyCrypto;
+            $passwordCrypto = new PasswordCrypto();
+            $keyCrypto = new KeyCrypto();
             return [
                 'user_key' => $passwordCrypto->encrypt($userKey, $password),
                 'encryption_key' => $keyCrypto->encryptString($systemKey, $userKey)

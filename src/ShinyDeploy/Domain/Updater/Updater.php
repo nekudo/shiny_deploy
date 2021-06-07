@@ -12,7 +12,7 @@ class Updater extends DatabaseDomain
      * @return void
      * @throws \RuntimeException
      */
-    public function checkSapi() : void
+    public function checkSapi(): void
     {
         if (php_sapi_name() !== 'cli') {
             throw new \RuntimeException('This script can only be executed in cli mode.');
@@ -24,7 +24,7 @@ class Updater extends DatabaseDomain
      *
      * @return array
      */
-    public function getTasks() : array
+    public function getTasks(): array
     {
         $taskFiles = glob(__DIR__ . '/Tasks/*.php');
         if (empty($taskFiles)) {
@@ -48,7 +48,7 @@ class Updater extends DatabaseDomain
      *
      * @param array $tasks
      */
-    public function executeTasks(array $tasks) : void
+    public function executeTasks(array $tasks): void
     {
         /** @var \ShinyDeploy\Core\UpdaterTask $task */
         foreach ($tasks as $task) {

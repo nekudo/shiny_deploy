@@ -14,7 +14,7 @@ class NullResponder extends Responder
      * @param string $message
      * @return bool
      */
-    public function log(string $message) : bool
+    public function log(string $message): bool
     {
         return true;
     }
@@ -25,7 +25,7 @@ class NullResponder extends Responder
      * @param string $message
      * @return bool
      */
-    public function success(string $message) : bool
+    public function success(string $message): bool
     {
         return true;
     }
@@ -36,7 +36,7 @@ class NullResponder extends Responder
      * @param string $message
      * @return bool
      */
-    public function info(string $message) : bool
+    public function info(string $message): bool
     {
         return true;
     }
@@ -47,7 +47,7 @@ class NullResponder extends Responder
      * @param string $message
      * @return bool
      */
-    public function danger(string $message) : bool
+    public function danger(string $message): bool
     {
         return true;
     }
@@ -58,7 +58,7 @@ class NullResponder extends Responder
      * @param string $message
      * @return bool
      */
-    public function error(string $message) : bool
+    public function error(string $message): bool
     {
         return true;
     }

@@ -23,7 +23,7 @@ class WsFileDiffResponder extends WsEventResponder
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');
         }
-        
+
         $pushData = [
             'clientId' => $this->clientId,
             'eventName' => 'showDiff',

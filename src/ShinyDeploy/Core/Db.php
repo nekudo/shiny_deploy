@@ -23,22 +23,22 @@ class Db
     /**
      * @var string $host Hostname of db server.
      */
-    private $host;
+    private string $host;
 
     /**
      * @var string $user Username of db server.
      */
-    private $user;
+    private string $user;
 
     /**
      * @var string $pass Password of db server.
      */
-    private $pass;
+    private string $pass;
 
     /**
      * @var string $db Database to use.
      */
-    private $db;
+    private string $db;
 
 
     /**
@@ -80,7 +80,7 @@ class Db
         string $pass = '',
         string $db = '',
         bool $persistent = false
-    ) : bool {
+    ): bool {
         $this->mysqli = mysqli_init();
         if ($persistent === true) {
             $host = 'p:' . $host;
@@ -103,7 +103,7 @@ class Db
      *
      * @return void
      */
-    public function disconnect() : void
+    public function disconnect(): void
     {
         if ($this->mysqli !== null) {
             $this->mysqli->close();
@@ -122,7 +122,7 @@ class Db
      * @throws DatabaseException
      * @return Db Instance of this class.
      */
-    public function prepare(string $statement = '') : Db
+    public function prepare(string $statement = ''): Db
     {
         if (empty($statement)) {
             throw new DatabaseException('No query given.');
@@ -135,8 +135,8 @@ class Db
 
         // sanitize query:
         foreach ($possibleType as $type) {
-            $statement = str_replace("'".$type."'", $type, $statement);
-            $statement = str_replace('"'.$type.'"', $type, $statement);
+            $statement = str_replace("'" . $type . "'", $type, $statement);
+            $statement = str_replace('"' . $type . '"', $type, $statement);
         }
 
         // check if type and value counts match:
@@ -182,7 +182,7 @@ class Db
      * @throws DatabaseException
      * @return array Result of executed sql statement.
      */
-    public function getResult(bool $pop = true) : array
+    public function getResult(bool $pop = true): array
     {
         if ($this->executeStatement() === false) {
             throw new DatabaseException('Could not execute statement.');
@@ -207,7 +207,7 @@ class Db
      * @throws DatabaseException
      * @return array
      */
-    public function getColumn(string $columnName, string $key = '') : array
+    public function getColumn(string $columnName, string $key = ''): array
     {
         if ($this->executeStatement() === false) {
             throw new DatabaseException('Could not execute statement.');
@@ -254,7 +254,7 @@ class Db
      * @return bool True if statement could be executed, false on error.
      * @throws DatabaseException
      */
-    public function execute() : bool
+    public function execute(): bool
     {
         return $this->executeStatement();
     }
@@ -264,7 +264,7 @@ class Db
      *
      * @return int Number of results.
      */
-    public function getResultCount() : int
+    public function getResultCount(): int
     {
         return $this->result->num_rows;
     }
@@ -274,7 +274,7 @@ class Db
      *
      * @return string Error message.
      */
-    public function getError() : string
+    public function getError(): string
     {
         return $this->mysqli->error;
     }
@@ -284,7 +284,7 @@ class Db
      *
      * @return int Id of last insert operation.
      */
-    public function getInsertId() : int
+    public function getInsertId(): int
     {
         return $this->mysqli->insert_id;
     }
@@ -294,7 +294,7 @@ class Db
      *
      * @return bool
      */
-    public function ping() : bool
+    public function ping(): bool
     {
         return $this->mysqli->ping();
     }
@@ -305,7 +305,7 @@ class Db
      * @return bool True is statement could be executed, false otherwise.
      * @throws DatabaseException
      */
-    private function executeStatement() : bool
+    private function executeStatement(): bool
     {
         if (empty($this->statement)) {
             throw new DatabaseException('No query given.');

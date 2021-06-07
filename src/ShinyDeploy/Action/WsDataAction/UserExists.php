@@ -12,7 +12,7 @@ class UserExists extends WsDataAction
      * @return bool
      * @throws MissingDataException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         if (empty($actionPayload['username'])) {
             throw new MissingDataException('Username missing.');

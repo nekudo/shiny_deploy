@@ -22,7 +22,7 @@ class RepositoryActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function cloneRepository(\GearmanJob $Job) : bool
+    public function cloneRepository(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();
@@ -54,7 +54,7 @@ class RepositoryActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function deleteRepository(\GearmanJob $Job) : bool
+    public function deleteRepository(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();

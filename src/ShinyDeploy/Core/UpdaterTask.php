@@ -10,17 +10,17 @@ abstract class UpdaterTask
     /**
      * @var Config $config
      */
-    protected $config;
+    protected Config $config;
 
     /**
      * @var Logger $logger
      */
-    protected $logger;
+    protected Logger $logger;
 
     /**
      * @var Db $db
      */
-    protected $db;
+    protected Db $db;
 
     public function __construct(Config $config, Logger $logger, Db $db)
     {
@@ -34,12 +34,12 @@ abstract class UpdaterTask
      *
      * @return bool
      */
-    abstract public function needsExecution() : bool;
+    abstract public function needsExecution(): bool;
 
     /**
      * Executes task.
      *
      * @return void
      */
-    abstract public function __invoke() : void;
+    abstract public function __invoke(): void;
 }

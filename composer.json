@@ -18,21 +18,22 @@
         }
     ],
     "require": {
-        "php": "^7.3",
+        "php": "^8.0",
         "ext-curl": "*",
         "ext-gearman": "*",
         "ext-zmq": "*",
         "ext-mysqli": "*",
-        "cboden/ratchet": "0.4.2",
+        "ext-intl": "*",
+        "cboden/ratchet": "0.4.3",
         "react/zmq": "0.4.0",
         "apix/log": "1.2.1",
-        "vlucas/valitron": "1.4.7",
-        "hassankhan/config": "2.1.0",
+        "vlucas/valitron": "1.4.9",
+        "hassankhan/config": "2.2.0",
         "nekudo/shiny_gears": "1.0.3",
-        "lcobucci/jwt": "3.3.1",
-        "defuse/php-encryption": "2.2.1",
-        "nicolab/php-ftp-client": "1.5.3",
-        "phpseclib/phpseclib": "2.0.26"
+        "lcobucci/jwt": "4.1.4",
+        "defuse/php-encryption": "2.3.1",
+        "nicolab/php-ftp-client": "1.5.5",
+        "phpseclib/phpseclib": "3.0.8"
     },
     "autoload": {
         "psr-4": {

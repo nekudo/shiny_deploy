@@ -19,7 +19,7 @@ class WsSetLocalRevisionResponder extends WsEventResponder
      * @throws \RuntimeException
      * @throws \ZMQException
      */
-    public function respond(string $revision) : void
+    public function respond(string $revision): void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');

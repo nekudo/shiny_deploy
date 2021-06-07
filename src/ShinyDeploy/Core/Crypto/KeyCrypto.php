@@ -15,7 +15,7 @@ class KeyCrypto
      * @throws CryptographyException
      * @return string
      */
-    public function encryptString(string $string, string $key) : string
+    public function encryptString(string $string, string $key): string
     {
         try {
             $defuseKey = Key::loadFromAsciiSafeString($key);
@@ -33,7 +33,7 @@ class KeyCrypto
      * @throws CryptographyException
      * @return string
      */
-    public function decryptString(string $string, string $key) : string
+    public function decryptString(string $string, string $key): string
     {
         try {
             $defuseKey = Key::loadFromAsciiSafeString($key);
@@ -51,7 +51,7 @@ class KeyCrypto
      * @throws CryptographyException
      * @return array
      */
-    public function encryptArray(array $data, string $key) : array
+    public function encryptArray(array $data, string $key): array
     {
         if (empty($data)) {
             return $data;
@@ -68,7 +68,7 @@ class KeyCrypto
      * @throws CryptographyException
      * @return array
      */
-    public function decryptArray(array $data, string $key) : array
+    public function decryptArray(array $data, string $key): array
     {
         if (empty($data)) {
             return $data;
@@ -86,7 +86,7 @@ class KeyCrypto
      * @throws CryptographyException
      * @return array
      */
-    public function encryptArrayParts(array $data, array $keys, string $key) : array
+    public function encryptArrayParts(array $data, array $keys, string $key): array
     {
         if (empty($data) || empty($keys)) {
             return $data;
@@ -112,7 +112,7 @@ class KeyCrypto
      * @throws CryptographyException
      * @return array
      */
-    public function decryptArrayParts(array $data, array $keys, string $key) : array
+    public function decryptArrayParts(array $data, array $keys, string $key): array
     {
         if (empty($data) || empty($keys)) {
             return $data;

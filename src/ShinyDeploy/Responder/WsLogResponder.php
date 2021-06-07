@@ -18,7 +18,7 @@ class WsLogResponder extends WsEventResponder
      * @return void
      * @throws \ZMQException
      */
-    public function log(string $message) : void
+    public function log(string $message): void
     {
         $this->pushMessage($message, 'default');
     }
@@ -30,7 +30,7 @@ class WsLogResponder extends WsEventResponder
      * @return void
      * @throws \ZMQException
      */
-    public function success(string $message) : void
+    public function success(string $message): void
     {
         $this->pushMessage($message, 'success');
     }
@@ -42,7 +42,7 @@ class WsLogResponder extends WsEventResponder
      * @return void
      * @throws \ZMQException
      */
-    public function info(string $message) : void
+    public function info(string $message): void
     {
         $this->pushMessage($message, 'info');
     }
@@ -54,7 +54,7 @@ class WsLogResponder extends WsEventResponder
      * @return void
      * @throws \ZMQException
      */
-    public function danger(string $message) : void
+    public function danger(string $message): void
     {
         $this->pushMessage($message, 'danger');
     }
@@ -66,7 +66,7 @@ class WsLogResponder extends WsEventResponder
      * @return void
      * @throws \ZMQException
      */
-    public function error(string $message) : void
+    public function error(string $message): void
     {
         $this->pushMessage($message, 'error');
     }
@@ -80,7 +80,7 @@ class WsLogResponder extends WsEventResponder
      * @throws \RuntimeException
      * @throws \ZMQException
      */
-    protected function pushMessage(string $msg, string $type = 'default') : void
+    protected function pushMessage(string $msg, string $type = 'default'): void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');

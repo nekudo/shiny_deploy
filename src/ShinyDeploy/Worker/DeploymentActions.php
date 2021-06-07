@@ -32,7 +32,7 @@ class DeploymentActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function deploy(\GearmanJob $Job) : bool
+    public function deploy(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();
@@ -65,7 +65,7 @@ class DeploymentActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function apiDeploy(\GearmanJob $Job) : bool
+    public function apiDeploy(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();
@@ -98,7 +98,7 @@ class DeploymentActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function getChangedFiles(\GearmanJob $Job) : bool
+    public function getChangedFiles(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();
@@ -130,7 +130,7 @@ class DeploymentActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function getFileDiff(\GearmanJob $Job) : bool
+    public function getFileDiff(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();
@@ -159,7 +159,7 @@ class DeploymentActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function setLocalRevision(\GearmanJob $Job) : bool
+    public function setLocalRevision(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();
@@ -188,7 +188,7 @@ class DeploymentActions extends Worker
      * @param \GearmanJob $Job
      * @return bool
      */
-    public function setRemoteRevision(\GearmanJob $Job) : bool
+    public function setRemoteRevision(\GearmanJob $Job): bool
     {
         try {
             $this->countJob();

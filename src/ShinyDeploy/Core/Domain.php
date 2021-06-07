@@ -7,13 +7,13 @@ use Noodlehaus\Config;
 class Domain
 {
     /** @var Config $config */
-    protected $config;
+    protected Config $config;
 
     /** @var Logger $logger */
-    protected $logger;
+    protected Logger $logger;
 
     /** @var array $data */
-    protected $data = [];
+    protected array $data = [];
 
     public function __construct(Config $config, Logger $logger)
     {
@@ -26,7 +26,7 @@ class Domain
      *
      * @param array $data
      */
-    public function init(array $data) : void
+    public function init(array $data): void
     {
         $this->data = $data;
     }

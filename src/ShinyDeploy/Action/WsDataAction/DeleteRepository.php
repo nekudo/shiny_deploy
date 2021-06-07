@@ -20,7 +20,7 @@ class DeleteRepository extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         $this->authorize($this->clientId);
 
@@ -56,7 +56,7 @@ class DeleteRepository extends WsDataAction
         }
 
         // trigger repository file removal:
-        $client = new \GearmanClient;
+        $client = new \GearmanClient();
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $actionPayload['clientId'] = $this->clientId;
         $actionPayload['token'] = $this->token;

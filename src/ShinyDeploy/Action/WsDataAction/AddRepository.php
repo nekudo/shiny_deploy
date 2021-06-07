@@ -23,7 +23,7 @@ class AddRepository extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         $this->authorize($this->clientId);
 
@@ -76,7 +76,7 @@ class AddRepository extends WsDataAction
         }
 
         // trigger initial cloning:
-        $client = new \GearmanClient;
+        $client = new \GearmanClient();
         $client->addServer($this->config->get('gearman.host'), $this->config->get('gearman.port'));
         $actionPayload['clientId'] = $this->clientId;
         $actionPayload['repositoryId'] = $repositoryId;
@@ -94,7 +94,7 @@ class AddRepository extends WsDataAction
      * @param string $password
      * @return boolean
      */
-    private function checkUrl(string $url, string $username = '', string $password = '') : bool
+    private function checkUrl(string $url, string $username = '', string $password = ''): bool
     {
         $credentials = $username ?? '';
         if (!empty($password)) {

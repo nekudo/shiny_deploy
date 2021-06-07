@@ -5,16 +5,16 @@ use Noodlehaus\Config;
 class WssManager
 {
     /** @var string $wssPath  */
-    protected $wssPath;
+    protected string $wssPath;
 
     /** @var string $logPath */
-    protected $logPath;
+    protected string $logPath;
 
     /** @var string $processIdentifier */
-    protected $processIdentifier;
+    protected string $processIdentifier;
 
     /** @var int $pid Holds server process ids. */
-    protected $pid;
+    protected int $pid;
 
     public function __construct(Config $config)
     {
@@ -30,7 +30,7 @@ class WssManager
      *
      * @return bool
      */
-    public function start() : bool
+    public function start(): bool
     {
         if (!empty($this->pid)) {
             return true;
@@ -46,7 +46,7 @@ class WssManager
      *
      * @return bool
      */
-    public function stop() : bool
+    public function stop(): bool
     {
         if (empty($this->pid)) {
             return true;
@@ -61,7 +61,7 @@ class WssManager
      *
      * @return bool
      */
-    public function restart() : bool
+    public function restart(): bool
     {
         $this->stop();
         sleep(2);
@@ -73,7 +73,7 @@ class WssManager
      *
      * @return bool
      */
-    public function status() : bool
+    public function status(): bool
     {
         $this->reloadPid();
         return ($this->pid > 0);
@@ -84,7 +84,7 @@ class WssManager
      *
      * @return bool
      */
-    public function keepalive() : bool
+    public function keepalive(): bool
     {
         // if there are no workers at all do a fresh start:
         if (empty($this->pid)) {
@@ -98,7 +98,7 @@ class WssManager
      *
      * @return bool
      */
-    protected function loadPid() : bool
+    protected function loadPid(): bool
     {
         $cliOutput = [];
         exec('ps x | grep ' . $this->processIdentifier, $cliOutput);
@@ -119,7 +119,7 @@ class WssManager
      *
      * @return bool
      */
-    protected function reloadPid() : bool
+    protected function reloadPid(): bool
     {
         $this->pid = 0;
         return $this->loadPid();

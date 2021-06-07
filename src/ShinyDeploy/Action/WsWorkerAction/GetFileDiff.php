@@ -20,7 +20,7 @@ class GetFileDiff extends WsWorkerAction
      * @throws \ShinyDeploy\Exceptions\GitException
      * @throws \ZMQException
      */
-    public function __invoke(array $params) : bool
+    public function __invoke(array $params): bool
     {
         if (empty($params['file'])) {
             throw new MissingDataException('File can not be empty.');

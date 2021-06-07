@@ -11,7 +11,7 @@ class Deployments extends DatabaseDomain
     use CryptableDomain;
 
     /** @var array $rules Validation rules */
-    protected $rules = [
+    protected array $rules = [
         'required' => [
             ['name'],
             ['repository_id'],
@@ -31,7 +31,7 @@ class Deployments extends DatabaseDomain
     ];
 
     /** @var array $encryptedFields Fields that are encrypted in database. */
-    protected $encryptedFields = [
+    protected array $encryptedFields = [
         'tasks',
     ];
 
@@ -40,7 +40,7 @@ class Deployments extends DatabaseDomain
      *
      * @return array
      */
-    public function getCreateRules() : array
+    public function getCreateRules(): array
     {
         return $this->rules;
     }
@@ -50,7 +50,7 @@ class Deployments extends DatabaseDomain
      *
      * @return array
      */
-    public function getUpdateRules() : array
+    public function getUpdateRules(): array
     {
         $rules = $this->rules;
         $rules['required'][] = ['id'];
@@ -66,7 +66,7 @@ class Deployments extends DatabaseDomain
      * @throws DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function getDeployment(int $deploymentId) : Deployment
+    public function getDeployment(int $deploymentId): Deployment
     {
         $data = $this->getDeploymentData($deploymentId);
         if (empty($data)) {
@@ -86,7 +86,7 @@ class Deployments extends DatabaseDomain
      * @throws DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function getDeployments() : array
+    public function getDeployments(): array
     {
         $rows = $this->db->prepare("SELECT * FROM deployments ORDER BY `name`")->getResult(false);
         if (empty($rows)) {
@@ -94,7 +94,7 @@ class Deployments extends DatabaseDomain
         }
         foreach ($rows as $i => $row) {
             $rowDecrypted = $this->decryptData($row, $this->encryptedFields);
-            if ($rowDecrypted === false) {
+            if ($rowDecrypted === []) {
                 throw new RuntimeException('Data decryption failed.');
             }
             $rows[$i] = $rowDecrypted;
@@ -110,7 +110,7 @@ class Deployments extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return bool
      */
-    public function addDeployment(array $deploymentData) : bool
+    public function addDeployment(array $deploymentData): bool
     {
         if (!isset($deploymentData['tasks'])) {
             $deploymentData['tasks'] = '';
@@ -141,7 +141,7 @@ class Deployments extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return bool
      */
-    public function updateDeployment(array $deploymentData) : bool
+    public function updateDeployment(array $deploymentData): bool
     {
         if (!isset($deploymentData['id'])) {
             return false;
@@ -176,7 +176,7 @@ class Deployments extends DatabaseDomain
      * @throws DatabaseException
      * @return bool
      */
-    public function deleteDeployment(int $deploymentId) : bool
+    public function deleteDeployment(int $deploymentId): bool
     {
         $deploymentId = (int)$deploymentId;
         if ($deploymentId === 0) {
@@ -197,7 +197,7 @@ class Deployments extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
-    public function getDeploymentData(int $deploymentId) : array
+    public function getDeploymentData(int $deploymentId): array
     {
         $deploymentId = (int)$deploymentId;
         if ($deploymentId === 0) {
@@ -209,7 +209,7 @@ class Deployments extends DatabaseDomain
             return [];
         }
         $deploymentData = $this->decryptData($deploymentData, $this->encryptedFields);
-        if ($deploymentData === false) {
+        if ($deploymentData === []) {
             throw new RuntimeException('Data decryption failed.');
         }
         if (!empty($deploymentData['tasks'])) {
@@ -225,7 +225,7 @@ class Deployments extends DatabaseDomain
      * @throws DatabaseException
      * @return bool
      */
-    public function targetExists(array $deploymentData) : bool
+    public function targetExists(array $deploymentData): bool
     {
         $statement = "SELECT COUNT(id) FROM deployments WHERE `server_id` = %i AND `target_path` = %s";
         $cnt = $this->db->prepare($statement, $deploymentData['server_id'], $deploymentData['target_path'])
@@ -239,7 +239,7 @@ class Deployments extends DatabaseDomain
      * @param array $tasks
      * @return string
      */
-    public function encodeDeploymentTasks(array $tasks) : string
+    public function encodeDeploymentTasks(array $tasks): string
     {
         // set task ids:
         foreach ($tasks as $i => $task) {
@@ -257,7 +257,7 @@ class Deployments extends DatabaseDomain
      *
      * @return string
      */
-    protected function getRandomTaskId() : string
+    protected function getRandomTaskId(): string
     {
         $randomId = '';
         $characters = 'abcdefghijklmnopqrstuvwxyz0123456789';

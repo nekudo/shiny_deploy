@@ -19,7 +19,7 @@ class WsChangedFilesResponder extends WsEventResponder
      * @throws \RuntimeException
      * @throws \ZMQException
      */
-    public function respond(array $changedFiles) : void
+    public function respond(array $changedFiles): void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');

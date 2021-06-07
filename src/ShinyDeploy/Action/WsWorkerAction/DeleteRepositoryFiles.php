@@ -14,7 +14,7 @@ class DeleteRepositoryFiles extends WsWorkerAction
      * @throws MissingDataException
      * @throws \ZMQException
      */
-    public function __invoke(string $repoPath) : bool
+    public function __invoke(string $repoPath): bool
     {
         if (empty($repoPath)) {
             throw new MissingDataException('Repository path can not be empty');

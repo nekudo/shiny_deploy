@@ -21,7 +21,7 @@ class UpdateRepository extends WsDataAction
      * @throws \ShinyDeploy\Exceptions\MissingDataException
      * @throws \ShinyDeploy\Exceptions\WebsocketException
      */
-    public function __invoke(array $actionPayload) : bool
+    public function __invoke(array $actionPayload): bool
     {
         $this->authorize($this->clientId);
 
@@ -85,7 +85,7 @@ class UpdateRepository extends WsDataAction
      * @param string $password
      * @return bool
      */
-    private function checkUrl(string $url, string $username = '', string $password = '') : bool
+    private function checkUrl(string $url, string $username = '', string $password = ''): bool
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -95,7 +95,7 @@ class UpdateRepository extends WsDataAction
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
         if (!empty($username)) {
-            curl_setopt($ch, CURLOPT_USERPWD, $username.':'.$password);
+            curl_setopt($ch, CURLOPT_USERPWD, $username . ':' . $password);
         }
         $headers = curl_exec($ch);
         curl_close($ch);

@@ -53,7 +53,7 @@ class CryptographyMigration extends UpdaterTask
      * @return void
      * @throws \RuntimeException
      */
-    private function checkPhpVersion() : void
+    private function checkPhpVersion(): void
     {
         if (version_compare(PHP_VERSION, '7.1.0', '>=') === false) {
             throw new \RuntimeException('PHP Version has to be 7.1.*');
@@ -69,7 +69,7 @@ class CryptographyMigration extends UpdaterTask
      * @return void
      * @throws \RuntimeException
      */
-    private function checkMcryptExtension() : void
+    private function checkMcryptExtension(): void
     {
         if (extension_loaded('mcrypt') === false) {
             throw new \RuntimeException('PHP extension mcrypt is required.');
@@ -82,7 +82,7 @@ class CryptographyMigration extends UpdaterTask
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \RuntimeException
      */
-    private function addUserKeyColumn() : void
+    private function addUserKeyColumn(): void
     {
         $statement= "ALTER TABLE users ADD COLUMN user_key BLOB NOT NULL AFTER `password`";
         $res = $this->db->prepare($statement)->execute();
@@ -96,7 +96,7 @@ class CryptographyMigration extends UpdaterTask
      *
      * @return string
      */
-    private function readSystemPassword() : string
+    private function readSystemPassword(): string
     {
         fwrite(STDOUT, "Please enter your system password: ");
         $oldStyle = shell_exec('stty -g');
@@ -113,7 +113,7 @@ class CryptographyMigration extends UpdaterTask
      * @param string $password
      * @throws MissingDataException
      */
-    private function validateSystemPassword(string $password) : void
+    private function validateSystemPassword(string $password): void
     {
         $authDomain = new Auth($this->config, $this->logger);
         $hashFromDatabase = $authDomain->getPasswordHashByUsername('system');
@@ -132,7 +132,7 @@ class CryptographyMigration extends UpdaterTask
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
-    private function createUserKey(string $password) : string
+    private function createUserKey(string $password): string
     {
         $passwordCrypto = new PasswordCrypto;
         $userKey = Key::createNewRandomKey()->saveToAsciiSafeString();
@@ -151,7 +151,7 @@ class CryptographyMigration extends UpdaterTask
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    private function getEncryptionKey(string $password) : string
+    private function getEncryptionKey(string $password): string
     {
         $authDomain = new Auth($this->config, $this->logger);
         $keyEncrypted = $authDomain->getEncryptionKeyByUsername('system');
@@ -169,7 +169,7 @@ class CryptographyMigration extends UpdaterTask
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      */
-    private function storeEncryptionKey(string $key, string $userKey) : void
+    private function storeEncryptionKey(string $key, string $userKey): void
     {
         $keyCrypto = new KeyCrypto;
         $keyEncrypted = $keyCrypto->encryptString($key, $userKey);

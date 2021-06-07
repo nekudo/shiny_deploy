@@ -20,7 +20,7 @@ class SetLocalRevision extends WsWorkerAction
      * @throws \ShinyDeploy\Exceptions\DatabaseException
      * @throws \ZMQException
      */
-    public function __invoke(array $params) : bool
+    public function __invoke(array $params): bool
     {
         if (!isset($params['deploymentId'])) {
             throw new MissingDataException('Required parameter missing.');

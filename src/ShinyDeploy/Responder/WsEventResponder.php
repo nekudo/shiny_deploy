@@ -8,9 +8,9 @@ use ShinyDeploy\Core\Responder;
 class WsEventResponder extends Responder
 {
     /** @var  \ZMQContext $zmqContext */
-    protected $zmqContext;
+    protected \ZMQContext $zmqContext;
 
-    protected $clientId;
+    protected string $clientId;
 
     public function __construct(Config $config, Logger $logger)
     {
@@ -24,7 +24,7 @@ class WsEventResponder extends Responder
      * @param string $clientId
      * @return bool
      */
-    public function setClientId(string $clientId) : bool
+    public function setClientId(string $clientId): bool
     {
         if (empty($clientId)) {
             return false;
@@ -39,7 +39,7 @@ class WsEventResponder extends Responder
      * @param array $data
      * @throws \ZMQException
      */
-    protected function zmqSend(array $data) : void
+    protected function zmqSend(array $data): void
     {
         $zmqDsn = $this->config->get('zmq.dsn');
         $zmqSocket = $this->zmqContext->getSocket(\ZMQ::SOCKET_PUSH);

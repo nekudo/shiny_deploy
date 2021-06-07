@@ -20,7 +20,7 @@ class WsNotificationResponder extends WsEventResponder
      * @throws \ZMQException
      * @return void
      */
-    public function send(string $msg, string $type = 'default') : void
+    public function send(string $msg, string $type = 'default'): void
     {
         if (empty($this->clientId)) {
             throw new \RuntimeException('Client-Id not set.');

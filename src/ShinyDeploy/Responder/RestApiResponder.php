@@ -10,7 +10,7 @@ class RestApiResponder extends Responder
      * @param string $errorMessage
      * @return void
      */
-    public function respondBadRequest(string $errorMessage = '') : void
+    public function respondBadRequest(string $errorMessage = ''): void
     {
         http_response_code(400);
         echo $errorMessage;
@@ -23,7 +23,7 @@ class RestApiResponder extends Responder
      * @param string $errorMessage
      * @return void
      */
-    public function respondError(string $errorMessage = '') : void
+    public function respondError(string $errorMessage = ''): void
     {
         http_response_code(500);
         echo $errorMessage;
@@ -36,7 +36,7 @@ class RestApiResponder extends Responder
      * @param string $message
      * @return void
      */
-    public function respond(string $message = '') : void
+    public function respond(string $message = ''): void
     {
         http_response_code(200);
         echo $message;

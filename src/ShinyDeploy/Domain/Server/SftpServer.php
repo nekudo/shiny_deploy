@@ -8,12 +8,12 @@ use ShinyDeploy\Core\Connections\Sftp;
 class SftpServer extends SshServer
 {
     /** @var Sftp $connection */
-    protected $connection;
+    protected Sftp $connection;
 
     public function __construct(Config $config, Logger $logger)
     {
         parent::__construct($config, $logger);
-        $this->connection = new Sftp;
+        $this->connection = new Sftp();
     }
 
     /**
@@ -21,7 +21,7 @@ class SftpServer extends SshServer
      *
      * @return string
      */
-    public function getType() : string
+    public function getType(): string
     {
         return 'sftp';
     }

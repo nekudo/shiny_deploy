@@ -7,10 +7,10 @@ use Noodlehaus\Config;
 class Action
 {
     /** @var Config $config */
-    protected $config;
+    protected Config $config;
 
     /** @var Logger $logger */
-    protected $logger;
+    protected Logger $logger;
 
     public function __construct(Config $config, Logger $logger)
     {

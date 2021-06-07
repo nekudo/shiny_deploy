@@ -15,7 +15,7 @@ class Servers extends DatabaseDomain
     use CryptableDomain;
 
     /** @var array $rules Validation rules */
-    protected $rules = [
+    protected array $rules = [
         'required' => [
             ['name'],
             ['type'],
@@ -35,7 +35,7 @@ class Servers extends DatabaseDomain
     ];
 
     /** @var array $encryptedFields Fields that are encrypted in database. */
-    protected $encryptedFields = [
+    protected array $encryptedFields = [
         'hostname',
         'port',
         'username',
@@ -48,7 +48,7 @@ class Servers extends DatabaseDomain
      *
      * @return array
      */
-    public function getCreateRules() : array
+    public function getCreateRules(): array
     {
         return $this->rules;
     }
@@ -58,7 +58,7 @@ class Servers extends DatabaseDomain
      *
      * @return array
      */
-    public function getUpdateRules() : array
+    public function getUpdateRules(): array
     {
         $rules = $this->rules;
         $rules['required'][] = ['id'];
@@ -74,7 +74,7 @@ class Servers extends DatabaseDomain
      * @throws DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function getServer(int $serverId) : Server
+    public function getServer(int $serverId): Server
     {
         $data = $this->getServerData($serverId);
         if (empty($data)) {
@@ -107,7 +107,7 @@ class Servers extends DatabaseDomain
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      * @return array
      */
-    public function getServers() : array
+    public function getServers(): array
     {
         $rows = $this->db->prepare("SELECT * FROM servers ORDER BY `name`")->getResult(false);
         if (empty($rows)) {
@@ -115,7 +115,7 @@ class Servers extends DatabaseDomain
         }
         foreach ($rows as $i => $row) {
             $decryptedRow = $this->decryptData($row, $this->encryptedFields);
-            if ($decryptedRow === false) {
+            if ($decryptedRow === []) {
                 throw new RuntimeException('Date decryption failed.');
             }
             $rows[$i] = $decryptedRow;
@@ -131,7 +131,7 @@ class Servers extends DatabaseDomain
      * @throws DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function addServer(array $serverData) : bool
+    public function addServer(array $serverData): bool
     {
         $serverData = $this->encryptData($serverData, $this->encryptedFields);
         if ($serverData === false) {
@@ -161,7 +161,7 @@ class Servers extends DatabaseDomain
      * @throws DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function updateServer(array $serverData) : bool
+    public function updateServer(array $serverData): bool
     {
         if (!isset($serverData['id'])) {
             return false;
@@ -218,7 +218,7 @@ class Servers extends DatabaseDomain
      * @return bool
      * @throws DatabaseException
      */
-    public function deleteServer(int $serverId) : bool
+    public function deleteServer(int $serverId): bool
     {
         $serverId = (int)$serverId;
         if ($serverId === 0) {
@@ -235,7 +235,7 @@ class Servers extends DatabaseDomain
      * @throws DatabaseException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */
-    public function getServerData(int $serverId) : array
+    public function getServerData(int $serverId): array
     {
         $serverId = (int)$serverId;
         if ($serverId === 0) {
@@ -247,7 +247,7 @@ class Servers extends DatabaseDomain
         }
 
         $serverData = $this->decryptData($serverData, $this->encryptedFields);
-        if ($serverData === false) {
+        if ($serverData === []) {
             throw new RuntimeException('Data decryption failed.');
         }
         return $serverData;
@@ -261,9 +261,8 @@ class Servers extends DatabaseDomain
      * @throws InvalidArgumentException
      * @throws DatabaseException
      */
-    public function serverInUse(int $serverId) : bool
+    public function serverInUse(int $serverId): bool
     {
-        $serverId = (int)$serverId;
         if (empty($serverId)) {
             throw  new InvalidArgumentException('serverId can not be empty.');
         }

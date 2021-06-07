@@ -1,16 +1,16 @@
 <?php
 namespace ShinyDeploy\Core\Connections;
 
-use phpseclib\Net\SFTP;
+use phpseclib3\Net\SFTP;
 use ShinyDeploy\Exceptions\ConnectionException;
 
 class Ssh
 {
     /** @var SFTP $connection  */
-    private $connection = null;
+    private SFTP $connection;
 
     /** @var array $existingFolders */
-    protected $existingFolders = [];
+    protected array $existingFolders = [];
 
     /**
      * Opens ssh2 connection and sets sftp handle.
@@ -21,7 +21,7 @@ class Ssh
      * @param int $port
      * @return bool True if connection could be established False if not.
      */
-    public function connect(string $host, string $user, string $pass, int $port = 22) : bool
+    public function connect(string $host, string $user, string $pass, int $port = 22): bool
     {
         if (empty($host) || empty($user)) {
             return false;
@@ -29,7 +29,8 @@ class Ssh
 
         $this->existingFolders = [];
         $this->connection = new SFTP($host, $port);
-        return $loginResult = $this->connection->login($user, $pass);
+
+        return $this->connection->login($user, $pass);
     }
 
     /**
@@ -37,7 +38,7 @@ class Ssh
      *
      * @return bool true if connection is closed false on error.
      */
-    public function disconnect() : bool
+    public function disconnect(): bool
     {
         if (!empty($this->connection)) {
             $this->connection->disconnect();
@@ -54,7 +55,7 @@ class Ssh
      * @param bool $recursive On true all parent folders are created too.
      * @return bool True on success false on error.
      */
-    public function mkdir(string $path, int $mode = 0755, bool $recursive = false) : bool
+    public function mkdir(string $path, int $mode = 0755, bool $recursive = false): bool
     {
         if ($this->connection->mkdir($path, $mode, $recursive) === false) {
             return false;
@@ -71,7 +72,7 @@ class Ssh
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function put(string $localFile, string $remoteFile, int $mode = 0644) : bool
+    public function put(string $localFile, string $remoteFile, int $mode = 0644): bool
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $remoteDir = dirname($remoteFile);
@@ -96,7 +97,7 @@ class Ssh
      * @param int $mode Chmod destination file to this value.
      * @return bool True on success false on error.
      */
-    public function putContent(string $content, string $remoteFile, int $mode = 0644) : bool
+    public function putContent(string $content, string $remoteFile, int $mode = 0644): bool
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $remoteDir = dirname($remoteFile);
@@ -117,7 +118,7 @@ class Ssh
      * @param string $remoteFile
      * @return string
      */
-    public function get(string $remoteFile) : string
+    public function get(string $remoteFile): string
     {
         $remoteFile = (substr($remoteFile, 0, 1) != '/') ? '/' . $remoteFile : $remoteFile;
         $content = $this->connection->get($remoteFile);
@@ -133,7 +134,7 @@ class Ssh
      * @param string $file
      * @return bool
      */
-    public function unlink(string $file) : bool
+    public function unlink(string $file): bool
     {
         return $this->connection->delete($file);
     }
@@ -145,7 +146,7 @@ class Ssh
      * @param $filenameTo
      * @return bool
      */
-    public function rename(string $filenameFrom, string $filenameTo) : bool
+    public function rename(string $filenameFrom, string $filenameTo): bool
     {
         return $this->connection->rename($filenameFrom, $filenameTo);
     }
@@ -157,7 +158,7 @@ class Ssh
      * @throws ConnectionException
      * @return array $filelist List of directory content.
      */
-    public function listdir(string $path = '/') : array
+    public function listdir(string $path = '/'): array
     {
         $filelist = $this->connection->nlist($path);
         if ($filelist === false) {
