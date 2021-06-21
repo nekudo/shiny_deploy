@@ -45,7 +45,7 @@ The following software is required to run this application.
 
 * Webserver (Nginx, Apache, ...)
 * MySQL Server
-* PHP >= 7.3
+* PHP >= 8.0
   * [ZeroMQ Extension](http://zeromq.org/bindings:php)
   * [Gearman Extension](http://gearman.org/download/#php)
   * Curl extension
