@@ -4,11 +4,12 @@ namespace ShinyDeploy\Domain\Server;
 use Apix\Log\Logger;
 use Noodlehaus\Config;
 use ShinyDeploy\Core\Connections\Sftp;
+use ShinyDeploy\Core\Connections\Ssh;
 
 class SftpServer extends SshServer
 {
-    /** @var Sftp $connection */
-    protected Sftp $connection;
+    /** @var Ssh $connection */
+    protected Ssh $connection;
 
     public function __construct(Config $config, Logger $logger)
     {
