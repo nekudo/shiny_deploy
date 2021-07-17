@@ -21,7 +21,7 @@ if (empty($argv)) {
     exit('Script can only be run in cli mode.' . PHP_EOL);
 }
 if (empty($argv[1])) {
-    exit(sprintf('No action given. Valid actions are: %s', implode($validActions, '|')) . PHP_EOL);
+    exit(sprintf('No action given. Valid actions are: %s', implode('|', $validActions)) . PHP_EOL);
 }
 
 try {
@@ -122,7 +122,7 @@ try {
             echo PHP_EOL;
             break;
         default:
-            exit(sprintf('Invalid action. Valid actions are: %s', implode($validActions, '|')) . PHP_EOL);
+            exit(sprintf('Invalid action. Valid actions are: %s', implode('|', $validActions)) . PHP_EOL);
     }
 } catch (\Exception $e) {
     echo 'Error: ' . $e->getMessage() . PHP_EOL;
