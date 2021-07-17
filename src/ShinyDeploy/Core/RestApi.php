@@ -46,6 +46,7 @@ class RestApi
     {
         try {
             $this->parseRequest();
+            $this->logger->debug('API request parsed.', $this->requestParams);
             $this->validateRequest();
             $this->executeRequest();
         } catch (ShinyDeployException $e) {

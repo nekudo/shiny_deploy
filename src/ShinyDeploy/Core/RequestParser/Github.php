@@ -22,13 +22,23 @@ class Github implements RequestParser
             return false;
         }
         $payload = json_decode($_REQUEST['payload'], true);
-        if (!empty($payload['ref'])) {
-            $branchParts = explode('/', $payload['ref']);
-            $this->parameters['branch'] = array_pop($branchParts);
+        if (empty($payload)) {
+            return false;
         }
-        if (!empty($payload['after'])) {
-            $this->parameters['revision'] = $payload['after'];
+
+        // fetch branch name
+        if (empty($payload['ref'])) {
+            return false;
         }
+        $branchParts = explode('/', $payload['ref']);
+        $this->parameters['branch'] = array_pop($branchParts);
+
+        // fetch revision hash
+        if (empty($payload['after'])) {
+            return false;
+        }
+        $this->parameters['revision'] = $payload['after'];
+
         return true;
     }
 

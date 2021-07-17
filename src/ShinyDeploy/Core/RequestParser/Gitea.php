@@ -26,13 +26,20 @@ class Gitea implements RequestParser
         if (empty($requestParams)) {
             return false;
         }
-        if (!empty($payload['ref'])) {
-            $branchParts = explode('/', $payload['ref']);
-            $this->parameters['branch'] = array_pop($branchParts);
+
+        // fetch branch name
+        if (empty($requestParams['ref'])) {
+            return false;
         }
-        if (!empty($payload['after'])) {
-            $this->parameters['revision'] = $payload['after'];
+        $branchParts = explode('/', $requestParams['ref']);
+        $this->parameters['branch'] = array_pop($branchParts);
+
+        // fetch revision hash
+        if (empty($requestParams['after'])) {
+            return false;
         }
+        $this->parameters['revision'] = $requestParams['after'];
+
         return true;
     }
 

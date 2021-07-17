@@ -30,15 +30,17 @@ class Bitbucket implements RequestParser
         }
 
         // fetch branch name
-        if (!empty($requestParams['push']['changes'][0]['new']['name'])) {
-            $branchParts = explode('/', $requestParams['push']['changes'][0]['new']['name']);
-            $this->parameters['branch'] = array_pop($branchParts);
+        if (empty($requestParams['push']['changes'][0]['new']['name'])) {
+            return false;
         }
+        $branchParts = explode('/', $requestParams['push']['changes'][0]['new']['name']);
+        $this->parameters['branch'] = array_pop($branchParts);
 
         // fetch revision hash
-        if (!empty($requestParams['push']['changes'][0]['new']['target']['hash'])) {
-            $this->parameters['revision'] = $requestParams['push']['changes'][0]['new']['target']['hash'];
+        if (empty($requestParams['push']['changes'][0]['new']['target']['hash'])) {
+            return false;
         }
+        $this->parameters['revision'] = $requestParams['push']['changes'][0]['new']['target']['hash'];
 
         return true;
     }
