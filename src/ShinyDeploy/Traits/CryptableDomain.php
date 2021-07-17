@@ -22,7 +22,7 @@ trait CryptableDomain
      *
      * @param array $data
      * @param array $fields
-     * @return array|bool
+     * @return array
      * @throws \RuntimeException
      * @throws \ShinyDeploy\Exceptions\CryptographyException
      */

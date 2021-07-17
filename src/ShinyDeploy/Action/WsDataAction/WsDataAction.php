@@ -1,14 +1,14 @@
 <?php
+
 namespace ShinyDeploy\Action\WsDataAction;
 
 use ShinyDeploy\Action\WsAction;
-use ShinyDeploy\Core\Responder;
 use ShinyDeploy\Responder\WsDataResponder;
 
 abstract class WsDataAction extends WsAction
 {
     /** @var WsDataResponder $responder */
-    protected $responder;
+    protected WsDataResponder $responder;
 
     /**
      * @param array $actionPayload
@@ -20,10 +20,10 @@ abstract class WsDataAction extends WsAction
     /**
      * Sets a responder.
      *
-     * @param Responder $responder
+     * @param WsDataResponder $responder
      * @return void
      */
-    public function setResponder(Responder $responder): void
+    public function setResponder(WsDataResponder $responder): void
     {
         $this->responder = $responder;
     }

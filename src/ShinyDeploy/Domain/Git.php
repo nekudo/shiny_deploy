@@ -390,7 +390,7 @@ class Git extends Domain
     /**
      * Executes a git command and returns response.
      *
-     * @param $command
+     * @param string $command
      * @throws GitException
      * @return string
      */

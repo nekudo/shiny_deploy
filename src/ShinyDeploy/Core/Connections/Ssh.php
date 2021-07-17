@@ -1,4 +1,5 @@
 <?php
+
 namespace ShinyDeploy\Core\Connections;
 
 use phpseclib3\Net\SFTP;
@@ -142,8 +143,8 @@ class Ssh
     /**
      * Renames a file on remote server.
      *
-     * @param $filenameFrom
-     * @param $filenameTo
+     * @param string $filenameFrom
+     * @param string $filenameTo
      * @return bool
      */
     public function rename(string $filenameFrom, string $filenameTo): bool

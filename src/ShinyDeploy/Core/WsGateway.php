@@ -90,7 +90,7 @@ class WsGateway implements WampServerInterface
             $actionName = $topic->getId();
             $clientId = $params['clientId'];
             $token = (!empty($params['token'])) ? $params['token'] : '';
-            $callbackId = (isset($params['callbackId'])) ? $params['callbackId'] : null;
+            $callbackId = (int) (isset($params['callbackId'])) ? $params['callbackId'] : 0;
             $actionPayload = (isset($params['actionPayload'])) ? $params['actionPayload'] : [];
             if (!empty($callbackId)) {
                 $this->handleDataRequest($clientId, $token, $callbackId, $actionName, $actionPayload);

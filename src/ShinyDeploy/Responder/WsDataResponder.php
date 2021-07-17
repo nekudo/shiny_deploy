@@ -7,9 +7,9 @@ use ShinyDeploy\Exceptions\WebsocketException;
 class WsDataResponder extends Responder
 {
     /**
-     * @var string $callbackId
+     * @var int $callbackId
      */
-    protected string $callbackId;
+    protected int $callbackId;
 
     /**
      * @var string $responseType
