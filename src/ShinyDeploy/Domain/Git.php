@@ -8,6 +8,8 @@ use ShinyDeploy\Exceptions\MissingDataException;
 
 class Git extends Domain
 {
+    private array $mergeAbort = [];
+
     /**
      * Gets git version. Used to check if git is available.
      *
@@ -116,14 +118,14 @@ class Git extends Domain
         }
     }
 
-     /**
+    /**
      * Gets revision (latest commit hash) of remote repository.
      *
      * @param string $repoPath
      * @param string $repoUrl
      * @param string $branch
      * @return string
-      * @throws \RuntimeException
+     * @throws \RuntimeException
      */
     public function getRemoteRepositoryRevision(string $repoPath, string $repoUrl, string $branch): string
     {
@@ -391,6 +393,7 @@ class Git extends Domain
      * Executes a git command and returns response.
      *
      * @param string $command
+     * @param bool $checkForConflicts flag to allow to search for merge conflicts during exec
      * @throws GitException
      * @return string
      */
@@ -400,10 +403,72 @@ class Git extends Domain
         $command = escapeshellcmd($command) . ' 2>&1';
         exec($command, $output, $exitCode);
         $response = implode("\n", $output) ?? '';
+
         if ($exitCode !== 0) {
             throw new GitException('Git command exited with non zero return code. Git output: ' . $response);
         }
 
         return $response;
+    }
+
+    public function isMergeInProgress(): bool
+    {
+        $command = 'GIT_TERMINAL_PROMPT=0 git merge HEAD';
+        $command = escapeshellcmd($command) . ' 2>&1';
+
+        exec($command, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            return true;
+        }
+
+        if (count($output) !== 1) {
+            return true;
+        }
+
+        foreach ($output as $message) {
+            if (in_array($message, [
+                'error: Merging is not possible because you have unmerged files.',
+                'error: Pulling is not possible because you have unmerged files.',
+                'error: you need to resolve your current index first',
+                'hint: Fix them up in the work tree, and then use \'git add/rm <file>\'',
+                'hint: as appropriate to mark resolution and make a commit.',
+                'fatal: Exiting because of an unresolved conflict.',
+            ])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function handleMergeAbort(): bool
+    {
+        try {
+            $this->exec('merge --abort');
+            return true;
+        } catch (GitException $e) {
+            $this->logger->error('Git auto-merge abort failed.' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @param string $newBranchName comes from DB 'deployments.branch' (we are currently in 'deployments.target_branch')
+     * @return bool
+     */
+    public function forcedAutoMerge(string $newBranchName): bool
+    {
+        try {
+            if (empty($newBranchName)) {
+                throw new GitException('Branch to merge cannot be empty');
+            }
+
+            $this->exec('merge -X theirs ' . $newBranchName);
+            return true;
+        } catch (GitException $e) {
+            $this->logger->error('Git forced merge-command failed.' . $e->getMessage());
+            return false;
+        }
     }
 }
