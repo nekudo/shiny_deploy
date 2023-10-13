@@ -1,4 +1,5 @@
 <?php
+
 namespace ShinyDeploy\Domain;
 
 use RuntimeException;
@@ -125,6 +126,12 @@ class Deployment extends Domain
             return false;
         }
 
+        $this->logResponder->log('Create backup...');
+        if ($this->createBackup() === false) {
+            $this->logResponder->error('Creating a backup of local repository failed. Aborting job.');
+            return false;
+        }
+
         $this->logResponder->log('Preparing local repository...');
         if ($this->prepareRepository() === false) {
             $this->logResponder->error('Preparation of local repository failed. Aborting job.');
@@ -221,6 +228,46 @@ class Deployment extends Domain
         return true;
     }
 
+    protected function createBackup(): bool
+    {
+        $repoPath = $this->repository->getLocalPath();
+        $repoPath = rtrim($repoPath, '/') . '/';
+
+        $backupName = date('Y-m-d-H-i-s') . '.zip';
+
+        $backupMainDir = __DIR__ . '/../../../backups';
+        $backupDir = $backupMainDir . '/' . $this->repository->getName();
+        $backupPath = $backupDir . '/' . $backupName;
+
+        if (!file_exists($backupDir)) {
+            mkdir($backupDir, 0755, true);
+        }
+
+        $prevBackups = array_filter(scandir($backupDir), function ($file) {
+            return str_ends_with(strtolower($file), '.zip');
+        });
+
+        $prevBackupAmount = count($prevBackups);
+
+        // delete old backups if there are more than 3 backups
+        if ($prevBackupAmount > 3) {
+            for ($i = 0; $i < ($prevBackupAmount - 3); $i++) {
+                unlink($backupDir . '/' . $prevBackups[$i]);
+            }
+        }
+
+        // create backup by zipping the whole repo
+        $command = escapeshellcmd('zip -r ' . $backupPath . ' ' . $repoPath) . ' 2>&1';
+        exec($command, $output, $exitCode);
+        $response = implode("\n", $output) ?? '';
+
+        if ($exitCode !== 0) {
+            $this->logger->error('Unable to create a .zip backup of the repo. Output: ' . $response);
+        }
+
+        return $exitCode === 0;
+    }
+
 
     /**
      * If local repository does not exist it will be pulled from git. It it exists it will be updated.
@@ -274,7 +321,7 @@ class Deployment extends Domain
     private function filterNonDefaultTasks(): bool
     {
         foreach ($this->data['tasks'] as $i => $task) {
-            if ((int)$task['run_by_default'] !== 1) {
+            if ((int) $task['run_by_default'] !== 1) {
                 unset($this->data['tasks'][$i]);
             }
         }
@@ -408,7 +455,7 @@ class Deployment extends Domain
             return '';
         }
         if (is_array($targetDirContent) && empty($targetDirContent)) {
-             $this->logResponder->info('Target path is empty. No revision yet.');
+            $this->logResponder->info('Target path is empty. No revision yet.');
             return '-1';
         }
         return '';
@@ -487,6 +534,7 @@ class Deployment extends Domain
 
     /**
      * Sort files by operation to do (e.g. upload, delete, ...)
+     *
      * @param array $files
      * @return array
      */
