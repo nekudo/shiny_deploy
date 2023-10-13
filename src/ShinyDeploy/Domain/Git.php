@@ -8,8 +8,6 @@ use ShinyDeploy\Exceptions\MissingDataException;
 
 class Git extends Domain
 {
-    private array $mergeAbort = [];
-
     /**
      * Gets git version. Used to check if git is available.
      *
