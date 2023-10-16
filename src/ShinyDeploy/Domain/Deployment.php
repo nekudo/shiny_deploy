@@ -120,13 +120,8 @@ class Deployment extends Domain
         }
 
         $this->logResponder->log('Checking repository status...');
-        $isRepoStatusCorrupted = false;
-        if ($this->checkRepoStatus($isRepoStatusCorrupted) === false) {
-            $this->logResponder->error('Repository status check failed. Aborting job.');
-            return false;
-        }
 
-        if ($isRepoStatusCorrupted) {
+        if ($this->checkRepoStatusIsCorrupted()) {
             $this->logResponder->log('Reset corrupted repository status by resetting...');
 
             if ($this->resetRepoStatus() === false) {
@@ -205,8 +200,7 @@ class Deployment extends Domain
         if ($listMode === false && $this->runTasks('after') === false) {
             $this->logResponder->error('Running tasks failed. Aborting job.');
 
-            $isRepoStatusCorrupted = false;
-            $this->checkRepoStatus($isRepoStatusCorrupted);
+            $isRepoStatusCorrupted = $this->checkRepoStatusIsCorrupted();
 
             if ($isRepoStatusCorrupted === false) {
                 return false;
@@ -214,7 +208,7 @@ class Deployment extends Domain
 
             $this->logResponder->info('Repository detected corrupted, try to reset.');
 
-            if ($isRepoStatusCorrupted && $this->resetRepoStatus() !== false) {
+            if ($this->resetRepoStatus() !== false) {
                 $this->logResponder->success('Repository was resetted.');
             } else {
                 $this->logResponder->error('Repository could not be resetted. Please check the logs');
@@ -477,9 +471,9 @@ class Deployment extends Domain
         return $this->repository->switchBranch($this->data['branch']);
     }
 
-    protected function checkRepoStatus(bool &$isRepoCorrupted): bool
+    protected function checkRepoStatusIsCorrupted(): bool
     {
-        return $this->repository->checkRepoStatus($isRepoCorrupted);
+        return $this->repository->checkRepoStatusIsCorrupted();
     }
 
     protected function resetRepoStatus(): bool

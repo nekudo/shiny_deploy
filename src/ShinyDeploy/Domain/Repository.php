@@ -120,10 +120,9 @@ class Repository extends Domain
         return false;
     }
 
-    public function checkRepoStatus(bool &$isRepoCorrupted): bool
+    public function checkRepoStatusIsCorrupted(): bool
     {
-        $isRepoCorrupted = $this->git->isMergeInProgress();
-        return true;
+        return $this->git->isMergeInProgress();
     }
 
     public function resetRepoStatus(): bool
