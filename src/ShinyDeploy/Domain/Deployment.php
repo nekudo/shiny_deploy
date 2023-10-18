@@ -191,17 +191,6 @@ class Deployment extends Domain
             return false;
         }
 
-        if ($this->repoStatusIsCurrupted() === false) {
-            $this->logResponder->info('Repository detected corrupted, try to reset.');
-
-            if ($this->resetRepoStatus() === false) {
-                $this->logResponder->error('Repository could not be resetted. Please check the logs');
-                return false;
-            }
-
-            $this->logResponder->success('Repository was resetted.');
-        }
-
         $this->logResponder->log('Running tasks...');
         if ($listMode === false && $this->runTasks('after') === false) {
             $this->logResponder->error('Running tasks failed. Aborting job.');
