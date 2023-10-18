@@ -120,14 +120,9 @@ class Deployment extends Domain
         }
 
         $this->logResponder->log('Checking repository status...');
-
-        if ($this->repoStatusIsCurrupted()) {
-            $this->logResponder->log('Corrupted repository detected. Trying to reset...');
-
-            if ($this->resetRepoStatus() === false) {
-                $this->logResponder->error('Could not reset corrupted repository. Aborting job.');
-                return false;
-            }
+        if ($this->fixGitIfMergeCorrupted() === false) {
+            $this->logResponder->error('Could not reset corrupted repository. Aborting job.');
+            return false;
         }
 
         $this->logResponder->log('Switching branch...');
@@ -205,13 +200,6 @@ class Deployment extends Domain
             }
 
             $this->logResponder->success('Repository was resetted.');
-            $this->logResponder->info('Merge local revision.');
-
-            if ($this->forcedAutoMerge($localRevision) === false) {
-                $this->logResponder->error('Merge local revision failed. Aborting job.');
-                $this->resetRepoStatus(); // git status definitely corrupted here
-                return false;
-            }
         }
 
         $this->logResponder->log('Running tasks...');
@@ -247,6 +235,25 @@ class Deployment extends Domain
             $this->logResponder->danger('Connection to remote server failed.');
             return false;
         }
+        return true;
+    }
+
+    /**
+     * @return bool
+     * @throws \ZMQException
+     */
+    protected function fixGitIfMergeCorrupted(): bool
+    {
+        if ($this->repoStatusIsCurrupted() === false) {
+            return true;
+        }
+
+        $this->logResponder->log('Corrupted repository detected. Trying to reset...');
+
+        if ($this->resetRepoStatus() === false) {
+            return false;
+        }
+
         return true;
     }
 
@@ -482,11 +489,6 @@ class Deployment extends Domain
     protected function resetRepoStatus(): bool
     {
         return $this->repository->resetRepoStatus();
-    }
-
-    protected function forcedAutoMerge(string $localRevision): bool
-    {
-        return $this->repository->forcedAutoMerge($localRevision);
     }
 
     /**

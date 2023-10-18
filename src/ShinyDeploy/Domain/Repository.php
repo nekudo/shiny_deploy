@@ -130,11 +130,6 @@ class Repository extends Domain
         return $this->git->handleMergeAbort();
     }
 
-    public function forcedAutoMerge($localRevision): bool
-    {
-        return $this->git->forcedAutoMerge($localRevision);
-    }
-
     /**
      * Removes old branches from repository.
      *
