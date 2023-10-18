@@ -116,14 +116,14 @@ class Git extends Domain
         }
     }
 
-     /**
+    /**
      * Gets revision (latest commit hash) of remote repository.
      *
      * @param string $repoPath
      * @param string $repoUrl
      * @param string $branch
      * @return string
-      * @throws \RuntimeException
+     * @throws \RuntimeException
      */
     public function getRemoteRepositoryRevision(string $repoPath, string $repoUrl, string $branch): string
     {
@@ -400,10 +400,42 @@ class Git extends Domain
         $command = escapeshellcmd($command) . ' 2>&1';
         exec($command, $output, $exitCode);
         $response = implode("\n", $output) ?? '';
+
         if ($exitCode !== 0) {
             throw new GitException('Git command exited with non zero return code. Git output: ' . $response);
         }
 
         return $response;
+    }
+
+    public function isMergeInProgress(): bool
+    {
+        try {
+            $result = $this->exec('merge HEAD');
+        } catch (GitException) {
+            return true;
+        }
+
+        $pattern = "/(" . implode('|', [
+            'error\: Merging is not possible because you have unmerged files\.',
+            'error\: Pulling is not possible because you have unmerged files\.',
+            'error\: you need to resolve your current index first',
+            'hint\: Fix them up in the work tree, and then use \'git add\/rm \<file\>\'',
+            'hint\: as appropriate to mark resolution and make a commit\.',
+            'fatal\: Exiting because of an unresolved conflict\.',
+        ]) . ")/i";
+
+        return preg_match($pattern, $result) === 1;
+    }
+
+    public function handleMergeAbort(): bool
+    {
+        try {
+            $this->exec('merge --abort');
+            return true;
+        } catch (GitException $e) {
+            $this->logger->error('Git auto-merge abort failed.' . $e->getMessage());
+            return false;
+        }
     }
 }

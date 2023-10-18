@@ -120,6 +120,16 @@ class Repository extends Domain
         return false;
     }
 
+    public function repoStatusIsCurrupted(): bool
+    {
+        return $this->git->isMergeInProgress();
+    }
+
+    public function resetRepoStatus(): bool
+    {
+        return $this->git->handleMergeAbort();
+    }
+
     /**
      * Removes old branches from repository.
      *

@@ -119,9 +119,15 @@ class Deployment extends Domain
             return false;
         }
 
+        $this->logResponder->log('Checking repository status...');
+        if ($this->fixGitIfMergeCorrupted() === false) {
+            $this->logResponder->error('Could not reset corrupted repository. Aborting job.');
+            return false;
+        }
+
         $this->logResponder->log('Switching branch...');
         if ($this->switchBranch() === false) {
-            $this->logResponder->error('Could not swtich to selected branch. Aborting job.');
+            $this->logResponder->error('Could not switch to selected branch. Aborting job.');
             return false;
         }
 
@@ -185,6 +191,17 @@ class Deployment extends Domain
             return false;
         }
 
+        if ($this->repoStatusIsCurrupted() === false) {
+            $this->logResponder->info('Repository detected corrupted, try to reset.');
+
+            if ($this->resetRepoStatus() === false) {
+                $this->logResponder->error('Repository could not be resetted. Please check the logs');
+                return false;
+            }
+
+            $this->logResponder->success('Repository was resetted.');
+        }
+
         $this->logResponder->log('Running tasks...');
         if ($listMode === false && $this->runTasks('after') === false) {
             $this->logResponder->error('Running tasks failed. Aborting job.');
@@ -218,6 +235,25 @@ class Deployment extends Domain
             $this->logResponder->danger('Connection to remote server failed.');
             return false;
         }
+        return true;
+    }
+
+    /**
+     * @return bool
+     * @throws \ZMQException
+     */
+    protected function fixGitIfMergeCorrupted(): bool
+    {
+        if ($this->repoStatusIsCurrupted() === false) {
+            return true;
+        }
+
+        $this->logResponder->log('Corrupted repository detected. Trying to reset...');
+
+        if ($this->resetRepoStatus() === false) {
+            return false;
+        }
+
         return true;
     }
 
@@ -408,7 +444,7 @@ class Deployment extends Domain
             return '';
         }
         if (is_array($targetDirContent) && empty($targetDirContent)) {
-             $this->logResponder->info('Target path is empty. No revision yet.');
+            $this->logResponder->info('Target path is empty. No revision yet.');
             return '-1';
         }
         return '';
@@ -443,6 +479,16 @@ class Deployment extends Domain
     protected function switchBranch(): bool
     {
         return $this->repository->switchBranch($this->data['branch']);
+    }
+
+    protected function repoStatusIsCurrupted(): bool
+    {
+        return $this->repository->repoStatusIsCurrupted();
+    }
+
+    protected function resetRepoStatus(): bool
+    {
+        return $this->repository->resetRepoStatus();
     }
 
     /**
