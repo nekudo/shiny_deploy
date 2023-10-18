@@ -121,11 +121,11 @@ class Deployment extends Domain
 
         $this->logResponder->log('Checking repository status...');
 
-        if ($this->checkRepoStatusIsCorrupted()) {
-            $this->logResponder->log('Reset corrupted repository status by resetting...');
+        if ($this->repoStatusIsCurrupted()) {
+            $this->logResponder->log('Corrupted repository detected. Trying to reset...');
 
             if ($this->resetRepoStatus() === false) {
-                $this->logResponder->error('Repository status reset failed. Aborting job.');
+                $this->logResponder->error('Could not reset corrupted repository. Aborting job.');
                 return false;
             }
         }
@@ -196,24 +196,27 @@ class Deployment extends Domain
             return false;
         }
 
-        $this->logResponder->log('Running tasks...');
-        if ($listMode === false && $this->runTasks('after') === false) {
-            $this->logResponder->error('Running tasks failed. Aborting job.');
+        if ($this->repoStatusIsCurrupted() === false) {
+            $this->logResponder->info('Repository detected corrupted, try to reset.');
 
-            $isRepoStatusCorrupted = $this->checkRepoStatusIsCorrupted();
-
-            if ($isRepoStatusCorrupted === false) {
+            if ($this->resetRepoStatus() === false) {
+                $this->logResponder->error('Repository could not be resetted. Please check the logs');
                 return false;
             }
 
-            $this->logResponder->info('Repository detected corrupted, try to reset.');
+            $this->logResponder->success('Repository was resetted.');
+            $this->logResponder->info('Merge local revision.');
 
-            if ($this->resetRepoStatus() !== false) {
-                $this->logResponder->success('Repository was resetted.');
-            } else {
-                $this->logResponder->error('Repository could not be resetted. Please check the logs');
+            if ($this->forcedAutoMerge($localRevision) === false) {
+                $this->logResponder->error('Merge local revision failed. Aborting job.');
+                $this->resetRepoStatus(); // git status definitely corrupted here
+                return false;
             }
+        }
 
+        $this->logResponder->log('Running tasks...');
+        if ($listMode === false && $this->runTasks('after') === false) {
+            $this->logResponder->error('Running tasks failed. Aborting job.');
             return false;
         }
 
@@ -471,9 +474,9 @@ class Deployment extends Domain
         return $this->repository->switchBranch($this->data['branch']);
     }
 
-    protected function checkRepoStatusIsCorrupted(): bool
+    protected function repoStatusIsCurrupted(): bool
     {
-        return $this->repository->checkRepoStatusIsCorrupted();
+        return $this->repository->repoStatusIsCurrupted();
     }
 
     protected function resetRepoStatus(): bool

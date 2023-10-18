@@ -120,7 +120,7 @@ class Repository extends Domain
         return false;
     }
 
-    public function checkRepoStatusIsCorrupted(): bool
+    public function repoStatusIsCurrupted(): bool
     {
         return $this->git->isMergeInProgress();
     }
