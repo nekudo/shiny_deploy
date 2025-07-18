@@ -7,6 +7,8 @@ use ShinyDeploy\Exceptions\ConnectionException;
 
 class Ssh
 {
+    public const SSH_TIMEOUT = 120; // ssh timeout in seconds
+
     /** @var SFTP $connection  */
     private SFTP $connection;
 
@@ -29,7 +31,7 @@ class Ssh
         }
 
         $this->existingFolders = [];
-        $this->connection = new SFTP($host, $port);
+        $this->connection = new SFTP($host, $port, self::SSH_TIMEOUT);
 
         return $this->connection->login($user, $pass);
     }
