@@ -5,12 +5,12 @@ use Defuse\Crypto\Exception\CryptoException;
 use Defuse\Crypto\Key;
 use Exception;
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Validation\Constraint\IdentifiedBy;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use ShinyDeploy\Core\Crypto\KeyCrypto;
 use ShinyDeploy\Core\Crypto\PasswordCrypto;
+use ShinyDeploy\Core\Crypto\Sha256Signer;
 use ShinyDeploy\Exceptions\AuthException;
 use ShinyDeploy\Exceptions\CryptographyException;
 use ShinyDeploy\Exceptions\DatabaseException;
@@ -29,7 +29,7 @@ class Auth extends DatabaseDomain
     public function generateToken(string $username, string $userEncryptionKey, string $clientId): string
     {
         try {
-            $signer = new Sha256();
+            $signer = new Sha256Signer();
             $key = InMemory::plainText($this->config->get('auth.secret'));
             $config = Configuration::forSymmetricSigner($signer, $key);
             $now = new \DateTimeImmutable();
@@ -62,7 +62,7 @@ class Auth extends DatabaseDomain
     public function validateToken(string $token, string $clientId): bool
     {
         try {
-            $signer = new Sha256();
+            $signer = new Sha256Signer();
             $key = InMemory::plainText($this->config->get('auth.secret'));
             $config = Configuration::forSymmetricSigner($signer, $key);
             $parsedToken = $config->parser()->parse($token);
@@ -223,7 +223,7 @@ class Auth extends DatabaseDomain
         }
 
         try {
-            $signer = new Sha256();
+            $signer = new Sha256Signer();
             $key = InMemory::plainText($this->config->get('auth.secret'));
             $config = Configuration::forSymmetricSigner($signer, $key);
             $parsedToken = $config->parser()->parse($token);
